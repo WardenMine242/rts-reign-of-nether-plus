@@ -8,6 +8,7 @@ import com.solegendary.reignofnether.mixin.DownloadPackSourceAccessor;
 import com.solegendary.reignofnether.network.S2CReset;
 import com.solegendary.reignofnether.registrars.*;
 import com.solegendary.reignofnether.resources.ResourceCosts;
+import net.WardenMine242.reignofnetherplus.WorldSpawnHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
@@ -16,13 +17,15 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.repository.Pack;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -48,7 +51,7 @@ import java.util.function.Supplier;
 public class ReignOfNether {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final String MOD_ID = "reignofnether";
-    public static final String VERSION_STRING = "0.1.1";
+    public static final String VERSION_STRING = "0.1.2";
 
     // Fields from ClientReset
     public static final Field handshakeField;
@@ -74,6 +77,9 @@ public class ReignOfNether {
         ProductionItems.init();
         MobEffectRegistrar.init(mlctx);
         ParticleRegistrar.init(mlctx);
+
+        MinecraftForge.EVENT_BUS.addListener(WorldSpawnHandler::onWorldLoad);
+        MinecraftForge.EVENT_BUS.addListener(WorldSpawnHandler::onServerStarted);
 
         final ClientEventRegistrar clientRegistrar = new ClientEventRegistrar();
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> clientRegistrar::registerClientEvents);
@@ -245,3 +251,9 @@ public class ReignOfNether {
         contextConstructor = fetchNetworkEventContext();
     }
 }
+
+
+
+
+
+

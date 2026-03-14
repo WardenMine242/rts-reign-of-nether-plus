@@ -6,23 +6,33 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber
 public class WorldSpawnHandler {
 
     @SubscribeEvent
-    public static void onWorldCreate(LevelEvent.CreateSpawnPosition event) {
+    public static void onWorldLoad(LevelEvent.Load event) {
 
         if (!(event.getLevel() instanceof ServerLevel level)) return;
-        if (!level.dimension().equals(Level.OVERWORLD)) return;
+
+        if (!level.dimension().equals(ServerLevel.OVERWORLD)) return;
 
         BlockPos spawn = findSpawn(level);
 
         if (spawn != null) {
             level.setDefaultSpawnPos(spawn, 0);
-            event.setCanceled(true); // отменяем ванильный случайный spawn
+        }
+    }
+
+    @SubscribeEvent
+    public static void onServerStarted(ServerStartedEvent event) {
+        ServerLevel level = event.getServer().getLevel(Level.OVERWORLD);
+        if (level == null) return;
+
+        BlockPos spawn = findSpawn(level);
+        if (spawn != null) {
+            level.setDefaultSpawnPos(spawn, 0);
         }
     }
 
@@ -41,8 +51,10 @@ public class WorldSpawnHandler {
 
             BlockPos pos = new BlockPos(x, y, z);
 
+            // ???????? ?? ???????
             if (!level.getBiome(pos).is(Biomes.PLAINS)) continue;
 
+            // ????????? ??? ?????
             for (int dx = -50; dx <= 50; dx += 10) {
                 for (int dz = -50; dz <= 50; dz += 10) {
 
