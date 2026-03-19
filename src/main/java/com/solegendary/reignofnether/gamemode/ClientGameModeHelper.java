@@ -20,7 +20,7 @@ import static com.solegendary.reignofnether.gamerules.GameruleClient.pvpModesOnl
 
 public class ClientGameModeHelper {
 
-    public static GameMode DEFAULT_GAMEMODE = GameMode.CLASSIC;
+    public static GameMode DEFAULT_GAMEMODE = GameMode.SURVIVAL;
     public static GameMode gameMode = DEFAULT_GAMEMODE;
     public static boolean gameModeLocked = false; // locked with startRTS() in any gamemode, unlocked with /rts-reset
 

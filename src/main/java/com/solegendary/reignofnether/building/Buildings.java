@@ -6,8 +6,6 @@ import com.solegendary.reignofnether.building.buildings.monsters.*;
 import com.solegendary.reignofnether.building.buildings.neutral.*;
 import com.solegendary.reignofnether.building.buildings.piglins.*;
 import com.solegendary.reignofnether.building.buildings.villagers.*;
-import net.WardenMine242.reignofnetherplus.building.buildings.monsters.AbandonedDrill;
-import net.WardenMine242.reignofnetherplus.building.buildings.piglins.NetherDrill;
 import net.WardenMine242.reignofnetherplus.building.buildings.villagers.*;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -60,8 +58,6 @@ public class Buildings {
     public static final ShrineOfProsperity SHRINE_OF_PROSPERITY = register(ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "shrine_of_prosperity"), new ShrineOfProsperity());
     public static final InfernalPortal INFERNAL_PORTAL = register(ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "infernal_portal"), new InfernalPortal());
     public static final VillagerDrill VILLAGER_DRILL = register(ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "villager_drill"), new VillagerDrill());
-    public static final AbandonedDrill ABANDONED_DRILL = register(ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "abandoned_drill"), new AbandonedDrill());
-    public static final NetherDrill NETHER_DRILL = register(ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "nether_drill"), new NetherDrill());
     public static final VillagerWall VILLAGER_WALL = register(ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "villager_wall"), new VillagerWall());
     public static final VillagerGate VILLAGER_GATE = register(ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "villager_gate_closed"), new VillagerGate());
     public static final VillagerCornerWall VILLAGER_CORNER_WALL = register(ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "villager_corner_wall"), new VillagerCornerWall());

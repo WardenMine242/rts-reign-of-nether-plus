@@ -6,6 +6,7 @@ import com.solegendary.reignofnether.building.BuildingPlaceButton;
 import com.solegendary.reignofnether.building.Buildings;
 import com.solegendary.reignofnether.building.buildings.shared.AbstractFarm;
 import com.solegendary.reignofnether.keybinds.Keybinding;
+import com.solegendary.reignofnether.keybinds.Keybindings;
 import com.solegendary.reignofnether.research.ResearchClient;
 import com.solegendary.reignofnether.resources.ResourceCost;
 import com.solegendary.reignofnether.resources.ResourceCosts;
@@ -13,6 +14,7 @@ import com.solegendary.reignofnether.tutorial.TutorialClientEvents;
 import com.solegendary.reignofnether.tutorial.TutorialStage;
 import com.solegendary.reignofnether.faction.Faction;
 import com.solegendary.reignofnether.util.MyRenderer;
+import net.WardenMine242.reignofnetherplus.ability.abilities.GiveSteakFromFarm;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
@@ -36,6 +38,8 @@ public class WheatFarm extends AbstractFarm {
         this.startingBlockTypes.add(Blocks.OAK_LOG);
 
         this.explodeChance = 0;
+
+        this.abilities.add(new GiveSteakFromFarm(), Keybindings.keyQ);
     }
 
     public Faction getFaction() {return Faction.VILLAGERS;}

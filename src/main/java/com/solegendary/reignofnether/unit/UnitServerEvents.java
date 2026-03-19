@@ -19,6 +19,7 @@ import com.solegendary.reignofnether.hero.HeroServerEvents;
 import com.solegendary.reignofnether.player.PlayerServerEvents;
 import com.solegendary.reignofnether.registrars.EnchantmentRegistrar;
 import com.solegendary.reignofnether.registrars.EntityRegistrar;
+import com.solegendary.reignofnether.registrars.ItemRegistrar;
 import com.solegendary.reignofnether.registrars.MobEffectRegistrar;
 import com.solegendary.reignofnether.research.ResearchServerEvents;
 import com.solegendary.reignofnether.resources.*;
@@ -76,6 +77,7 @@ import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.*;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -465,11 +467,7 @@ public class UnitServerEvents {
             ));
         }
         // drop all resources held
-        if (evt.getEntity() instanceof Unit unit) {
-            List<ItemStack> itemStacks = unit.getItems();
-            for (ItemStack itemStack : itemStacks)
-                evt.getEntity().spawnAtLocation(itemStack);
-        }
+        // Units should not drop any items on death
 
         // for some reason, if we discard() creepers en masse via exploding them,
         // /rts-reset fails to run
@@ -571,6 +569,10 @@ public class UnitServerEvents {
     // animal hunting
     @SubscribeEvent
     public static void onDropItem(LivingDropsEvent evt) {
+        if (evt.getEntity() instanceof Unit) {
+            evt.setCanceled(true);
+            return;
+        }
         if (ResourceSources.isHuntableAnimal(evt.getEntity()) && !evt.getSource().is(DamageTypeTags.WITCH_RESISTANT_TO) && evt.getSource()
             .getEntity() instanceof Unit unit && evt.getSource().getEntity() instanceof WorkerUnit && evt.getSource()
             .getEntity() instanceof Mob mob && mob.canPickUpLoot() && !Unit.atMaxResources(unit)) {
@@ -762,6 +764,27 @@ public class UnitServerEvents {
             && (!(shooter instanceof EvokerUnit));
     }
 
+    private static boolean isHostileUnitForPlayer(Unit unit, Player player) {
+        String ownerName = unit.getOwnerName();
+        String playerName = player.getName().getString();
+
+        if (ownerName.isBlank() || ownerName.equals(playerName)) {
+            return false;
+        }
+        return !AlliancesServerEvents.isAllied(ownerName, playerName);
+    }
+
+    private static boolean isCriticalPlayerHit(Player player) {
+        return player.getAttackStrengthScale(0.5F) > 0.9F
+                && player.fallDistance > 0.0F
+                && !player.onGround()
+                && !player.onClimbable()
+                && !player.isInWater()
+                && !player.hasEffect(MobEffects.BLINDNESS)
+                && !player.isPassenger()
+                && !player.isSprinting();
+    }
+
     public static Entity spawnMob(
             EntityType<? extends Mob> entityType, ServerLevel level, Vec3i pos, String ownerName
     ) {
@@ -797,7 +820,42 @@ public class UnitServerEvents {
     }
 
     @SubscribeEvent
+    public static void onPlayerAttackEntity(AttackEntityEvent evt) {
+        if (evt.getEntity().level().isClientSide()) {
+            return;
+        }
+        if (!(evt.getTarget() instanceof Unit unit)) {
+            return;
+        }
+        Player player = evt.getEntity();
+        String ownerName = unit.getOwnerName();
+        if (!ownerName.isBlank() && ownerName.equals(player.getName().getString())) {
+            evt.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
     public static void onEntityDamaged(LivingDamageEvent evt) {
+        if (evt.getEntity() instanceof Unit unit && evt.getSource().getEntity() instanceof Player player) {
+            String ownerName = unit.getOwnerName();
+            if (!ownerName.isBlank() && ownerName.equals(player.getName().getString())) {
+                evt.setCanceled(true);
+                return;
+            }
+        }
+
+        if (evt.getSource().getEntity() instanceof Player player &&
+            player.getMainHandItem().is(ItemRegistrar.IRON_SWORD.get())) {
+            if (evt.getEntity() instanceof Unit unit && isHostileUnitForPlayer(unit, player)) {
+                evt.setAmount(4.0f);
+            } else if (!(evt.getEntity() instanceof Unit) && !(evt.getEntity() instanceof Player)) {
+                evt.setAmount(1.0f);
+            }
+
+            if (isCriticalPlayerHit(player)) {
+                evt.setAmount(evt.getAmount() + 1.0f);
+            }
+        }
 
         if (evt.getEntity() instanceof WretchedWraithUnit wraith && wraith.isFrostBlinkInProgress()) {
             evt.setCanceled(true);

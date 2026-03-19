@@ -16,6 +16,7 @@ import com.solegendary.reignofnether.keybinds.Keybindings;
 import com.solegendary.reignofnether.resources.ResourceCost;
 import com.solegendary.reignofnether.resources.ResourceCosts;
 import com.solegendary.reignofnether.faction.Faction;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Style;
@@ -75,13 +76,20 @@ public class TownCentre extends ProductionBuilding {
                 hotkey,
                 () -> BuildingClientEvents.getBuildingToPlace() == Buildings.TOWN_CENTRE,
                 () -> false,
-                () -> true,
+                () -> {
+                    if (Minecraft.getInstance().player == null) {
+                        return true;
+                    }
+                    String ownerName = BuildingClientEvents.getPlacementOwnerName(this);
+                    return !BuildingClientEvents.playerHasAnyBuilding(Buildings.TOWN_CENTRE, ownerName);
+                },
                 List.of(
                         FormattedCharSequence.forward(I18n.get("buildings.villagers.reignofnether.town_centre"), Style.EMPTY.withBold(true)),
                         ResourceCosts.getFormattedCost(cost),
-                        ResourceCosts.getFormattedPop(cost),
                         FormattedCharSequence.forward("", Style.EMPTY),
-                        FormattedCharSequence.forward(I18n.get("buildings.villagers.reignofnether.town_centre.tooltip1"), Style.EMPTY)
+                        FormattedCharSequence.forward(I18n.get("buildings.villagers.reignofnether.town_centre.tooltip1"), Style.EMPTY),
+                        FormattedCharSequence.forward("", Style.EMPTY),
+                        FormattedCharSequence.forward(I18n.get("buildings.villagers.reignofnether.town_centre.tooltip2"), Style.EMPTY)
                 ),
                 this
         );

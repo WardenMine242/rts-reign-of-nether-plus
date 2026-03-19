@@ -18,7 +18,6 @@ import com.solegendary.reignofnether.keybinds.Keybindings;
 import com.solegendary.reignofnether.orthoview.OrthoviewClientEvents;
 import com.solegendary.reignofnether.player.PlayerClientEvents;
 import com.solegendary.reignofnether.player.PlayerColors;
-import com.solegendary.reignofnether.player.PlayerServerboundPacket;
 import com.solegendary.reignofnether.registrars.PacketHandler;
 import com.solegendary.reignofnether.startpos.StartPos;
 import com.solegendary.reignofnether.startpos.StartPosClientEvents;
@@ -326,8 +325,9 @@ public class MinimapClientEvents {
                 () -> true,
                 () -> {
                     lockedMap = !lockedMap;
-                    if (!lockedMap && MC.player != null)
-                        setMapCentre(MC.player.getX(), MC.player.getZ());
+                    Entity cam = MC.getCameraEntity();
+                    if (!lockedMap && cam != null)
+                        setMapCentre(cam.getX(), cam.getZ());
                 },
                 null,
                 List.of(FormattedCharSequence.forward(lockedMap
@@ -374,13 +374,14 @@ public class MinimapClientEvents {
     }
 
     public static void updateMapTexture() {
-        if (MC.player == null) {
+        Entity cam = MC.getCameraEntity();
+        if (cam == null) {
             return;
         }
 
         // if camera is off the map, start panning the centre of the map
-        double xCam = MC.player.getX();
-        double zCam = MC.player.getZ();
+        double xCam = cam.getX();
+        double zCam = cam.getZ();
         double xDiff1 = xCam - (xc_world + worldRadius);
 
         if (!lockedMap) {
@@ -675,6 +676,14 @@ public class MinimapClientEvents {
                 if (!FogOfWarClientEvents.isInBrightChunk(player))
                     continue;
                 drawPlayerOnMap(player.getOnPos().getX(), player.getOnPos().getZ(), player);
+            }
+        }
+
+        // draw local player as a unit marker
+        if (MC.player != null && PlayerClientEvents.isRTSPlayer()) {
+            if (FogOfWarClientEvents.isInBrightChunk(MC.player)) {
+                int colorHex = PlayerColors.getPlayerDisplayColorHex(MC.player.getName().getString());
+                drawUnitOnMap(MC.player.getOnPos().getX(), MC.player.getOnPos().getZ(), colorHex);
             }
         }
 
@@ -975,10 +984,11 @@ public class MinimapClientEvents {
 
             lastDragTeleportTimestamp = System.currentTimeMillis();
             BlockPos moveTo = getWorldPosOnMinimap((float) evt.getMouseX(), (float) evt.getMouseY(), true);
-            if (MC.player != null && moveTo != null) {
-                PlayerServerboundPacket.teleportPlayer(
+            Entity cam = MC.getCameraEntity();
+            if (cam != null && moveTo != null) {
+                OrthoviewClientEvents.moveCameraTo(
                     (double) moveTo.getX(),
-                    MC.player.getY(),
+                    cam.getY(),
                     (double) moveTo.getZ()
                 );
             }
@@ -998,23 +1008,24 @@ public class MinimapClientEvents {
         if (evt.getButton() == GLFW.GLFW_MOUSE_BUTTON_1 && !isMouseOverAnyButton()) {
             BlockPos moveTo = getWorldPosOnMinimap((float) evt.getMouseX(), (float) evt.getMouseY(), true);
 
-            if (MC.player != null && moveTo != null) {
+            Entity cam = MC.getCameraEntity();
+            if (cam != null && moveTo != null) {
                 if (markerMode) {
                     addMapMarkerForSelfAndAllies((int) evt.getMouseX(), (int) evt.getMouseY());
                 } else if (!altDown && Keybindings.shiftMod.isDown()) {
                     setMapCentre(moveTo.getX(), moveTo.getZ());
                     forceUpdateAllPartitions = true;
                     TutorialClientEvents.clickedMinimap = true;
-                    PlayerServerboundPacket.teleportPlayer(
+                    OrthoviewClientEvents.moveCameraTo(
                         (double) moveTo.getX(),
-                        MC.player.getY(),
+                        cam.getY(),
                         (double) moveTo.getZ()
                     );
                 } else if (!altDown) {
                     TutorialClientEvents.clickedMinimap = true;
-                    PlayerServerboundPacket.teleportPlayer(
+                    OrthoviewClientEvents.moveCameraTo(
                         (double) moveTo.getX(),
-                        MC.player.getY(),
+                        cam.getY(),
                         (double) moveTo.getZ()
                     );
                 }
@@ -1091,3 +1102,8 @@ public class MinimapClientEvents {
         updateMapTexture();
     }
 }
+
+
+
+
+

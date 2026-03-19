@@ -287,8 +287,8 @@ public class StartPosClientEvents {
             ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "textures/mobheads/creeper.png"),
             (Keybinding) null,
             () -> selectedFaction == Faction.MONSTERS,
-            () -> TutorialClientEvents.isEnabled() || !PlayerClientEvents.canStartRTS || !isEnabled(),
-            () -> !isSelectedPosReservedByOther() && getPos() != null && !isStarting,
+            () -> true,
+            () -> false,
             () -> {
                 StartPos startPos = getPos();
                 if (startPos != null && MC.player != null) {
@@ -314,8 +314,8 @@ public class StartPosClientEvents {
             ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "textures/mobheads/grunt.png"),
             (Keybinding) null,
             () -> selectedFaction == Faction.PIGLINS,
-            () -> TutorialClientEvents.isEnabled() || !PlayerClientEvents.canStartRTS || !isEnabled(),
-            () -> !isSelectedPosReservedByOther() && getPos() != null && !isStarting,
+            () -> true,
+            () -> false,
             () -> {
                 StartPos startPos = getPos();
                 if (startPos != null && MC.player != null) {

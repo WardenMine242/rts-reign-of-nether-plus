@@ -11,6 +11,7 @@ import com.solegendary.reignofnether.ReignOfNether;
 import com.solegendary.reignofnether.ability.abilities.ToggleShield;
 import com.solegendary.reignofnether.building.GarrisonableBuilding;
 import com.solegendary.reignofnether.healthbars.HealthBarClientEvents;
+import com.solegendary.reignofnether.orthoview.OrthoviewClientEvents;
 import com.solegendary.reignofnether.hud.passives.EnchantmentIcon;
 import com.solegendary.reignofnether.player.PlayerColors;
 import com.solegendary.reignofnether.resources.ResourceSource;
@@ -236,7 +237,7 @@ public class PortraitRendererUnit<T extends LivingEntity, M extends EntityModel<
             if (!unit.getPassiveIcons().isEmpty())
                 x += EnchantmentIcon.ICON_SIZE / 2;
         }
-        if (!(entity instanceof Player)) {
+        if (!(entity instanceof Player) || OrthoviewClientEvents.isEnabled()) {
             guiGraphics.drawString(Minecraft.getInstance().font, name, x + 4, y - 9, 0xFFFFFFFF);
         }
         x = xOrig;
@@ -698,3 +699,5 @@ public class PortraitRendererUnit<T extends LivingEntity, M extends EntityModel<
         Lighting.setupFor3DItems();
     }
 }
+
+

@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 
 import java.util.List;
@@ -40,7 +41,7 @@ public class EquipChainmailChestplate extends EquipAbility {
                 hotkey,
                 () -> CursorClientEvents.getLeftClickAction() == EQUIP_ACTION || placement.autocast == this,
                 () -> false,
-                () -> blacksmith.getUpgradeLevel() > 0,
+                () -> true,
                 () -> CursorClientEvents.setLeftClickAction(EQUIP_ACTION),
                 () -> {
                     EnchantEquipAbilityServerboundPacket.setAutocastEnchantOrEquip(EQUIP_ACTION, blacksmith.originPos);
@@ -64,6 +65,9 @@ public class EquipChainmailChestplate extends EquipAbility {
 
     @Override
     public boolean isCorrectUnit(LivingEntity entity) {
+        if (entity instanceof Player) {
+            return true;
+        }
         return List.of(
                 EntityRegistrar.MILITIA_UNIT.get(),
                 EntityRegistrar.VINDICATOR_UNIT.get(),

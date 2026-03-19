@@ -229,7 +229,7 @@ public class TitleScreenMixin extends Screen {
             // Render branding lines
             BrandingControl.forEachLine(true, true, (line, text) -> {
                 if (line == 1) {
-                    text = "Reign of Nether " + ReignOfNether.VERSION_STRING;
+                    text = "Reign of Nether Plus " + ReignOfNether.VERSION_STRING;
                 }
                 guiGraphics.drawString(this.font, text, 2, this.height - (10 + line * (9 + 1)), 16777215 | alphaMask);
             });

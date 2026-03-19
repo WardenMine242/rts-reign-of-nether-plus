@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.solegendary.reignofnether.building.BuildingPlacement;
 import com.solegendary.reignofnether.building.BuildingServerEvents;
+import com.solegendary.reignofnether.building.Buildings;
 import com.solegendary.reignofnether.building.BuildingUtils;
 import com.solegendary.reignofnether.building.buildings.placements.ProductionPlacement;
 import com.solegendary.reignofnether.building.production.ActiveProduction;
@@ -23,13 +24,18 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -235,16 +241,140 @@ public class ResourcesServerEvents {
 
     @SubscribeEvent
     public static void onEntityJoin(EntityJoinLevelEvent evt) {
-        if (evt.getEntity() instanceof ItemEntity ie &&
-                (ie.getItem().getItem() == Items.POTATO || ie.getItem().getItem() == Items.CARROT) &&
-                BuildingUtils.isPosInsideAnyBuilding(false, ie.getOnPos())) {
-            evt.setCanceled(true);
+        // Keep crop drops (potato/carrot, etc.) visible/pickable for players inside buildings.
+    }
+
+    @SubscribeEvent
+    public static void onPlayerTick(TickEvent.PlayerTickEvent evt) {
+        if (evt.phase != TickEvent.Phase.END || evt.player.level().isClientSide()) {
+            return;
+        }
+
+        if (!(evt.player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+
+        if (serverPlayer.tickCount % 5 != 0) {
+            return;
+        }
+
+        String playerName = serverPlayer.getName().getString();
+        if (!PlayerServerEvents.isRTSPlayer(playerName)) {
+            return;
+        }
+
+        convertInventoryResources(serverPlayer);
+    }
+
+    private static boolean isNonRtsPickupItem(ItemStack stack) {
+        return stack.is(net.minecraftforge.common.Tags.Items.SEEDS) ||
+               stack.is(net.minecraft.tags.ItemTags.SAPLINGS) ||
+               stack.is(net.minecraft.tags.ItemTags.WOOL) ||
+               stack.is(Items.APPLE) ||
+               stack.is(Items.STICK);
+    }
+
+    private static void convertInventoryResources(ServerPlayer player) {
+        var inv = player.getInventory();
+        String playerName = player.getName().getString();
+
+        int food = 0;
+        int wood = 0;
+        int ore = 0;
+        boolean removedNonRts = false;
+        boolean changed = false;
+
+        for (int i = 0; i < inv.items.size(); i++) {
+            ItemStack stack = inv.items.get(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            if (isNonRtsPickupItem(stack)) {
+                inv.setItem(i, ItemStack.EMPTY);
+                removedNonRts = true;
+                changed = true;
+                continue;
+            }
+            ResourceSource source = ResourceSources.getFromItem(stack.getItem());
+            if (source == null || source.resourceValue <= 0 || source.resourceName == ResourceName.NONE) {
+                continue;
+            }
+            int total = source.resourceValue * stack.getCount();
+            switch (source.resourceName) {
+                case FOOD -> food += total;
+                case WOOD -> wood += total;
+                case ORE -> ore += total;
+            }
+            inv.setItem(i, ItemStack.EMPTY);
+            changed = true;
+        }
+
+        for (int i = 0; i < inv.offhand.size(); i++) {
+            ItemStack stack = inv.offhand.get(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            if (isNonRtsPickupItem(stack)) {
+                inv.offhand.set(i, ItemStack.EMPTY);
+                removedNonRts = true;
+                changed = true;
+                continue;
+            }
+            ResourceSource source = ResourceSources.getFromItem(stack.getItem());
+            if (source == null || source.resourceValue <= 0 || source.resourceName == ResourceName.NONE) {
+                continue;
+            }
+            int total = source.resourceValue * stack.getCount();
+            switch (source.resourceName) {
+                case FOOD -> food += total;
+                case WOOD -> wood += total;
+                case ORE -> ore += total;
+            }
+            inv.offhand.set(i, ItemStack.EMPTY);
+            changed = true;
+        }
+
+        if (changed) {
+            inv.setChanged();
+        }
+
+        if (removedNonRts) {
+            ResourcesClientboundPacket.showPickupText(new Resources(playerName, 0, 0, 0), "not_rts_resource");
+        }
+
+        if (food > 0 || wood > 0 || ore > 0) {
+            Resources delta = new Resources(playerName, food, wood, ore);
+            addSubtractResources(delta);
+            ResourcesClientboundPacket.showPickupText(delta);
         }
     }
 
     @SubscribeEvent
     public static void onPlayerBlockBreak(BlockEvent.BreakEvent evt) {
         if (BuildingUtils.isPosInsideAnyBuilding(false, evt.getPos())) {
+            BuildingPlacement building = BuildingUtils.findBuilding(false, evt.getPos());
+            if (building != null && building.getBuilding() == Buildings.WHEAT_FARM) {
+                if (isPlayerCropDropTarget(evt.getLevel(), evt.getPos(), evt.getState()) &&
+                    evt.getLevel() instanceof ServerLevel serverLevel &&
+                    evt.getPlayer() != null) {
+                    Player player = evt.getPlayer();
+                    BlockEntity blockEntity = serverLevel.getBlockEntity(evt.getPos());
+                    if (isFullyGrownWheat(evt.getState())) {
+                        Block.popResource(serverLevel, evt.getPos(), new ItemStack(Items.WHEAT, 1));
+                    } else if (isFullyGrownPotatoes(evt.getState())) {
+                        int potatoCount = 1 + serverLevel.random.nextInt(3);
+                        Block.popResource(serverLevel, evt.getPos(), new ItemStack(Items.POTATO, potatoCount));
+                    } else if (isFullyGrownAge7Crop(evt.getState())) {
+                        List<ItemStack> drops = Block.getDrops(evt.getState(), serverLevel, evt.getPos(), blockEntity, player, player.getMainHandItem());
+                        for (ItemStack drop : drops) {
+                            Block.popResource(serverLevel, evt.getPos(), drop);
+                        }
+                    }
+                    serverLevel.setBlockAndUpdate(evt.getPos(), Blocks.AIR.defaultBlockState());
+                    evt.setCanceled(true);
+                    return;
+                }
+            }
             evt.setCanceled(true);
             if (evt.getLevel() instanceof ServerLevel serverLevel) {
                 serverLevel.setBlockAndUpdate(evt.getPos(), Blocks.AIR.defaultBlockState());
@@ -254,6 +384,22 @@ public class ResourcesServerEvents {
         if (isLogBlock(evt.getState()) && !BuildingUtils.isPosInsideAnyBuilding(false, evt.getPos())) {
             fellAdjacentLogs(evt.getPos(), new ArrayList<>(), (Level) evt.getLevel());
         }
+    }
+
+    private static boolean isPlayerCropDropTarget(LevelAccessor level, BlockPos pos, BlockState state) {
+        return state.is(BlockTags.CROPS) && level.getBlockState(pos.below()).is(Blocks.FARMLAND);
+    }
+
+    private static boolean isFullyGrownWheat(BlockState state) {
+        return state.is(Blocks.WHEAT) && state.getValue(BlockStateProperties.AGE_7) == 7;
+    }
+
+    private static boolean isFullyGrownPotatoes(BlockState state) {
+        return state.is(Blocks.POTATOES) && state.getValue(BlockStateProperties.AGE_7) == 7;
+    }
+
+    private static boolean isFullyGrownAge7Crop(BlockState state) {
+        return state.hasProperty(BlockStateProperties.AGE_7) && state.getValue(BlockStateProperties.AGE_7) == 7;
     }
 
     // if a tree is touched, destroy any adjacent logs that are above the ground after some time to avoid leaving
@@ -432,18 +578,6 @@ public class ResourcesServerEvents {
         FALLING_LOGS.put(Blocks.CRIMSON_HYPHAE, BlockRegistrar.FALLING_CRIMSON_STEM.get());
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -6,6 +6,7 @@ import com.solegendary.reignofnether.building.BuildingServerEvents;
 import com.solegendary.reignofnether.building.Buildings;
 import com.solegendary.reignofnether.building.production.ProductionItems;
 import com.solegendary.reignofnether.player.PlayerServerEvents;
+import com.solegendary.reignofnether.player.RTSPlayer;
 import com.solegendary.reignofnether.registrars.EntityRegistrar;
 import com.solegendary.reignofnether.research.ResearchServerEvents;
 import com.solegendary.reignofnether.survival.Wave;
@@ -128,6 +129,26 @@ public class PiglinWaveSpawner {
         int failedPortalPlacements = 0;
         ArrayList<BlockPos> portalBps = new ArrayList<>();
 
+        List<RTSPlayer> targets = PlayerServerEvents.rtsPlayers;
+        if (targets.isEmpty()) {
+            targets = List.of();
+        }
+
+        if (targets.isEmpty()) {
+            failedPortalPlacements += spawnPortalsForOwner(level, wave, numPortals, portalBps, null);
+        } else {
+            for (RTSPlayer rtsPlayer : targets) {
+                failedPortalPlacements += spawnPortalsForOwner(level, wave, numPortals, portalBps, rtsPlayer.name);
+            }
+        }
+        if (failedPortalPlacements > 0)
+            PlayerServerEvents.sendMessageToAllPlayers("Failed to spawn " + failedPortalPlacements + " portals!");
+
+        lastFaction = Faction.PIGLINS;
+    }
+
+    private static int spawnPortalsForOwner(ServerLevel level, Wave wave, int numPortals, ArrayList<BlockPos> portalBps, String ownerName) {
+        int failedPortalPlacements = 0;
         for (int i = 0; i < numPortals; i++) {
 
             BlockPos spawnBp = null;
@@ -136,7 +157,7 @@ public class PiglinWaveSpawner {
 
             do {
                 tooCloseToAnotherPortal = false;
-                List<BlockPos> spawnBps = WaveSpawner.getValidSpawnPoints(1, level, false, 8);
+                List<BlockPos> spawnBps = WaveSpawner.getValidSpawnPointsForOwner(1, level, false, 8, ownerName);
                 if (!spawnBps.isEmpty())
                     spawnBp = spawnBps.get(0);
                 attempts += 1;
@@ -169,9 +190,6 @@ public class PiglinWaveSpawner {
             } else
                 failedPortalPlacements += 1;
         }
-        if (failedPortalPlacements > 0)
-            PlayerServerEvents.sendMessageToAllPlayers("Failed to spawn " + failedPortalPlacements + " portals!");
-
-        lastFaction = Faction.PIGLINS;
+        return failedPortalPlacements;
     }
 }

@@ -11,6 +11,8 @@ import com.solegendary.reignofnether.tutorial.TutorialStage;
 import com.solegendary.reignofnether.unit.UnitAction;
 import com.solegendary.reignofnether.faction.Faction;
 import com.solegendary.reignofnether.util.LanguageUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.level.GameType;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -28,7 +30,14 @@ public class StartButtons {
             (Keybinding) null,
             () -> false,
             () -> false,
-            () -> true,
+            () -> {
+                Minecraft MC = Minecraft.getInstance();
+                if (MC.player == null || MC.gameMode == null) {
+                    return false;
+                }
+                boolean isSurvival = MC.gameMode.getPlayerMode() == GameType.SURVIVAL;
+                return !isSurvival || MC.player.hasPermissions(2);
+            },
             () -> PlayerServerboundPacket.startRTS(Faction.NONE, 0d,0d,0d),
             null,
             List.of(
@@ -60,8 +69,8 @@ public class StartButtons {
         ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "textures/mobheads/creeper.png"),
         (Keybinding) null,
         () -> CursorClientEvents.getLeftClickAction() == UnitAction.STARTRTS_MONSTERS,
-        () -> TutorialClientEvents.isEnabled() || !PlayerClientEvents.canStartRTS,
-        () -> !TutorialClientEvents.isEnabled(),
+        () -> true,
+        () -> false,
         () -> CursorClientEvents.setLeftClickAction(UnitAction.STARTRTS_MONSTERS),
         null,
         List.of(
@@ -76,8 +85,8 @@ public class StartButtons {
         ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "textures/mobheads/grunt.png"),
         (Keybinding) null,
         () -> CursorClientEvents.getLeftClickAction() == UnitAction.STARTRTS_PIGLINS,
-        () -> TutorialClientEvents.isEnabled() || !PlayerClientEvents.canStartRTS,
-        () -> !TutorialClientEvents.isEnabled(),
+        () -> true,
+        () -> false,
         () -> CursorClientEvents.setLeftClickAction(UnitAction.STARTRTS_PIGLINS),
         null,
         List.of(

@@ -20,10 +20,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.TickEvent;
@@ -50,6 +53,11 @@ public class ResourcesClientEvents {
 
         for (Resources resources : resourcesList)
             resources.tick();
+
+        for (PickupText pickupText : pickupTexts) {
+            pickupText.tickAge += 1;
+        }
+        pickupTexts.removeIf(t -> t.tickAge > PICKUP_TEXT_MAX_AGE);
     }
 
     @SubscribeEvent
@@ -143,6 +151,29 @@ public class ResourcesClientEvents {
         }
     }
 
+    // screen-space pickup texts for resource pickups
+    public static final List<PickupText> pickupTexts = new ArrayList<>();
+    public static final int PICKUP_TEXT_MAX_AGE = 80;
+    public static final int PICKUP_TEXT_FADE_START = 50;
+    public static final int PICKUP_TEXT_STACK_SPACING = 10;
+    public static final int PICKUP_TEXT_X = 12;
+    public static final float PICKUP_TEXT_START_Y_FACTOR = 0.35f;
+    public static final float PICKUP_TEXT_END_Y_FACTOR = 0.55f;
+
+    private static class PickupText {
+        String label;
+        String icon;
+        int tickAge;
+        int yOffset;
+
+        public PickupText(String label, String icon, int yOffset) {
+            this.label = label;
+            this.icon = icon;
+            this.yOffset = yOffset;
+            this.tickAge = 0;
+        }
+    }
+
     public static void addFloatingTextsFromResources(Resources res, BlockPos pos) {
         if (!OrthoviewClientEvents.isEnabled()) {
             return;
@@ -163,6 +194,51 @@ public class ResourcesClientEvents {
         if (res.ore > 0) {
             floatingTexts.add(new FloatingText("+" + res.ore + "  \uE002", pos, tickAge));
         }
+    }
+
+    public static void addPickupTextsFromResources(Resources res) {
+        if (MC.player == null || !MC.player.getName().getString().equals(res.ownerName)) {
+            return;
+        }
+
+        boolean useRussian = isRussianLanguage();
+        String foodLabel = useRussian ? "еды" : "food";
+        String woodLabel = useRussian ? "дерева" : "wood";
+        String oreLabel = useRussian ? "руды" : "ore";
+
+        int offset = -pickupTexts.size() * PICKUP_TEXT_STACK_SPACING;
+        if (res.food > 0) {
+            pickupTexts.add(new PickupText("+ " + res.food + " " + foodLabel, "\uE000", offset));
+            offset -= PICKUP_TEXT_STACK_SPACING;
+        }
+        if (res.wood > 0) {
+            pickupTexts.add(new PickupText("+ " + res.wood + " " + woodLabel, "\uE001", offset));
+            offset -= PICKUP_TEXT_STACK_SPACING;
+        }
+        if (res.ore > 0) {
+            pickupTexts.add(new PickupText("+ " + res.ore + " " + oreLabel, "\uE002", offset));
+        }
+    }
+
+    public static void addPickupTextMessage(String msgCode) {
+        if (MC.player == null) {
+            return;
+        }
+
+        String label;
+        boolean useRussian = isRussianLanguage();
+        if ("not_rts_resource".equals(msgCode)) {
+            label = useRussian ? "Это не RTS ресурс" : "This is not an RTS resource";
+        } else {
+            label = msgCode;
+        }
+
+        int offset = -pickupTexts.size() * PICKUP_TEXT_STACK_SPACING;
+        pickupTexts.add(new PickupText(label, "", offset));
+    }
+    private static boolean isRussianLanguage() {
+        String code = MC.getLanguageManager().getSelected();
+        return code != null && code.startsWith("ru");
     }
 
     // Render floating text for dropped-off resources
@@ -226,5 +302,48 @@ public class ResourcesClientEvents {
             floatingText.tickAge += 1;
         }
         floatingTexts.removeIf(t -> t.tickAge > FLOATING_TEXT_MAX_AGE);
+    }
+
+    @SubscribeEvent
+    public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post evt) {
+        if (!evt.getOverlay().id().equals(VanillaGuiOverlay.HOTBAR.id())) {
+            return;
+        }
+
+        if (pickupTexts.isEmpty()) {
+            return;
+        }
+
+        int screenHeight = MC.getWindow().getGuiScaledHeight();
+        float startY = screenHeight * PICKUP_TEXT_START_Y_FACTOR;
+        float endY = screenHeight * PICKUP_TEXT_END_Y_FACTOR;
+
+        Font font = MC.font;
+        var guiGraphics = evt.getGuiGraphics();
+
+        for (PickupText pickupText : pickupTexts) {
+            float progress = pickupText.tickAge / (float) PICKUP_TEXT_MAX_AGE;
+            float y = Mth.lerp(progress, startY + pickupText.yOffset, endY + pickupText.yOffset);
+
+            float alpha;
+            if (pickupText.tickAge <= PICKUP_TEXT_FADE_START) {
+                alpha = 1.0f;
+            } else {
+                alpha = 1.0f - (pickupText.tickAge - PICKUP_TEXT_FADE_START) /
+                    (float) (PICKUP_TEXT_MAX_AGE - PICKUP_TEXT_FADE_START);
+            }
+            alpha = Mth.clamp(alpha, 0.0f, 1.0f);
+
+            int color = 0x00FFFFFF + ((int) (0xFF * alpha) << 24);
+
+            Component textComp = Component.literal(pickupText.label);
+            int textWidth = font.width(textComp);
+            guiGraphics.drawString(font, textComp, PICKUP_TEXT_X, Math.round(y), color, false);
+
+            if (pickupText.icon != null && !pickupText.icon.isEmpty()) {
+                Component iconComp = Component.literal(pickupText.icon).withStyle(MyRenderer.iconStyle);
+                guiGraphics.drawString(font, iconComp, PICKUP_TEXT_X + textWidth + 2, Math.round(y), color, false);
+            }
+        }
     }
 }

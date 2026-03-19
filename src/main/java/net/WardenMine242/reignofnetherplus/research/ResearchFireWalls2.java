@@ -49,7 +49,8 @@ public class ResearchFireWalls2 extends ProductionItem {
                 ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "textures/hud/icon_frame_bronze.png"),
                 hotkey,
                 () -> ProductionItems.RESEARCH_FIRE_WALLS2.itemIsBeingProduced(prodBuilding.ownerName)
-                        || ResearchClient.hasResearch(ProductionItems.RESEARCH_FIRE_WALLS2),
+                        || ResearchClient.hasResearch(ProductionItems.RESEARCH_FIRE_WALLS2)
+                        || !ResearchClient.hasResearch(ProductionItems.RESEARCH_FIRE_WALLS),
                 () -> ResearchClient.hasResearch(ProductionItems.RESEARCH_FIRE_WALLS) ||
                         ResearchClient.hasCheat("modifythephasevariance"),
                 List.of(FormattedCharSequence.forward(I18n.get("research.reignofnether.fire_walls2"),
@@ -79,4 +80,3 @@ public class ResearchFireWalls2 extends ProductionItem {
         );
     }
 }
-

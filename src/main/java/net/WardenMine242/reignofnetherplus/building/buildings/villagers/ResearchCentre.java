@@ -42,12 +42,12 @@ public class ResearchCentre extends ProductionBuilding {
         this.startingBlockTypes.add(Blocks.OAK_LOG);
 
         this.productions.add(ProductionItems.RESEARCH_DRILL_T2, Keybindings.keyQ);
-        this.productions.add(ProductionItems.RESEARCH_DRILL_T3, Keybindings.keyW);
-        this.productions.add(ProductionItems.RESEARCH_CASTLE, Keybindings.keyE);
-        this.productions.add(ProductionItems.RESEARCH_FIRE_WALLS, Keybindings.keyR);
-        this.productions.add(ProductionItems.RESEARCH_FIRE_WALLS2, Keybindings.keyT);
-        this.productions.add(ProductionItems.RESEARCH_TOWER_DAMAGE_1, Keybindings.keyY);
-        this.productions.add(ProductionItems.RESEARCH_TOWER_DAMAGE_2, Keybindings.keyU);
+        this.productions.add(ProductionItems.RESEARCH_DRILL_T3, Keybindings.keyQ);
+        this.productions.add(ProductionItems.RESEARCH_CASTLE, Keybindings.keyW);
+        this.productions.add(ProductionItems.RESEARCH_FIRE_WALLS, Keybindings.keyE);
+        this.productions.add(ProductionItems.RESEARCH_FIRE_WALLS2, Keybindings.keyE);
+        this.productions.add(ProductionItems.RESEARCH_TOWER_DAMAGE_1, Keybindings.keyR);
+        this.productions.add(ProductionItems.RESEARCH_TOWER_DAMAGE_2, Keybindings.keyR);
 
 
 
@@ -68,13 +68,15 @@ public class ResearchCentre extends ProductionBuilding {
                 hotkey,
                 () -> BuildingClientEvents.getBuildingToPlace() == Buildings.RESEARCH_CENTRE,
                 () -> !TutorialClientEvents.isAtOrPastStage(TutorialStage.EXPLAIN_BUILDINGS),
-                () -> BuildingClientEvents.hasFinishedBuilding(Buildings.TOWN_CENTRE) ||
+                () -> BuildingClientEvents.hasFinishedBuilding(Buildings.BLACKSMITH) ||
                         ResearchClient.hasCheat("modifythephasevariance"),
                 List.of(
                         FormattedCharSequence.forward(I18n.get("buildings.villagers.reignofnether.research_centre"), Style.EMPTY.withBold(true)),
                         ResourceCosts.getFormattedCost(cost),
                         FormattedCharSequence.forward("", Style.EMPTY),
-                        FormattedCharSequence.forward(I18n.get("buildings.villagers.reignofnether.research_centre.tooltip1"), Style.EMPTY)
+                        FormattedCharSequence.forward(I18n.get("buildings.villagers.reignofnether.research_centre.tooltip1"), Style.EMPTY),
+                        FormattedCharSequence.forward("", Style.EMPTY),
+                        FormattedCharSequence.forward(I18n.get("buildings.villagers.reignofnether.research_centre.tooltip2"), Style.EMPTY)
                 ),
                 this
         );

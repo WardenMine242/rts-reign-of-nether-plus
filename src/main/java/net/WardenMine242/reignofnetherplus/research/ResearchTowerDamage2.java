@@ -48,7 +48,8 @@ public class ResearchTowerDamage2 extends ProductionItem {
                 ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "textures/hud/icon_frame_bronze.png"),
                 hotkey,
                 () -> ProductionItems.RESEARCH_TOWER_DAMAGE_2.itemIsBeingProduced(prodBuilding.ownerName)
-                        || ResearchClient.hasResearch(ProductionItems.RESEARCH_TOWER_DAMAGE_2),
+                        || ResearchClient.hasResearch(ProductionItems.RESEARCH_TOWER_DAMAGE_2)
+                        || !ResearchClient.hasResearch(ProductionItems.RESEARCH_TOWER_DAMAGE_1),
                 () -> ResearchClient.hasResearch(ProductionItems.RESEARCH_TOWER_DAMAGE_1) ||
                         ResearchClient.hasCheat("modifythephasevariance"),
                 List.of(FormattedCharSequence.forward(I18n.get("research.reignofnether.tower_damage_2"),

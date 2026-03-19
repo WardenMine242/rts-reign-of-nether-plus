@@ -24,20 +24,22 @@ import com.solegendary.reignofnether.util.MyMath;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.tutorial.TutorialSteps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.GameType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.joml.Matrix4f;
@@ -73,6 +75,8 @@ public class OrthoviewClientEvents {
     private static boolean cameraMovingByMouse = false; // excludes edgepanning
 
     private static final Minecraft MC = Minecraft.getInstance();
+    private static Entity cameraEntity = null;
+    private static int nextCameraEntityId = -1;
     private static final float ZOOM_STEP_KEY = 5;
     private static final float ZOOM_STEP_SCROLL = 1;
     private static final float ZOOM_MIN = 10;
@@ -84,6 +88,7 @@ public class OrthoviewClientEvents {
     private static final float ZOOM_DEFAULT = 30;
     private static final float CAMROTX_DEFAULT = 135;
     private static final float CAMROTY_DEFAULT = -45;
+    private static Vec3 frozenPlayerPos = null;
 
     private static final int FORCE_PAN_TICKS_MAX = 20;
     private static int forcePanTicksLeft = 0;
@@ -119,8 +124,9 @@ public class OrthoviewClientEvents {
 
     public static void setMinOrthoviewY(double value) {
         minOrthoviewY = value;
-        if (MC.level != null && MC.player != null && MC.player.getY() < value + 15) {
-            MC.player.move(MoverType.SELF, new Vec3(0, minOrthoviewY - MC.player.getY() + 15, 0));
+        Entity cam = getCameraEntity();
+        if (MC.level != null && cam != null && cam.getY() < value + 15) {
+            cam.setPos(cam.getX(), minOrthoviewY + 15, cam.getZ());
         }
     }
 
@@ -137,9 +143,118 @@ public class OrthoviewClientEvents {
             ReignOfNetherClientConfigs.CAMERA_SENSITIVITY.set(ReignOfNetherClientConfigs.CAMERA_SENSITIVITY.get() - 1);
     }
 
+    private static int reserveCameraEntityId() {
+        int id = nextCameraEntityId;
+        nextCameraEntityId -= 1;
+        return id;
+    }
+
+    public static Entity getCameraEntity() {
+        if (cameraEntity != null) {
+            return cameraEntity;
+        }
+        Entity cam = MC.getCameraEntity();
+        return cam != null ? cam : MC.player;
+    }
+
+    private static void ensureCameraEntity() {
+        if (cameraEntity != null || MC.level == null || MC.player == null) {
+            return;
+        }
+        ArmorStand cam = new ArmorStand(MC.level, MC.player.getX(), MC.player.getY(), MC.player.getZ());
+        cam.setInvisible(true);
+        cam.setNoGravity(true);
+        cam.noPhysics = true;
+        cam.setSilent(true);
+        cam.setInvulnerable(true);
+        cam.setCustomNameVisible(false);
+
+        if (MC.level instanceof ClientLevel) {
+            ClientLevel clientLevel = (ClientLevel) MC.level;
+            clientLevel.addFreshEntity(cam);
+        }
+        cameraEntity = cam;
+        MC.setCameraEntity(cam);
+    }
+
+    private static void cleanupCameraEntity() {
+        if (MC.player != null) {
+            MC.setCameraEntity(MC.player);
+        }
+        if (cameraEntity != null) {
+            cameraEntity.discard();
+            cameraEntity = null;
+        }
+    }
+
+    public static void moveCameraTo(double x, double y, double z) {
+        Entity cam = getCameraEntity();
+        if (cam == null) {
+            return;
+        }
+        cam.setPos(x, y, z);
+        syncCameraOldState(cam);
+    }
+
+    private static void syncCameraOldState(Entity cam) {
+        cam.xo = cam.getX();
+        cam.yo = cam.getY();
+        cam.zo = cam.getZ();
+        cam.xRotO = cam.getXRot();
+        cam.yRotO = cam.getYRot();
+        if (cam instanceof LivingEntity living) {
+            living.yHeadRotO = living.getYHeadRot();
+        }
+    }
+    private static void applyCameraRotation(Entity cam) {
+        float pitch = -camRotY - camRotAdjY;
+        float yaw = -camRotX - camRotAdjX;
+        cam.setXRot(pitch);
+        cam.setYRot(yaw);
+        if (cam instanceof LivingEntity living) {
+            living.setYHeadRot(yaw);
+            living.setYBodyRot(yaw);
+        }
+    }
+
+    private static void blockPlayerInput() {
+        if (MC.player == null) {
+            return;
+        }
+        if (MC.player.input != null) {
+            MC.player.input.leftImpulse = 0;
+            MC.player.input.forwardImpulse = 0;
+            MC.player.input.jumping = false;
+            MC.player.input.shiftKeyDown = false;
+        }
+        MC.player.setSprinting(false);
+    }
+
+    private static void freezeLocalPlayer() {
+        if (MC.player == null || !enabled) {
+            frozenPlayerPos = null;
+            return;
+        }
+
+        if (frozenPlayerPos == null) {
+            frozenPlayerPos = MC.player.position();
+        }
+
+        MC.player.setDeltaMovement(Vec3.ZERO);
+        MC.player.fallDistance = 0;
+
+        if (MC.player.position().distanceToSqr(frozenPlayerPos) > 1.0e-6) {
+            MC.player.setPos(frozenPlayerPos.x, frozenPlayerPos.y, frozenPlayerPos.z);
+        }
+
+        MC.player.xo = frozenPlayerPos.x;
+        MC.player.yo = frozenPlayerPos.y;
+        MC.player.zo = frozenPlayerPos.z;
+    }
     public static void updateOrthoviewY() {
-        if (MC.player != null && MC.level != null) {
-            BlockPos playerPos = MC.player.blockPosition();
+        Entity cam = getCameraEntity();
+        if (cam != null && MC.level != null) {
+            BlockPos cameraPos = cam.blockPosition();
             int radius = 10; // Defines the area around the player to sample heights
             int sumHeights = 0;
             int count = 0;
@@ -147,15 +262,15 @@ public class OrthoviewClientEvents {
             // Iterate through a square area around the player
             for (int x = -radius; x <= radius; x++) {
                 for (int z = -radius; z <= radius; z++) {
-                    int blockX = playerPos.getX() + x;
-                    int blockZ = playerPos.getZ() + z;
+                    int blockX = cameraPos.getX() + x;
+                    int blockZ = cameraPos.getZ() + z;
                     int height = MC.level.getHeight(Heightmap.Types.MOTION_BLOCKING, blockX, blockZ);
                     sumHeights += height;
                     count++;
                 }
             }
             // Calculate the average height
-            int avgHeight = count > 0 ? sumHeights / count : playerPos.getY();
+            int avgHeight = count > 0 ? sumHeights / count : cameraPos.getY();
 
             // Update ORTHOVIEW values based on the average height
             orthoviewPlayerBaseY = Math.max(avgHeight + 30, minOrthoviewY);
@@ -201,6 +316,26 @@ public class OrthoviewClientEvents {
         camRotY = CAMROTY_DEFAULT;
     }
 
+    private static void forceDisableClient(boolean notifyServer) {
+        if (notifyServer) {
+            PlayerServerboundPacket.disableOrthoview();
+            if (MC.player != null) {
+                TopdownGuiServerboundPacket.closeTopdownGui(MC.player.getId());
+            }
+        }
+        enabled = false;
+        cameraMovingByMouse = false;
+        cameraLocked = false;
+        cameraLockTicksLeft = 0;
+        forcePanTicksLeft = 0;
+        forceRotFramesLeft = 0;
+        camRotAdjX = 0;
+        camRotAdjY = 0;
+        frozenPlayerPos = null;
+        reset();
+        cleanupCameraEntity();
+    }
+
     public static void rotateCam(float x, float y) {
         if (isCameraLocked()) {
             return;
@@ -236,21 +371,24 @@ public class OrthoviewClientEvents {
     }
 
     public static void panCam(float x, float y, float z) { // pan camera relative to rotation
-        if (MC.player != null) {
+        Entity cam = getCameraEntity();
+        if (cam != null) {
             Vec2 XZRotated = MyMath.rotateCoords(x, z, -camRotX - camRotAdjX);
-            MC.player.move(MoverType.SELF, new Vec3(XZRotated.x, y, XZRotated.y));
+            cam.setPos(cam.getX() + XZRotated.x, cam.getY() + y, cam.getZ() + XZRotated.y);
+            syncCameraOldState(cam);
         }
     }
 
     // lock the camera and move it towards a location, remain locked for cameraLockTicks
     public static void forceMoveCam(int x, int z, int cameraLockTicks) {
-        if (MC.player != null) {
+        Entity cam = getCameraEntity();
+        if (cam != null) {
             forcePanTicksLeft = FORCE_PAN_TICKS_MAX;
             forcePanTargetX = x;
             forcePanTargetZ = z;
             cameraLockTicksLeft = FORCE_PAN_TICKS_MAX + cameraLockTicks;
-            forcePanOriginalX = MC.player.getOnPos().getX();
-            forcePanOriginalZ = MC.player.getOnPos().getZ();
+            forcePanOriginalX = cam.getOnPos().getX();
+            forcePanOriginalZ = cam.getOnPos().getZ();
             forcePanOriginalZoom = zoom;
         }
     }
@@ -265,28 +403,33 @@ public class OrthoviewClientEvents {
             return;
         }
 
-        if (isEnabled() && MC.gameMode != null && (
-            MC.gameMode.getPlayerMode() == GameType.ADVENTURE || MC.gameMode.getPlayerMode() == GameType.SURVIVAL
-        )) {
-            toggleEnable();
-        }
-
         if (cameraLockTicksLeft > 0) {
             cameraLockTicksLeft -= 1;
         }
 
-        if (!OrthoviewClientEvents.isEnabled() || MC.player == null || MC.level == null) {
+        if (enabled && MC.player != null && !MC.player.isAlive()) {
+            toggleEnable();
+            return;
+        }
+
+        if (!OrthoviewClientEvents.isEnabled() || MC.level == null) {
             forcePanTicksLeft = 0;
             return;
         }
 
-        if (MiscUtil.isGroundBlock(MC.level, MC.player.blockPosition().offset(0, -5, 0))
-            && MC.player.getOnPos().getY() <= orthoviewPlayerMaxY) {
-            panCam(0, 1f, 0);
+        ensureCameraEntity();
+        Entity cam = getCameraEntity();
+        if (cam == null) {
+            forcePanTicksLeft = 0;
+            return;
         }
-        if (!MiscUtil.isGroundBlock(MC.level, MC.player.blockPosition().offset(0, -6, 0))
-            && MC.player.getOnPos().getY() >= orthoviewPlayerBaseY) {
-            panCam(0, -1f, 0);
+
+        blockPlayerInput();
+        freezeLocalPlayer();
+
+        double targetY = Math.max(orthoviewPlayerBaseY, Math.min(orthoviewPlayerMaxY, cam.getY()));
+        if (targetY != cam.getY()) {
+            cam.setPos(cam.getX(), targetY, cam.getZ());
         }
 
         if (forcePanTicksLeft > 0) {
@@ -294,10 +437,22 @@ public class OrthoviewClientEvents {
             float zDiff = (forcePanTargetZ - forcePanOriginalZ) / FORCE_PAN_TICKS_MAX;
             float zoomDiff = (ZOOM_DEFAULT - forcePanOriginalZoom) / FORCE_PAN_TICKS_MAX;
             zoom += zoomDiff;
-            MC.player.move(MoverType.SELF, new Vec3(xDiff, 0, zDiff));
+            cam.setPos(cam.getX() + xDiff, cam.getY(), cam.getZ() + zDiff);
             forcePanTicksLeft -= 1;
         }
         updateOrthoviewY();
+        applyCameraRotation(cam);
+        syncCameraOldState(cam);
+    }
+
+    @SubscribeEvent
+    public static void onClientLogin(ClientPlayerNetworkEvent.LoggingIn evt) {
+        forceDisableClient(true);
+    }
+
+    @SubscribeEvent
+    public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut evt) {
+        forceDisableClient(false);
     }
 
     @SubscribeEvent
@@ -333,8 +488,11 @@ public class OrthoviewClientEvents {
             MC.getTutorial().stop();
             enabledCount += 1;
             PlayerServerboundPacket.enableOrthoview();
+            ensureCameraEntity();
+            frozenPlayerPos = MC.player.position();
+            updateOrthoviewY();
+            moveCameraTo(MC.player.getX(), orthoviewPlayerBaseY, MC.player.getZ());
             MinimapClientEvents.setMapCentre(MC.player.getX(), MC.player.getZ());
-            PlayerServerboundPacket.teleportPlayer(MC.player.getX(), orthoviewPlayerBaseY, MC.player.getZ());
             TopdownGuiServerboundPacket.openTopdownGui(MC.player.getId());
             MC.options.cloudStatus().set(CloudStatus.OFF);
             MC.options.hideGui = false; // for some reason, when gui is hidden, shape rendering goes whack
@@ -343,6 +501,8 @@ public class OrthoviewClientEvents {
         } else {
             PlayerServerboundPacket.disableOrthoview();
             TopdownGuiServerboundPacket.closeTopdownGui(MC.player.getId());
+            frozenPlayerPos = null;
+            cleanupCameraEntity();
             if (StartPosClientEvents.hasReservedPos()) {
                 StartPosClientEvents.selectedFaction = Faction.NONE;
                 StartPosServerboundPacket.unreservePos(StartPosClientEvents.getPos().pos);
@@ -357,7 +517,8 @@ public class OrthoviewClientEvents {
 
     // moves the camera to the position such that x,z is at the centre of the screen
     public static void centreCameraOnPos(Vec3 pos) {
-        if (MC.player == null) {
+        Entity cam = getCameraEntity();
+        if (cam == null) {
             return;
         }
         MinimapClientEvents.setMapCentre(pos.x, pos.z);
@@ -366,12 +527,12 @@ public class OrthoviewClientEvents {
 
         float offset = (float) (Math.sqrt(getZoom()) / (Math.sqrt(ZOOM_MAX)));
 
-        int yDiff = (int) (MC.player.getY() - pos.y) - 40;
+        int yDiff = (int) (cam.getY() - pos.y) - 40;
 
         Vec2 XZRotatedOffset = MyMath.rotateCoords(0, -(offset * 35) - yDiff, -camRotX - camRotAdjX);
 
-        PlayerServerboundPacket.teleportPlayer(
-                pos.x + XZRotated.x + XZRotatedOffset.x, MC.player.getY(),
+        moveCameraTo(
+                pos.x + XZRotated.x + XZRotatedOffset.x, cam.getY(),
                 pos.z + XZRotated.y + XZRotatedOffset.y
         );
     }
@@ -432,14 +593,7 @@ public class OrthoviewClientEvents {
 
     public static void tryToToggleEnable() {
         if (!OrthoviewClientEvents.isCameraLocked() && MC.gameMode != null) {
-            if (MC.player != null && (
-                    MC.gameMode.getPlayerMode() == GameType.ADVENTURE
-                            || MC.gameMode.getPlayerMode() == GameType.SURVIVAL
-            )) {
-                MC.player.sendSystemMessage(Component.literal(I18n.get("hud.orthoview.reignofnether.ortho_error")));
-            } else {
-                toggleEnable();
-            }
+            toggleEnable();
         }
     }
 
@@ -553,7 +707,7 @@ public class OrthoviewClientEvents {
             GLFW.glfwSetCursorPos(glfwWindow, cursorX, 0);
         }
 
-        Player player = MC.player;
+        Entity cam = getCameraEntity();
 
         // zoom in/out with keys
         if (Keybindings.zoomIn.isDown()) {
@@ -579,9 +733,9 @@ public class OrthoviewClientEvents {
             }
         }
         // note that we treat x and y rot as horizontal and vertical, but MC treats it the other way around...
-        if (player != null) {
-            player.setXRot(-camRotY - camRotAdjY);
-            player.setYRot(-camRotX - camRotAdjX);
+        if (cam != null) {
+            applyCameraRotation(cam);
+            syncCameraOldState(cam);
         }
     }
 
@@ -589,6 +743,14 @@ public class OrthoviewClientEvents {
     @SubscribeEvent
     public static void onRenderBlockOverlay(RenderBlockScreenEffectEvent evt) {
         if (enabled) {
+            evt.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRenderOverlayPre(RenderGuiOverlayEvent.Pre evt) {
+        if (enabled && MC.player != null && !MC.player.isCreative()
+            && evt.getOverlay().id().equals(VanillaGuiOverlay.EXPERIENCE_BAR.id())) {
             evt.setCanceled(true);
         }
     }
@@ -641,7 +803,7 @@ public class OrthoviewClientEvents {
             panCam(moveX, 0, moveZ);
         } else if (evt.getMouseButton() == GLFW.GLFW_MOUSE_BUTTON_2 && Keybindings.altMod.isDown()) {
             cameraMovingByMouse = true;
-            camRotAdjX = (float) (evt.getMouseX() - mouseRightDownX) * CAMROT_MOUSE_SENSITIVITY;
+            camRotAdjX = (float) -(evt.getMouseX() - mouseRightDownX) * CAMROT_MOUSE_SENSITIVITY;
             //camRotAdjY = (float) -(evt.getMouseY() - mouseRightDownY) * CAMROT_MOUSE_SENSITIVITY;
 
             /*
@@ -656,7 +818,8 @@ public class OrthoviewClientEvents {
     // don't let orthoview players see other orthoview players or themselves
     @SubscribeEvent
     public static void onPlayerRender(RenderPlayerEvent.Pre evt) {
-        if (enabled && (evt.getEntity().isSpectator() || evt.getEntity().isCreative())) {
+        if (enabled && (evt.getEntity().isSpectator() || evt.getEntity().isCreative())
+            && (MC.player == null || evt.getEntity().getId() != MC.player.getId())) {
             evt.setCanceled(true);
         }
     }
@@ -703,3 +866,6 @@ public class OrthoviewClientEvents {
         return m1;
     }
 }
+
+
+

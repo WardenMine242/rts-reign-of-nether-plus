@@ -11,6 +11,7 @@ import com.solegendary.reignofnether.cursor.CursorClientEvents;
 import com.solegendary.reignofnether.keybinds.Keybindings;
 import com.solegendary.reignofnether.nether.NetherBlocks;
 import com.solegendary.reignofnether.orthoview.OrthoviewClientEvents;
+import com.solegendary.reignofnether.player.PlayerServerEvents;
 import com.solegendary.reignofnether.registrars.EntityRegistrar;
 import com.solegendary.reignofnether.registrars.GameRuleRegistrar;
 import com.solegendary.reignofnether.time.NightCircleMode;
@@ -56,6 +57,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -250,7 +252,11 @@ public class MiscUtil {
 
     // converts a 2d screen position to a 3d world position while in ortho view
     public static Vector3d screenPosToWorldPos(Minecraft MC, int mouseX, int mouseY) {
-        if (MC.player == null) {
+        Entity cam = MC.getCameraEntity();
+        if (cam == null) {
+            cam = MC.player;
+        }
+        if (cam == null) {
             return new Vector3d(0,0,0);
         }
         int winWidth = MC.getWindow().getGuiScaledWidth();
@@ -271,9 +277,9 @@ public class MiscUtil {
 
         // for some reason position is off by some y coord so just move it down manually
         return new Vector3d(
-                MC.player.xo - XZRotated.x,
-                MC.player.yo + y + 1.5f,
-                MC.player.zo - XZRotated.y
+                cam.getX() - XZRotated.x,
+                cam.getY() + y + 1.5f,
+                cam.getZ() - XZRotated.y
         );
     }
 
@@ -344,8 +350,15 @@ public class MiscUtil {
                 return false;
         }
 
-        if (targetEntity instanceof Player player && (player.isCreative() || player.isSpectator()))
-            return false;
+        if (targetEntity instanceof Player player) {
+            if (player instanceof ServerPlayer serverPlayer) {
+                if (serverPlayer.gameMode.getGameModeForPlayer() != GameType.SURVIVAL) {
+                    return false;
+                }
+            } else if (player.isCreative() || player.isSpectator()) {
+                return false;
+            }
+        }
 
         // If the relationship is FRIENDLY, do not allow the attack
         if (rs == Relationship.FRIENDLY)
@@ -526,10 +539,13 @@ public class MiscUtil {
     // gets the unit vector in the direction of player facing (same as camera)
     // calcs from https://stackoverflow.com/questions/65897792/3d-vector-coordinates-from-x-and-y-rotation
     public static Vector3d getPlayerLookVector(Minecraft MC) {
-        if (MC.player == null)
+        Entity cam = MC.getCameraEntity();
+        if (cam == null)
+            cam = MC.player;
+        if (cam == null)
             return new Vector3d(0,0,0);
-        float a = (float) Math.toRadians(MC.player.getYRot());
-        float b = (float) Math.toRadians(MC.player.getXRot());
+        float a = (float) Math.toRadians(cam.getYRot());
+        float b = (float) Math.toRadians(cam.getXRot());
         return new Vector3d(-cos(b) * sin(a), -sin(b), cos(b) * cos(a));
     }
 
@@ -834,3 +850,11 @@ public class MiscUtil {
                 (calendar.get(Calendar.MONTH) + 1 == 1 && calendar.get(Calendar.DATE) == 1);
     }
 }
+
+
+
+
+
+
+
+

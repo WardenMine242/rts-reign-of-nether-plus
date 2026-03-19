@@ -172,6 +172,16 @@ public class ResourceCosts {
     public static final ResourceCost ENCHANT_VIGOR = new ResourceCost(ID, "ENCHANT_VIGOR");
     public static final ResourceCost EQUIP_LEATHER_ARMOR = new ResourceCost(ID, "EQUIP_LEATHER_ARMOR");
     public static final ResourceCost EQUIP_CHAINMAIL_ARMOR = new ResourceCost(ID, "EQUIP_CHAINMAIL_ARMOR");
+    public static final ResourceCost EQUIP_IRON_ARMOR = new ResourceCost(ID, "EQUIP_IRON_ARMOR");
+    public static final ResourceCost EQUIP_IRON_SWORD = new ResourceCost(ID, "EQUIP_IRON_SWORD");
+    public static final ResourceCost EQUIP_IRON_PICKAXE = new ResourceCost(ID, "EQUIP_IRON_PICKAXE");
+    public static final ResourceCost EQUIP_IRON_AXE = new ResourceCost(ID, "EQUIP_IRON_AXE");
+    public static final ResourceCost EQUIP_IRON_HOE = new ResourceCost(ID, "EQUIP_IRON_HOE");
+    public static final ResourceCost STEAK = new ResourceCost(ID, "STEAK");
+    public static final ResourceCost EQUIP_BOW = new ResourceCost(ID, "EQUIP_BOW");
+    public static final ResourceCost EQUIP_ARROWS = new ResourceCost(ID, "EQUIP_ARROWS");
+
+
 
     // UNUSED
 
@@ -204,7 +214,7 @@ public class ResourceCosts {
 
     public static final int REPLANT_WOOD_COST = 1;
     public static final int REDUCED_REPLANT_WOOD_COST = 0;
-    public static final int DEFAULT_MAX_POPULATION = 150;
+    public static final int DEFAULT_MAX_POPULATION = 10000;
     /*
         Unit costs are defined here during CommonSetup
         Do not read values and initialize from config earlier, else will result in IllegalStateException !!!
@@ -357,5 +367,11 @@ public class ResourceCosts {
         ENCHANT_VIGOR.bakeValues(ReignOfNetherCommonConfigs.AbilityCosts.ENCHANT_VIGOR);
         EQUIP_LEATHER_ARMOR.bakeValues(ReignOfNetherCommonConfigs.AbilityCosts.EQUIP_LEATHER_ARMOR);
         EQUIP_CHAINMAIL_ARMOR.bakeValues(ReignOfNetherCommonConfigs.AbilityCosts.EQUIP_CHAINMAIL_ARMOR);
+        EQUIP_IRON_ARMOR.bakeValues(ReignOfNetherCommonConfigs.AbilityCosts.EQUIP_IRON_ARMOR);
+        EQUIP_IRON_SWORD.bakeValues(ReignOfNetherCommonConfigs.AbilityCosts.EQUIP_IRON_SWORD);
+        EQUIP_IRON_PICKAXE.bakeValues(ReignOfNetherCommonConfigs.AbilityCosts.EQUIP_IRON_PICKAXE);
+        EQUIP_IRON_AXE.bakeValues(ReignOfNetherCommonConfigs.AbilityCosts.EQUIP_IRON_AXE);
+        EQUIP_IRON_HOE.bakeValues(ReignOfNetherCommonConfigs.AbilityCosts.EQUIP_IRON_HOE);
+        STEAK.bakeValues(ReignOfNetherCommonConfigs.AbilityCosts.STEAK);
     }
 }

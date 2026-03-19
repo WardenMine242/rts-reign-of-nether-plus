@@ -15,6 +15,13 @@ import com.solegendary.reignofnether.resources.ResourceCost;
 import com.solegendary.reignofnether.resources.ResourceCosts;
 import com.solegendary.reignofnether.tutorial.TutorialClientEvents;
 import com.solegendary.reignofnether.tutorial.TutorialStage;
+import net.WardenMine242.reignofnetherplus.ability.abilities.EquipIronAxe;
+import net.WardenMine242.reignofnetherplus.ability.abilities.EquipArrows;
+import net.WardenMine242.reignofnetherplus.ability.abilities.EquipBow;
+import net.WardenMine242.reignofnetherplus.ability.abilities.EquipIronChestplate;
+import net.WardenMine242.reignofnetherplus.ability.abilities.EquipIronHoe;
+import net.WardenMine242.reignofnetherplus.ability.abilities.EquipIronPickaxe;
+import net.WardenMine242.reignofnetherplus.ability.abilities.EquipIronSword;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Style;
@@ -48,6 +55,13 @@ public class Blacksmith extends ProductionBuilding {
 
         this.abilities.add(new EquipLeatherChestplate(), Keybindings.keyT);
         this.abilities.add(new EquipChainmailChestplate(), Keybindings.keyY);
+        this.abilities.add(new EquipIronChestplate(), Keybindings.keyL);
+        this.abilities.add(new EquipIronSword(), Keybindings.keyU);
+        this.abilities.add(new EquipIronPickaxe(), Keybindings.keyI);
+        this.abilities.add(new EquipIronAxe(), Keybindings.keyO);
+        this.abilities.add(new EquipIronHoe(), Keybindings.keyP);
+        this.abilities.add(new EquipBow(), Keybindings.keyJ);
+        this.abilities.add(new EquipArrows(), Keybindings.keyK);
 
         this.productions.add(ProductionItems.IRON_GOLEM, Keybindings.keyQ);
         this.productions.add(ProductionItems.RESEARCH_GOLEM_SMITHING, Keybindings.keyW);

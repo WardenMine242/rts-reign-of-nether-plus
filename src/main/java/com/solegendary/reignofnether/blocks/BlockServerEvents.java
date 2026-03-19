@@ -1,23 +1,44 @@
 package com.solegendary.reignofnether.blocks;
 
+import com.solegendary.reignofnether.building.BuildingPlacement;
+import com.solegendary.reignofnether.building.Buildings;
 import com.solegendary.reignofnether.building.BuildingUtils;
 import com.solegendary.reignofnether.registrars.BlockRegistrar;
 import com.solegendary.reignofnether.registrars.GameRuleRegistrar;
+import com.solegendary.reignofnether.registrars.ItemRegistrar;
 import com.solegendary.reignofnether.resources.BlockUtils;
+import com.solegendary.reignofnether.resources.ResourceCosts;
+import com.solegendary.reignofnether.resources.ResourceName;
 import com.solegendary.reignofnether.resources.ResourceSources;
+import com.solegendary.reignofnether.resources.Resources;
+import com.solegendary.reignofnether.resources.ResourcesServerEvents;
 import com.solegendary.reignofnether.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.Tags;
+import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.*;
@@ -27,6 +48,18 @@ public class BlockServerEvents {
     private static final Random RANDOM = new Random();
 
     public static ArrayList<TemporaryBlock> tempBlocks = new ArrayList<>();
+
+    private static final ArrayList<PendingOreReplace> pendingOreReplacements = new ArrayList<>();
+
+    private static class PendingOreReplace {
+        private final ServerLevel level;
+        private final BlockPos pos;
+
+        private PendingOreReplace(ServerLevel level, BlockPos pos) {
+            this.level = level;
+            this.pos = pos;
+        }
+    }
 
     public static void addTempBlock(ServerLevel level, BlockPos bp, BlockState bs, BlockState oldBs, int lifespan) {
         addTempBlock(level, bp, bs, oldBs, lifespan, false);
@@ -47,10 +80,29 @@ public class BlockServerEvents {
 
     @SubscribeEvent
     public static void onWorldTick(TickEvent.LevelTickEvent evt) {
-        if (evt.phase != TickEvent.Phase.END || evt.level.isClientSide() || evt.level.dimension() != Level.OVERWORLD) {
+        if (evt.phase != TickEvent.Phase.END || evt.level.isClientSide()) {
             return;
         }
-        tempBlocks.removeIf(tb -> tb.tick((ServerLevel) evt.level));
+        if (evt.level.dimension() == Level.OVERWORLD) {
+            tempBlocks.removeIf(tb -> tb.tick((ServerLevel) evt.level));
+        }
+
+        if (!pendingOreReplacements.isEmpty()) {
+            Iterator<PendingOreReplace> iterator = pendingOreReplacements.iterator();
+            while (iterator.hasNext()) {
+                PendingOreReplace pending = iterator.next();
+                if (pending.level != evt.level) {
+                    continue;
+                }
+                if (!pending.level.isLoaded(pending.pos)) {
+                    continue;
+                }
+                if (pending.level.getBlockState(pending.pos).isAir()) {
+                    pending.level.setBlockAndUpdate(pending.pos, Blocks.COBBLESTONE.defaultBlockState());
+                }
+                iterator.remove();
+            }
+        }
     }
 
     @SubscribeEvent
@@ -59,11 +111,218 @@ public class BlockServerEvents {
             return;
 
         boolean isResource = ResourceSources.getFromBlockState(evt.getState()) != null;
-        boolean isBuilding = BuildingUtils.isPosInsideAnyBuilding(false, evt.getPos());
+        boolean isInBuilding = BuildingUtils.isPosInsideAnyBuilding(false, evt.getPos());
+        boolean isCrop = evt.getState().is(BlockTags.CROPS) &&
+                evt.getLevel().getBlockState(evt.getPos().below()).is(Blocks.FARMLAND);
+
+        if (evt.getPlayer() != null && !evt.getPlayer().isCreative() && isInBuilding && !isCrop) {
+            evt.setCanceled(true);
+            return;
+        }
 
         if (!evt.getLevel().getServer().getGameRules().getRule(GameRuleRegistrar.DO_PLAYER_GRIEFING).get() &&
-            !isResource && !isBuilding) {
+            !isResource && !isInBuilding) {
             evt.setCanceled(true);
+        }
+
+        if (evt.isCanceled())
+            return;
+
+        if (evt.getPlayer() instanceof ServerPlayer player &&
+            player.gameMode.getGameModeForPlayer() == GameType.SURVIVAL &&
+            !player.isCreative()) {
+            if (!isAllowedSurvivalBreak(evt.getState(), evt.getPos(), evt.getLevel())) {
+                evt.setCanceled(true);
+            }
+        }
+
+        if (!evt.isCanceled() && evt.getPlayer() instanceof ServerPlayer player &&
+            player.gameMode.getGameModeForPlayer() == GameType.SURVIVAL &&
+            !player.isCreative() && evt.getState().is(Tags.Blocks.ORES) &&
+            evt.getLevel() instanceof ServerLevel level) {
+            pendingOreReplacements.add(new PendingOreReplace(level, evt.getPos().immutable()));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLeftClickBlock(PlayerInteractEvent.LeftClickBlock evt) {
+        Player player = evt.getEntity();
+        if (player == null)
+            return;
+
+        BlockState clickedState = evt.getLevel().getBlockState(evt.getPos());
+        boolean isInBuilding = BuildingUtils.isPosInsideAnyBuilding(evt.getLevel().isClientSide(), evt.getPos());
+        boolean isCrop = clickedState.is(BlockTags.CROPS) &&
+                evt.getLevel().getBlockState(evt.getPos().below()).is(Blocks.FARMLAND);
+
+        if (evt.getLevel().isClientSide()) {
+            if (!player.isCreative() && !player.isSpectator()) {
+                if (isInBuilding && !isCrop) {
+                    evt.setUseBlock(Event.Result.DENY);
+                    evt.setUseItem(Event.Result.DENY);
+                    evt.setCancellationResult(InteractionResult.FAIL);
+                    evt.setCanceled(true);
+                    return;
+                }
+                if (!isAllowedSurvivalBreak(clickedState, evt.getPos(), evt.getLevel())) {
+                    evt.setUseBlock(Event.Result.DENY);
+                    evt.setUseItem(Event.Result.DENY);
+                    evt.setCancellationResult(InteractionResult.FAIL);
+                    evt.setCanceled(true);
+                }
+            }
+            return;
+        }
+
+        if (player instanceof ServerPlayer serverPlayer &&
+            serverPlayer.gameMode.getGameModeForPlayer() == GameType.SURVIVAL &&
+            !serverPlayer.isCreative()) {
+            if ((isInBuilding && !isCrop) || !isAllowedSurvivalBreak(clickedState, evt.getPos(), evt.getLevel())) {
+                evt.setUseBlock(Event.Result.DENY);
+                evt.setUseItem(Event.Result.DENY);
+                evt.setCancellationResult(InteractionResult.FAIL);
+                evt.setCanceled(true);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerBreakSpeed(PlayerEvent.BreakSpeed evt) {
+        Player player = evt.getEntity();
+        if (player == null || player.isCreative() || player.isSpectator())
+            return;
+
+        BlockState state = evt.getState();
+        if (player.getMainHandItem().is(ItemRegistrar.IRON_PICKAXE.get()) && state.is(Tags.Blocks.ORES)) {
+            // ~20s for regular ores with custom iron pickaxe
+            evt.setNewSpeed(Math.max(0.0f, evt.getOriginalSpeed() * 0.1125f));
+            return;
+        }
+
+        if (!(state.is(BlockTags.LOGS) || BlockUtils.isFallingLogBlock(state)))
+            return;
+
+        if (player.getMainHandItem().getItem() instanceof AxeItem) {
+            // ~7s per log for players in survival with an axe
+            evt.setNewSpeed(0.43f);
+            return;
+        }
+
+        // ~30s per log for players in survival without an axe
+        evt.setNewSpeed(0.1f);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerRightClickBlock(PlayerInteractEvent.RightClickBlock evt) {
+        Player player = evt.getEntity();
+        if (player == null)
+            return;
+
+        if (player.isCreative() || player.isSpectator())
+            return;
+
+        ItemStack stack = evt.getItemStack();
+        if (!(stack.getItem() instanceof BlockItem blockItem))
+            return;
+
+        BlockPos targetPos = evt.getPos().relative(evt.getFace());
+        BlockState placeState = blockItem.getBlock().defaultBlockState();
+
+        if (!isAllowedSurvivalPlace(placeState, targetPos, evt.getLevel())) {
+            evt.setUseBlock(Event.Result.DENY);
+            evt.setUseItem(Event.Result.DENY);
+            evt.setCancellationResult(InteractionResult.FAIL);
+            evt.setCanceled(true);
+        }
+    }
+
+    public static boolean isAllowedSurvivalBreak(BlockState state, BlockPos pos, LevelAccessor level) {
+        Block block = state.getBlock();
+        if (block == Blocks.PUMPKIN || block == Blocks.CARVED_PUMPKIN || block == Blocks.JACK_O_LANTERN)
+            return true;
+        if (block == Blocks.BEEHIVE || block == Blocks.BEE_NEST)
+            return true;
+        if (state.is(BlockTags.LOGS) || state.is(Tags.Blocks.ORES))
+            return true;
+        if (BlockUtils.isFallingLogBlock(state))
+            return true;
+        if (state.is(BlockTags.LEAVES))
+            return true;
+        if (state.is(BlockTags.CROPS) && level.getBlockState(pos.below()).is(Blocks.FARMLAND))
+            return true;
+        return false;
+    }
+
+    private static boolean isAllowedSurvivalPlace(BlockState state, BlockPos pos, LevelAccessor level) {
+        return state.is(BlockTags.CROPS) && level.getBlockState(pos.below()).is(Blocks.FARMLAND);
+    }
+
+    private static boolean isUsingIronHoe(Player player) {
+        return player.getMainHandItem().is(ItemRegistrar.IRON_HOE.get()) ||
+               player.getOffhandItem().is(ItemRegistrar.IRON_HOE.get());
+    }
+
+    @SubscribeEvent
+    public static void onPlayerBlockPlace(BlockEvent.EntityPlaceEvent evt) {
+        if (evt.getLevel().isClientSide() || !(evt.getEntity() instanceof ServerPlayer player))
+            return;
+
+        if (player.isCreative() || player.gameMode.getGameModeForPlayer() != GameType.SURVIVAL)
+            return;
+
+        if (!isAllowedSurvivalPlace(evt.getPlacedBlock(), evt.getPos(), evt.getLevel())) {
+            evt.setCanceled(true);
+            return;
+        }
+
+        if (evt.getPlacedBlock().is(BlockTags.CROPS)) {
+            if (isUsingIronHoe(player)) {
+                return;
+            }
+            BuildingPlacement building = BuildingUtils.findBuilding(false, evt.getPos());
+            if (building != null && building.getBuilding() == Buildings.WHEAT_FARM) {
+                String playerName = player.getName().getString();
+                if (!ResourcesServerEvents.canAfford(playerName, ResourceName.WOOD, ResourceCosts.REPLANT_WOOD_COST)) {
+                    evt.setCanceled(true);
+                    return;
+                }
+                ResourcesServerEvents.addSubtractResources(new Resources(playerName, 0, -ResourceCosts.REPLANT_WOOD_COST, 0));
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerBlockMultiPlace(BlockEvent.EntityMultiPlaceEvent evt) {
+        if (evt.getLevel().isClientSide() || !(evt.getEntity() instanceof ServerPlayer player))
+            return;
+
+        if (player.isCreative() || player.gameMode.getGameModeForPlayer() != GameType.SURVIVAL)
+            return;
+
+        int totalReplantCost = 0;
+        for (BlockSnapshot snapshot : evt.getReplacedBlockSnapshots()) {
+            if (!isAllowedSurvivalPlace(snapshot.getCurrentBlock(), snapshot.getPos(), evt.getLevel())) {
+                evt.setCanceled(true);
+                return;
+            }
+            if (snapshot.getCurrentBlock().is(BlockTags.CROPS)) {
+                if (isUsingIronHoe(player)) {
+                    continue;
+                }
+                BuildingPlacement building = BuildingUtils.findBuilding(false, snapshot.getPos());
+                if (building != null && building.getBuilding() == Buildings.WHEAT_FARM) {
+                    totalReplantCost += ResourceCosts.REPLANT_WOOD_COST;
+                }
+            }
+        }
+
+        if (totalReplantCost > 0) {
+            String playerName = player.getName().getString();
+            if (!ResourcesServerEvents.canAfford(playerName, ResourceName.WOOD, totalReplantCost)) {
+                evt.setCanceled(true);
+                return;
+            }
+            ResourcesServerEvents.addSubtractResources(new Resources(playerName, 0, -totalReplantCost, 0));
         }
     }
 
@@ -203,3 +462,39 @@ public class BlockServerEvents {
         return false;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

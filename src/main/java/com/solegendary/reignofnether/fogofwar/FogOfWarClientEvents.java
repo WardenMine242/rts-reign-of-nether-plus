@@ -284,6 +284,9 @@ public class FogOfWarClientEvents {
                 }
             }
         }
+        if (MC.player != null && PlayerClientEvents.isRTSPlayer()) {
+            viewerChunks.add(new ChunkPos(MC.player.getOnPos()));
+        }
         for (BuildingPlacement building : BuildingClientEvents.getBuildings()) {
             if (BuildingClientEvents.getPlayerToBuildingRelationship(building) == Relationship.OWNED ||
                     isPlayerRevealed(building.ownerName)) {
@@ -322,12 +325,16 @@ public class FogOfWarClientEvents {
         for (ChunkPos cpos : newlyBrightChunks)
             onChunkExplore(cpos);
 
-        if (OrthoviewClientEvents.isEnabled())
-            semiFrozenChunks.removeIf(bp -> bp.offset(8,8,8)
-                    .distSqr(MC.player.getOnPos()) > Math.pow(OrthoviewClientEvents.getZoom() * 3, 2));
-        else
+        if (OrthoviewClientEvents.isEnabled()) {
+            Entity cam = MC.getCameraEntity();
+            if (cam != null) {
+                semiFrozenChunks.removeIf(bp -> bp.offset(8,8,8)
+                        .distSqr(cam.getOnPos()) > Math.pow(OrthoviewClientEvents.getZoom() * 3, 2));
+            }
+        } else {
             semiFrozenChunks.removeIf(bp -> bp.offset(8,8,8)
                     .distSqr(MC.player.getOnPos()) > Math.pow(MC.levelRenderer.getLastViewDistance() * 8, 2));
+        }
         semiFrozenChunks.removeIf(bp -> {
             if (isInBrightChunk(bp)) {
                 updateChunkLighting(bp);
@@ -475,3 +482,4 @@ public class FogOfWarClientEvents {
     }
      */
 }
+

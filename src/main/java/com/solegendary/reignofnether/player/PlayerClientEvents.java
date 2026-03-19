@@ -1,6 +1,7 @@
 package com.solegendary.reignofnether.player;
 
 import com.solegendary.reignofnether.alliance.AlliancesClient;
+import com.solegendary.reignofnether.blocks.BlockServerEvents;
 import com.solegendary.reignofnether.building.BuildingClientEvents;
 import com.solegendary.reignofnether.building.BuildingPlacement;
 import com.solegendary.reignofnether.building.custombuilding.CustomBuildingClientEvents;
@@ -13,6 +14,7 @@ import com.solegendary.reignofnether.hud.playerdisplay.PlayerDisplayClientEvents
 import com.solegendary.reignofnether.hud.buttons.HelperButtons;
 import com.solegendary.reignofnether.keybinds.Keybindings;
 import com.solegendary.reignofnether.orthoview.OrthoviewClientEvents;
+import com.solegendary.reignofnether.registrars.ItemRegistrar;
 import com.solegendary.reignofnether.registrars.SoundRegistrar;
 import com.solegendary.reignofnether.research.ResearchClient;
 import com.solegendary.reignofnether.resources.ResourcesClientEvents;
@@ -24,25 +26,42 @@ import com.solegendary.reignofnether.time.TimeClientEvents;
 import com.solegendary.reignofnether.unit.UnitClientEvents;
 import com.solegendary.reignofnether.unit.interfaces.Unit;
 import com.solegendary.reignofnether.faction.Faction;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nullable;
 import java.util.*;
 
 public class PlayerClientEvents {
+
+    private static final double SURVIVAL_REACH = 4.5D;
+    private static final int GRASS_SKIP_MAX = 8;
 
     public static long rtsGameTicks = 0;
     private static final Minecraft MC = Minecraft.getInstance();
@@ -314,6 +333,7 @@ public class PlayerClientEvents {
     public static void onClientTick(TickEvent.ClientTickEvent evt) {
         if (evt.phase == TickEvent.Phase.END) {
             rtsGameTicks += 1;
+            updateGrassIgnoredHitResult();
         }
     }
 
@@ -341,8 +361,148 @@ public class PlayerClientEvents {
         }
     }
 
+    @SubscribeEvent
+    public static void onAttackInput(InputEvent.InteractionKeyMappingTriggered evt) {
+        if (!evt.isAttack())
+            return;
+        if (MC.player == null || MC.level == null)
+            return;
+        if (MC.player.isCreative() || MC.player.isSpectator())
+            return;
+        if (MC.hitResult == null || MC.hitResult.getType() == HitResult.Type.MISS)
+            return;
+        if (!(MC.hitResult instanceof BlockHitResult blockHit))
+            return;
+
+        BlockPos pos = blockHit.getBlockPos();
+        BlockState state = MC.level.getBlockState(pos);
+        if (!BlockServerEvents.isAllowedSurvivalBreak(state, pos, MC.level)) {
+            evt.setSwingHand(false);
+            evt.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onItemTooltip(ItemTooltipEvent evt) {
+        if (!evt.getItemStack().is(ItemRegistrar.IRON_SWORD.get())) {
+            return;
+        }
+
+        List<Component> tooltip = evt.getToolTip();
+
+        boolean isRussian = MC.options.languageCode != null && MC.options.languageCode.startsWith("ru");
+        String unitsDamageText = isRussian ? " Урон по юнитам: 4" : " Damage vs units: 4";
+        String mobsDamageText = isRussian ? " Урон по мобам: 1" : " Damage vs mobs: 1";
+        int insertIndex = -1;
+
+        for (int i = 0; i < tooltip.size(); i++) {
+            if (isAttackDamageLine(tooltip.get(i))) {
+                if (insertIndex < 0) {
+                    insertIndex = i;
+                }
+            }
+        }
+
+        tooltip.removeIf(PlayerClientEvents::isAttackDamageLine);
+
+        if (insertIndex < 0 || insertIndex > tooltip.size()) {
+            insertIndex = tooltip.size();
+        }
+
+        tooltip.add(insertIndex, Component.literal(unitsDamageText).withStyle(ChatFormatting.DARK_GREEN));
+        tooltip.add(insertIndex + 1, Component.literal(mobsDamageText).withStyle(ChatFormatting.DARK_GREEN));
+    }
+
+    private static boolean isAttackDamageLine(Component component) {
+        return containsAttackDamageModifier(component);
+    }
+
+    private static boolean containsAttackDamageModifier(Component component) {
+        if (component.getContents() instanceof TranslatableContents contents) {
+            String key = contents.getKey();
+            if ("attribute.name.generic.attack_damage".equals(key)) {
+                return true;
+            }
+            if (key != null && key.startsWith("attribute.modifier.")) {
+                for (Object arg : contents.getArgs()) {
+                    if (arg instanceof Component argComponent && containsAttackDamageModifier(argComponent)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        for (Component sibling : component.getSiblings()) {
+            if (containsAttackDamageModifier(sibling)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static void syncRtsGameTime(Long gameTicks) {
         rtsGameTicks = gameTicks;
+    }
+
+    private static boolean isIgnorableGrass(BlockState state) {
+        return state.is(Blocks.GRASS) || state.is(Blocks.TALL_GRASS) || state.is(Blocks.FERN) || state.is(Blocks.LARGE_FERN);
+    }
+
+    private static HitResult clipIgnoringGrass(Vec3 start, Vec3 look, double reach) {
+        Vec3 from = start;
+        double remaining = reach;
+        for (int i = 0; i < GRASS_SKIP_MAX; i++) {
+            Vec3 to = from.add(look.scale(remaining));
+            HitResult hit = MC.level.clip(new ClipContext(from, to, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, MC.player));
+            if (hit.getType() != HitResult.Type.BLOCK)
+                return hit;
+
+            BlockPos pos = ((BlockHitResult) hit).getBlockPos();
+            BlockState state = MC.level.getBlockState(pos);
+            if (!isIgnorableGrass(state))
+                return hit;
+
+            Vec3 hitLoc = hit.getLocation();
+            double traveled = hitLoc.distanceTo(from);
+            remaining -= traveled;
+            if (remaining <= 0.01D)
+                break;
+
+            from = hitLoc.add(look.scale(0.01D));
+        }
+
+        Vec3 missTo = start.add(look.scale(reach));
+        return BlockHitResult.miss(missTo, Direction.getNearest(look.x, look.y, look.z), BlockPos.containing(missTo));
+    }
+
+    private static void updateGrassIgnoredHitResult() {
+        if (MC.player == null || MC.level == null)
+            return;
+        if (MC.player.isCreative() || MC.player.isSpectator())
+            return;
+
+        Vec3 eyePos = MC.player.getEyePosition(1.0F);
+        Vec3 look = MC.player.getViewVector(1.0F);
+        double reach = SURVIVAL_REACH;
+
+        HitResult blockHit = clipIgnoringGrass(eyePos, look, reach);
+
+        Vec3 end = eyePos.add(look.scale(reach));
+        AABB aabb = MC.player.getBoundingBox().expandTowards(look.scale(reach)).inflate(1.0D);
+        EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(MC.player, eyePos, end, aabb,
+            (entity) -> !entity.isSpectator() && entity.isPickable(), reach * reach);
+
+        HitResult finalHit = blockHit;
+        if (entityHit != null) {
+            double entityDist = eyePos.distanceTo(entityHit.getLocation());
+            double blockDist = blockHit.getType() == HitResult.Type.MISS ? Double.MAX_VALUE : eyePos.distanceTo(blockHit.getLocation());
+            if (entityDist < blockDist) {
+                finalHit = entityHit;
+            }
+        }
+
+        MC.hitResult = finalHit;
     }
 
     public static void resetRTS(boolean hardReset) {
@@ -489,3 +649,22 @@ public class PlayerClientEvents {
     }
      */
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

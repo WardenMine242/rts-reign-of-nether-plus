@@ -51,7 +51,8 @@ public class ResearchDrillT3 extends ProductionItem {
                 ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "textures/hud/icon_frame_bronze.png"),
                 hotkey,
                 () -> ProductionItems.RESEARCH_DRILL_T3.itemIsBeingProduced(prodBuilding.ownerName)
-                        || ResearchClient.hasResearch(ProductionItems.RESEARCH_DRILL_T3),
+                        || ResearchClient.hasResearch(ProductionItems.RESEARCH_DRILL_T3)
+                        || !ResearchClient.hasResearch(ProductionItems.RESEARCH_DRILL_T2),
                 () ->      ResearchClient.hasResearch(ProductionItems.RESEARCH_DRILL_T2) ||
                         ResearchClient.hasCheat("modifythephasevariance"),
                 List.of(FormattedCharSequence.forward(I18n.get("research.reignofnether.research.drill_tier_3"),

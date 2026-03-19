@@ -9,8 +9,6 @@ import com.solegendary.reignofnether.building.buildings.placements.PortalPlaceme
 import com.solegendary.reignofnether.building.buildings.villagers.*;
 import com.solegendary.reignofnether.building.custombuilding.CustomBuilding;
 import com.solegendary.reignofnether.building.custombuilding.CustomBuildingServerEvents;
-import net.WardenMine242.reignofnetherplus.building.buildings.monsters.AbandonedDrill;
-import net.WardenMine242.reignofnetherplus.building.buildings.piglins.NetherDrill;
 import net.WardenMine242.reignofnetherplus.building.buildings.villagers.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -170,8 +168,6 @@ public class BuildingSaveData extends SavedData {
             case DarkWatchtower.buildingName -> building = Buildings.DARK_WATCHTOWER;
             case Castle.buildingName -> building = Buildings.CASTLE;
             case Stronghold.buildingName -> building = Buildings.STRONGHOLD;
-            case AbandonedDrill.buildingName -> building = Buildings.ABANDONED_DRILL;
-            case NetherDrill.buildingName -> building = Buildings.NETHER_DRILL;
             case CentralPortal.buildingName -> building = Buildings.CENTRAL_PORTAL;
             case PortalBasic.buildingName -> building = Buildings.PORTAL_BASIC;
             case PortalCivilian.buildingName -> building = Buildings.PORTAL_CIVILIAN;

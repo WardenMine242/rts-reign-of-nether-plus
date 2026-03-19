@@ -5,6 +5,7 @@ import com.solegendary.reignofnether.alliance.AlliancesServerEvents;
 import com.solegendary.reignofnether.building.buildings.neutral.NeutralTransportPortal;
 import com.solegendary.reignofnether.building.buildings.placements.*;
 import com.solegendary.reignofnether.building.buildings.shared.AbstractBridge;
+import com.solegendary.reignofnether.building.buildings.villagers.TownCentre;
 import com.solegendary.reignofnether.building.custombuilding.CustomBuildingServerEvents;
 import com.solegendary.reignofnether.fogofwar.FrozenChunkClientboundPacket;
 import com.solegendary.reignofnether.nether.NetherBlocks;
@@ -23,8 +24,6 @@ import com.solegendary.reignofnether.unit.units.monsters.CreeperUnit;
 import com.solegendary.reignofnether.unit.units.piglins.GhastUnit;
 import com.solegendary.reignofnether.unit.units.villagers.PillagerUnit;
 import com.solegendary.reignofnether.util.MiscUtil;
-import net.WardenMine242.reignofnetherplus.building.buildings.monsters.AbandonedDrill;
-import net.WardenMine242.reignofnetherplus.building.buildings.piglins.NetherDrill;
 import net.WardenMine242.reignofnetherplus.building.buildings.villagers.VillagerDrill;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -276,6 +275,14 @@ public class BuildingServerEvents {
             }
         }
         if (newBuilding != null && !buildingExists) {
+            // only allow one Town Centre per owner
+            if (building instanceof TownCentre) {
+                for (BuildingPlacement placement : buildings) {
+                    if (placement.ownerName.equals(ownerName) && placement.getBuilding() instanceof TownCentre) {
+                        return null;
+                    }
+                }
+            }
             // Handle special building (Iron Golem)
             if (newBuilding instanceof IronGolemPlacement) {
                 int currentPop = UnitServerEvents.getCurrentPopulation(serverLevel, ownerName);
@@ -597,8 +604,7 @@ public class BuildingServerEvents {
             for (BuildingPlacement placement : buildings) {
 
                 if (placement.isBuilt &&
-                        (placement.getBuilding() instanceof VillagerDrill
-                                || placement.getBuilding() instanceof AbandonedDrill || placement.getBuilding() instanceof NetherDrill)) {
+                        (placement.getBuilding() instanceof VillagerDrill)) {
                     BlockPos center = placement.originPos.offset(4, 0, 4);
 
                     double x = center.getX() + 0.5;

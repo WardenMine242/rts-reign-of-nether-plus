@@ -63,6 +63,7 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
@@ -71,6 +72,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -78,6 +80,7 @@ import net.minecraftforge.client.event.RenderNameTagEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.Event;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
@@ -290,6 +293,7 @@ public class HudClientEvents {
         buttonsPerRow = Math.max(buttonsPerRow, 4);
 
         int buildingProdRows = 0;
+        int buildingAbilityRows = 0;
 
         buildingButtons.clear();
         unitButtons.clear();
@@ -546,8 +550,11 @@ public class HudClientEvents {
                             .stream()
                             .filter(b -> !b.isHidden.get())
                             .toList();
-                    if (buildingAbilities.size() > 0) {
-                        blitY -= Button.DEFAULT_ICON_FRAME_SIZE;
+                    int abilityRows = 0;
+                    if (!buildingAbilities.isEmpty()) {
+                        abilityRows = (int) Math.ceil((double) buildingAbilities.size() / (double) MAX_BUTTONS_PER_ROW);
+                        buildingAbilityRows = abilityRows;
+                        blitY -= Button.DEFAULT_ICON_FRAME_SIZE * abilityRows;
                     }
 
                     // production buttons on bottom row
@@ -575,13 +582,20 @@ public class HudClientEvents {
                             blitX += iconFrameSize;
                         }
                     }
-                    blitY += Button.DEFAULT_ICON_FRAME_SIZE;
-                    blitX = 0;
-                    for (AbilityButton abilityButton : buildingAbilities) {
-                        if (!abilityButton.isHidden.get()) {
+                    if (abilityRows > 0) {
+                        blitX = 0;
+                        blitY = screenHeight - (iconFrameSize * abilityRows);
+                        int rowButtons = 0;
+                        for (AbilityButton abilityButton : buildingAbilities) {
                             abilityButton.render(evt.getGuiGraphics(), blitX, blitY, mouseX, mouseY);
                             renderedButtons.add(abilityButton);
+                            rowButtons += 1;
                             blitX += iconFrameSize;
+                            if (rowButtons >= MAX_BUTTONS_PER_ROW) {
+                                rowButtons = 0;
+                                blitX = 0;
+                                blitY += iconFrameSize;
+                            }
                         }
                     }
                 }
@@ -602,7 +616,15 @@ public class HudClientEvents {
                 name = hudSelectedEntity.getCustomName().getString();
             }
 
-            String nameCap = name.substring(0, 1).toUpperCase() + name.substring(1);
+            String nameCap = name.isEmpty()
+                    ? name
+                    : name.substring(0, 1).toUpperCase() + name.substring(1);
+
+            if (hudSelectedEntity instanceof Player player && MC.player != null && player.getId() == MC.player.getId()) {
+                String lang = MC.getLanguageManager().getSelected();
+                String youLabel = (lang != null && lang.startsWith("ru")) ? "Ты" : "You";
+                nameCap += " (" + youLabel + ")";
+            }
 
             unitPortraitZone = portraitRendererUnit.render(evt.getGuiGraphics(),
                     nameCap,
@@ -686,14 +708,8 @@ public class HudClientEvents {
                     AlliancesClient.canControlAlly(unit)) &&
                     unitButtons.size() < (buttonsPerRow * 2)) {
                 // mob head icon
-                String unitName = MiscUtil.getSimpleEntityName(unit);
-                String buttonImagePath;
-
-                if (unit.isVehicle()) {
-                    buttonImagePath = "textures/mobheads/" + unitName + "_half.png";
-                } else {
-                    buttonImagePath = "textures/mobheads/" + unitName + ".png";
-                }
+                String unitName = getMobheadBaseName(unit);
+                String buttonImagePath = resolveMobheadPath(unitName, unit.isVehicle());
 
                 Button button = new Button(unitName,
                         iconSize,
@@ -718,10 +734,14 @@ public class HudClientEvents {
                         List.of(fcs(capitaliseAndSpace(getModifiedEntityName(unit))))
                 );
                 if (unit.isVehicle() && unit instanceof Unit) {
-                    String passengerName = MiscUtil.getSimpleEntityName(unit.getFirstPassenger());
-                    button.bgIconResource = ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID,
-                            "textures/mobheads/" + passengerName + ".png"
-                    );
+                    Entity passenger = unit.getFirstPassenger();
+                    if (passenger instanceof LivingEntity livingPassenger) {
+                        String passengerName = getMobheadBaseName(livingPassenger);
+                        button.bgIconResource = ResourceLocation.fromNamespaceAndPath(
+                                ReignOfNether.MOD_ID,
+                                resolveMobheadPath(passengerName, false)
+                        );
+                    }
                 }
                 unitButtons.add(button);
             }
@@ -820,6 +840,9 @@ public class HudClientEvents {
             blitY -= iconFrameSize * buildingProdRows;
             if (hudSelectedEntity != null || !hudSelectedPlacement.getAbilities().isEmpty() || !hudSelectedPlacement.isBuilt) {
                 blitY -= iconFrameSize;
+                if (buildingAbilityRows > 1) {
+                    blitY -= iconFrameSize * (buildingAbilityRows - 1);
+                }
             }
             ArrayList<Button> actionButtons = new ArrayList<>();
 
@@ -1796,8 +1819,10 @@ public class HudClientEvents {
 
     @SubscribeEvent
     public static void onRenderNamePlate(RenderNameTagEvent evt) {
-        //if (OrthoviewClientEvents.isEnabled())
-        //    evt.setResult(Event.Result.DENY);
+        if (OrthoviewClientEvents.isEnabled() && evt.getEntity() instanceof Player player && MC.player != null
+            && player.getId() == MC.player.getId()) {
+            evt.setResult(Event.Result.DENY);
+        }
     }
 
     // MANAGE CONTROL GROUPS
@@ -1860,6 +1885,146 @@ public class HudClientEvents {
             cycleUnitSubgroups();
             cycleBuildingSubgroups();
         }
+    }
+
+    public static String resolveMobheadPath(String unitName, boolean half) {
+        String baseName = unitName == null ? "" : unitName;
+        String suffix = half ? "_half" : "";
+        String lower = sanitizeMobheadName(baseName.toLowerCase(Locale.ROOT));
+        String direct = lower.isBlank() ? "" : "textures/mobheads/" + lower + suffix + ".png";
+        if (resourceExists(direct)) {
+            return direct;
+        }
+
+        String snake = sanitizeMobheadName(toSnakeCase(baseName));
+        if (!snake.isBlank()) {
+            String snakePath = "textures/mobheads/" + snake + suffix + ".png";
+            if (resourceExists(snakePath)) {
+                return snakePath;
+            }
+        }
+
+        String cleaned = sanitizeMobheadName(baseName.toLowerCase(Locale.ROOT)
+                .replace(" ", "_")
+                .replace("-", "_")
+                .replace(".", "_"));
+        if (!cleaned.isBlank() && !cleaned.equals(lower)) {
+            String cleanedPath = "textures/mobheads/" + cleaned + suffix + ".png";
+            if (resourceExists(cleanedPath)) {
+                return cleanedPath;
+            }
+        }
+
+        String fallback = "textures/mobheads/villager" + suffix + ".png";
+        if (resourceExists(fallback)) {
+            return fallback;
+        }
+
+        return "textures/mobheads/villager.png";
+    }
+
+    // locale-independent key for mobhead textures
+    private static String getMobheadBaseName(LivingEntity entity) {
+        if (entity == null) {
+            return "";
+        }
+
+        if (entity instanceof MilitiaUnit militiaUnit && militiaUnit.isUsingBow()) {
+            return "militia_archer";
+        }
+        if (entity instanceof RavagerUnit && entity.getPassengers().size() == 1
+                && entity.getPassengers().get(0) instanceof PillagerUnit) {
+            return "ravager_artillery";
+        }
+        if (entity instanceof PoisonSpiderUnit && entity.getPassengers().size() == 1
+                && (entity.getPassengers().get(0) instanceof SkeletonUnit
+                || entity.getPassengers().get(0) instanceof StrayUnit)) {
+            return "poison_spider_jockey";
+        }
+        if (entity instanceof SpiderUnit && entity.getPassengers().size() == 1
+                && (entity.getPassengers().get(0) instanceof SkeletonUnit
+                || entity.getPassengers().get(0) instanceof StrayUnit)) {
+            return "spider_jockey";
+        }
+        if (entity instanceof HoglinUnit && entity.getPassengers().size() == 1
+                && entity.getPassengers().get(0) instanceof HeadhunterUnit) {
+            return "hoglin_rider";
+        }
+
+        ResourceLocation typeKey = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+        if (typeKey != null) {
+            String path = typeKey.getPath();
+            if (path.endsWith("_unit")) {
+                path = path.substring(0, path.length() - "_unit".length());
+            }
+            return path;
+        }
+
+        return sanitizeMobheadName(MiscUtil.getSimpleEntityName(entity).toLowerCase(Locale.ROOT));
+    }
+
+    private static String sanitizeMobheadName(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder(value.length());
+        char prev = 0;
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) {
+                sb.append(c);
+                prev = c;
+                continue;
+            }
+            if (c == '_' || c == '-' || c == '.') {
+                if (prev != c) {
+                    sb.append(c);
+                    prev = c;
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    private static boolean resourceExists(String path) {
+        if (path == null || path.isBlank()) {
+            return false;
+        }
+        try {
+            return MC.getResourceManager()
+                    .getResource(ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, path))
+                    .isPresent();
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private static String toSnakeCase(String input) {
+        if (input == null || input.isBlank()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        char prev = 0;
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if (c == ' ' || c == '-' || c == '.') {
+                if (sb.length() > 0 && sb.charAt(sb.length() - 1) != '_') {
+                    sb.append('_');
+                }
+                prev = '_';
+                continue;
+            }
+            if (Character.isUpperCase(c)) {
+                if (sb.length() > 0 && prev != '_' && !Character.isUpperCase(prev)) {
+                    sb.append('_');
+                }
+                sb.append(Character.toLowerCase(c));
+            } else {
+                sb.append(c);
+            }
+            prev = c;
+        }
+        return sb.toString();
     }
 
     private static void cycleUnitSubgroups() {
@@ -1982,3 +2147,5 @@ public class HudClientEvents {
         }
     }
 }
+
+

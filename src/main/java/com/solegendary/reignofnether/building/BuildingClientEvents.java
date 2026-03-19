@@ -35,8 +35,6 @@ import com.solegendary.reignofnether.faction.Faction;
 import com.solegendary.reignofnether.util.MiscUtil;
 import com.solegendary.reignofnether.util.MyRenderer;
 
-import net.WardenMine242.reignofnetherplus.building.buildings.monsters.AbandonedDrill;
-import net.WardenMine242.reignofnetherplus.building.buildings.piglins.NetherDrill;
 import net.WardenMine242.reignofnetherplus.building.buildings.villagers.VillagerDrill;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.BeaconScreen;
@@ -345,8 +343,7 @@ public class BuildingClientEvents {
 
     public static boolean isBuildingPlacementValid(BlockPos originPos) {
         // --- Drill iron ore check ---
-        if (buildingToPlace instanceof VillagerDrill
-                || buildingToPlace instanceof AbandonedDrill|| buildingToPlace instanceof NetherDrill) {
+        if (buildingToPlace instanceof VillagerDrill) {
 
             if (MC.level != null) {
                 BlockPos centerPos = originPos.offset(4, 0, 4);
@@ -1161,6 +1158,42 @@ public class BuildingClientEvents {
             }
         }
         return false;
+    }
+
+    // does the given player own any of these buildings (built or in-progress)?
+    public static boolean playerHasAnyBuilding(Building building, String playerName) {
+        for (BuildingPlacement bpl : buildings) {
+            if (bpl.getBuilding().isTypeOf(building) && bpl.ownerName.equals(playerName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // owner name that would be used if the player places this building right now
+    public static String getPlacementOwnerName(Building building) {
+        if (hudSelectedEntity instanceof Unit unit) {
+            return unit.getOwnerName();
+        }
+
+        String ownerName = MC.player.getName().getString();
+        boolean hasSelectedWorkers = false;
+        for (LivingEntity entity : getSelectedUnits()) {
+            if (entity instanceof WorkerUnit) {
+                hasSelectedWorkers = true;
+                break;
+            }
+        }
+
+        if (SandboxClientEvents.isSandboxPlayer(ownerName) && !hasSelectedWorkers &&
+                !(building instanceof AbstractBridge)) {
+            if (SandboxClientEvents.relationship == Relationship.NEUTRAL) {
+                ownerName = "";
+            } else if (SandboxClientEvents.relationship == Relationship.HOSTILE) {
+                ownerName = "Enemy";
+            }
+        }
+        return ownerName;
     }
 
     public static boolean playerHasFinishedBuilding(Building building, String playerName) {

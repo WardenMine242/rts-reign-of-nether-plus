@@ -3,6 +3,10 @@ package com.solegendary.reignofnether.registrars;
 import com.solegendary.reignofnether.ReignOfNether;
 import com.solegendary.reignofnether.items.HeroExperienceBottleItem;
 import com.solegendary.reignofnether.items.ThrowableTnt;
+import net.WardenMine242.reignofnetherplus.Items.IronAxe;
+import net.WardenMine242.reignofnetherplus.Items.IronHoe;
+import net.WardenMine242.reignofnetherplus.Items.IronPickaxe;
+import net.WardenMine242.reignofnetherplus.Items.IronSword;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -175,6 +179,18 @@ public class ItemRegistrar {
 
     public static final RegistryObject<Item> THROWN_HERO_EXPERIENCE_BOTTLE =
             ITEMS.register("thrown_hero_experience_bottle", () -> new HeroExperienceBottleItem(new Item.Properties()));
+
+    public static final RegistryObject<Item> IRON_SWORD =
+            ITEMS.register("iron_sword", () -> new IronSword(new Item.Properties()));
+
+    public static final RegistryObject<Item> IRON_PICKAXE =
+            ITEMS.register("iron_pickaxe", () -> new IronPickaxe(new Item.Properties()));
+
+    public static final RegistryObject<Item> IRON_AXE =
+            ITEMS.register("iron_axe", () -> new IronAxe(new Item.Properties()));
+
+    public static final RegistryObject<Item> IRON_HOE =
+            ITEMS.register("iron_hoe", () -> new IronHoe(new Item.Properties()));
 
     public static void init(FMLJavaModLoadingContext context) {
         ITEMS.register(context.getModEventBus());

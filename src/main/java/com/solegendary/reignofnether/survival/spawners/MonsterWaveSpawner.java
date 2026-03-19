@@ -2,6 +2,7 @@ package com.solegendary.reignofnether.survival.spawners;
 
 import com.solegendary.reignofnether.building.production.ProductionItems;
 import com.solegendary.reignofnether.player.PlayerServerEvents;
+import com.solegendary.reignofnether.player.RTSPlayer;
 import com.solegendary.reignofnether.registrars.EntityRegistrar;
 import com.solegendary.reignofnether.research.ResearchServerEvents;
 import com.solegendary.reignofnether.survival.Wave;
@@ -128,10 +129,25 @@ public class MonsterWaveSpawner {
     public static void spawnMonsterWave(ServerLevel level, Wave wave) {
         checkAndApplyUpgrades(wave.highestUnitTier);
 
-        final int pop = wave.population * PlayerServerEvents.rtsPlayers.size();
-        int remainingPop = wave.population * PlayerServerEvents.rtsPlayers.size();
+        List<RTSPlayer> targets = PlayerServerEvents.rtsPlayers;
+        if (targets.isEmpty()) {
+            targets = List.of();
+        }
 
-        List<BlockPos> bps = getValidSpawnPoints(remainingPop, level, true, 4);
+        if (targets.isEmpty()) {
+            spawnMonsterWaveForOwner(level, wave, null);
+        } else {
+            for (RTSPlayer rtsPlayer : targets) {
+                spawnMonsterWaveForOwner(level, wave, rtsPlayer.name);
+            }
+        }
+        lastFaction = Faction.MONSTERS;
+    }
+
+    private static void spawnMonsterWaveForOwner(ServerLevel level, Wave wave, String ownerName) {
+        int remainingPop = wave.population;
+
+        List<BlockPos> bps = getValidSpawnPointsForOwner(remainingPop, level, true, 4, ownerName);
 
         for (BlockPos bp : bps) {
             BlockState bs = level.getBlockState(bp);
@@ -178,8 +194,8 @@ public class MonsterWaveSpawner {
                 break;
         }
         if (remainingPop > 0) {
-            PlayerServerEvents.sendMessageToAllPlayers("Failed to spawn " + remainingPop + "/" + pop + " population worth of monster units");
+            String suffix = ownerName != null && !ownerName.isBlank() ? (" for " + ownerName) : "";
+            PlayerServerEvents.sendMessageToAllPlayers("Failed to spawn " + remainingPop + "/" + wave.population + " population worth of monster units" + suffix);
         }
-        lastFaction = Faction.MONSTERS;
     }
 }

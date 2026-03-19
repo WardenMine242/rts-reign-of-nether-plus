@@ -19,8 +19,10 @@ import com.solegendary.reignofnether.unit.units.villagers.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.*;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -260,6 +262,38 @@ public class CommonModEvents {
         if(BuiltInRegistries.CREATIVE_MODE_TAB.getKey(event.getTab())==CreativeModeTabs.TOOLS_AND_UTILITIES.location()){
             event.accept(ItemRegistrar.THROWABLE_TNT);
             event.accept(ItemRegistrar.THROWN_HERO_EXPERIENCE_BOTTLE);
+            if (event.getEntries().contains(Items.NETHERITE_HOE.getDefaultInstance())) {
+                event.getEntries().putAfter(
+                        Items.NETHERITE_HOE.getDefaultInstance(),
+                        ItemRegistrar.IRON_PICKAXE.get().getDefaultInstance(),
+                        CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+                );
+                event.getEntries().putAfter(
+                        ItemRegistrar.IRON_PICKAXE.get().getDefaultInstance(),
+                        ItemRegistrar.IRON_AXE.get().getDefaultInstance(),
+                        CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+                );
+                event.getEntries().putAfter(
+                        ItemRegistrar.IRON_AXE.get().getDefaultInstance(),
+                        ItemRegistrar.IRON_HOE.get().getDefaultInstance(),
+                        CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+                );
+            } else {
+                event.accept(ItemRegistrar.IRON_PICKAXE);
+                event.accept(ItemRegistrar.IRON_AXE);
+                event.accept(ItemRegistrar.IRON_HOE);
+            }
+        }
+        if(BuiltInRegistries.CREATIVE_MODE_TAB.getKey(event.getTab())==CreativeModeTabs.COMBAT.location()){
+            if (event.getEntries().contains(Items.NETHERITE_SWORD.getDefaultInstance())) {
+                event.getEntries().putAfter(
+                        Items.NETHERITE_SWORD.getDefaultInstance(),
+                        ItemRegistrar.IRON_SWORD.get().getDefaultInstance(),
+                        CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+                );
+            } else {
+                event.accept(ItemRegistrar.IRON_SWORD);
+            }
         }
     }
 
@@ -272,4 +306,3 @@ public class CommonModEvents {
         );
     }
 }
-

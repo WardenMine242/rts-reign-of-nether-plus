@@ -31,7 +31,7 @@ logoFile="examplemod.png" #optional
 # A text field displayed in the mod UI
 credits="Thanks to Technovision for his YouTube guides" #optional
 # A text field displayed in the mod UI
-authors="SoLegendary, Goodbird (ported to 1.20.1)" #optional
+authors="SoLegendary, Goodbird (ported to 1.20.1), WardenMine242 (RoN+)" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
 Minecraft, except it's an RTS

@@ -136,6 +136,23 @@ public class ResourcesClientboundPacket {
         );
     }
 
+    public static void showPickupText(Resources res) {
+        showPickupText(res, "");
+    }
+
+    public static void showPickupText(Resources res, String msg) {
+        PacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(),
+            new ResourcesClientboundPacket(ResourcesAction.SHOW_PICKUP_TEXT,
+                res.ownerName,
+                res.food,
+                res.wood,
+                res.ore,
+                new BlockPos(0, 0, 0),
+                msg
+            )
+        );
+    }
+
     public ResourcesClientboundPacket(
             ResourcesAction action, String ownerName, int food, int wood, int ore, BlockPos pos, String msg
     ) {
@@ -198,6 +215,18 @@ public class ResourcesClientboundPacket {
                             this.wood,
                             this.ore
                         ), this.pos);
+                    case SHOW_PICKUP_TEXT ->
+                        {
+                            if (this.msg != null && !this.msg.isEmpty()) {
+                                ResourcesClientEvents.addPickupTextMessage(this.msg);
+                            } else {
+                                ResourcesClientEvents.addPickupTextsFromResources(new Resources(this.ownerName,
+                                    this.food,
+                                    this.wood,
+                                    this.ore
+                                ));
+                            }
+                        }
                 }
                 success.set(true);
             });

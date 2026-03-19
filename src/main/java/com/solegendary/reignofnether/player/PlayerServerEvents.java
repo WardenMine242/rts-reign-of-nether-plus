@@ -36,18 +36,22 @@ import com.solegendary.reignofnether.util.MiscUtil;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.MenuConstructor;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.phys.Vec3;
@@ -80,6 +84,7 @@ public class PlayerServerEvents {
 
     public static final ArrayList<ServerPlayer> players = new ArrayList<>();
     public static final ArrayList<ServerPlayer> orthoviewPlayers = new ArrayList<>();
+    private static final Map<UUID, Vec3> orthoviewFrozenPositions = new HashMap<>();
     // players that are currently playing a match
     public static final List<RTSPlayer> rtsPlayers = Collections.synchronizedList(new ArrayList<>());
     // list of players after a match ends
@@ -94,6 +99,7 @@ public class PlayerServerEvents {
     public static long rtsGameTicks = 0; // ticks up as long as there is at least 1 rtsPlayer
 
     public static ServerLevel serverLevel = null;
+    private static final String FIRST_SPAWN_STEAK_KEY = "ron_first_spawn_steak_given";
 
     // warpten - faster building/unit production
     // operationcwal - faster resource gathering
@@ -249,6 +255,31 @@ public class PlayerServerEvents {
                     saveTicks = 0;
                 }
             }
+            freezeOrthoviewPlayers();
+        }
+    }
+
+    private static void freezeOrthoviewPlayers() {
+        if (orthoviewPlayers.isEmpty()) {
+            orthoviewFrozenPositions.clear();
+            return;
+        }
+
+        orthoviewFrozenPositions.keySet().removeIf(uuid ->
+            orthoviewPlayers.stream().noneMatch(p -> p != null && p.getUUID().equals(uuid)));
+
+        for (ServerPlayer player : orthoviewPlayers) {
+            if (player == null || !player.isAlive()) {
+                continue;
+            }
+
+            Vec3 frozen = orthoviewFrozenPositions.computeIfAbsent(player.getUUID(), id -> player.position());
+
+            if (player.position().distanceToSqr(frozen) > 1.0e-6) {
+                player.teleportTo(frozen.x, frozen.y, frozen.z);
+            }
+            player.setDeltaMovement(Vec3.ZERO);
+            player.fallDistance = 0;
         }
     }
 
@@ -276,9 +307,27 @@ public class PlayerServerEvents {
         }
     }
 
+    private static void giveFirstSpawnSteak(ServerPlayer player) {
+        CompoundTag rootTag = player.getPersistentData();
+        CompoundTag persistedTag = rootTag.getCompound(Player.PERSISTED_NBT_TAG);
+
+        if (persistedTag.getBoolean(FIRST_SPAWN_STEAK_KEY)) {
+            return;
+        }
+
+        ItemStack steaks = new ItemStack(Items.COOKED_BEEF, 4);
+        if (!player.getInventory().add(steaks) && !steaks.isEmpty()) {
+            player.drop(steaks, false);
+        }
+
+        persistedTag.putBoolean(FIRST_SPAWN_STEAK_KEY, true);
+        rootTag.put(Player.PERSISTED_NBT_TAG, persistedTag);
+    }
+
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent evt) {
         ServerPlayer serverPlayer = (ServerPlayer) evt.getEntity();
+        giveFirstSpawnSteak(serverPlayer);
 
         players.add((ServerPlayer) evt.getEntity());
         String playerName = serverPlayer.getName().getString();
@@ -366,6 +415,8 @@ public class PlayerServerEvents {
         int id = evt.getEntity().getId();
         ReignOfNether.LOGGER.info("Player logged out: " + evt.getEntity().getName().getString() + ", id: " + id);
         players.removeIf(player -> player.getId() == id);
+        orthoviewPlayers.removeIf(player -> player.getId() == id);
+        orthoviewFrozenPositions.remove(evt.getEntity().getUUID());
     }
 
     public static void startRTS(int playerId, Vec3 pos, Faction faction) {
@@ -392,6 +443,11 @@ public class PlayerServerEvents {
                 serverPlayer.sendSystemMessage(Component.literal(""));
                 serverPlayer.sendSystemMessage(Component.translatable("server.reignofnether.locked"));
                 serverPlayer.sendSystemMessage(Component.literal(""));
+                return;
+            }
+            if (faction == Faction.NONE
+                    && serverPlayer.gameMode.getGameModeForPlayer() == GameType.SURVIVAL
+                    && !serverPlayer.hasPermissions(2)) {
                 return;
             }
             if (isRTSPlayer(serverPlayer.getId())) {
@@ -668,14 +724,24 @@ public class PlayerServerEvents {
 
     public static void enableOrthoview(int id) {
         ServerPlayer player = getPlayerById(id);
+        if (player == null) {
+            return;
+        }
         player.removeAllEffects();
 
         orthoviewPlayers.removeIf(p -> p.getId() == id);
         orthoviewPlayers.add(player);
+        orthoviewFrozenPositions.put(player.getUUID(), player.position());
+        player.setDeltaMovement(Vec3.ZERO);
+        player.fallDistance = 0;
     }
 
     public static void disableOrthoview(int id) {
         orthoviewPlayers.removeIf(p -> p.getId() == id);
+        ServerPlayer player = getPlayerById(id);
+        if (player != null) {
+            orthoviewFrozenPositions.remove(player.getUUID());
+        }
     }
 
     private static ServerPlayer getPlayerById(int playerId) {
@@ -696,15 +762,14 @@ public class PlayerServerEvents {
             MenuProvider namedProvider = new SimpleMenuProvider(provider, TopdownGuiContainer.TITLE);
             NetworkHooks.openScreen(serverPlayer, namedProvider);
 
-            // Save original game mode only if it's not already saved for this session
+            // Save original game mode for this session
             String playerName = serverPlayer.getName().getString();
-            playerDefaultGameModes.putIfAbsent(playerName, serverPlayer.gameMode.getGameModeForPlayer());
+            playerDefaultGameModes.put(playerName, serverPlayer.gameMode.getGameModeForPlayer());
 
             // Mark that this player has the GUI open
             playerGuiOpenStatus.put(playerName, true);
 
-            // Set game mode to SPECTATOR for GUI interaction
-            serverPlayer.setGameMode(GameType.SPECTATOR);
+
         } else {
             ReignOfNether.LOGGER.warn("serverPlayer is null, cannot open topdown GUI");
         }
@@ -725,10 +790,6 @@ public class PlayerServerEvents {
                     serverPlayer.setGameMode(originalGameType);
                 } else {
                     ReignOfNether.LOGGER.warn("No original game mode found for player {}", playerName);
-                }
-
-                if (SandboxServer.isSandboxPlayer(playerName)) {
-                    serverPlayer.setGameMode(GameType.CREATIVE);
                 }
 
                 // Mark that the GUI is now closed
@@ -1026,11 +1087,12 @@ public class PlayerServerEvents {
             SurvivalServerEvents.reset();
         }
         HeroServerEvents.fallenHeroes.clear();
+        if (!isSandbox) {
+            for (ServerPlayer player : serverLevel.players())
+                player.setGameMode(GameType.SPECTATOR);
 
-        for (ServerPlayer player : serverLevel.players())
-            player.setGameMode(GameType.SPECTATOR);
-
-        playerDefaultGameModes.replaceAll((key, oldValue) -> GameType.SPECTATOR);
+            playerDefaultGameModes.replaceAll((key, oldValue) -> GameType.SPECTATOR);
+        }
         AlliancesServerEvents.playersWithAlliedControl.clear();
         TimeServerEvents.resetBloodMoon();
     }
@@ -1066,3 +1128,12 @@ public class PlayerServerEvents {
         }
     }
 }
+
+
+
+
+
+
+
+
+

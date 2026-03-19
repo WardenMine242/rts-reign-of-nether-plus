@@ -55,10 +55,12 @@ public class DrillT3 extends ProductionItem {
                 ResourceLocation.fromNamespaceAndPath(ReignOfNether.MOD_ID, "textures/hud/icon_frame_bronze.png"),
                 hotkey,
 
-                () -> ProductionItems.DRILL_T3.itemIsBeingProducedAt(prodBuilding),
+                () -> ProductionItems.DRILL_T3.itemIsBeingProducedAt(prodBuilding)
+                        || !(prodBuilding.getBuilding() instanceof VillagerDrill)
+                        || prodBuilding.getUpgradeLevel() != 1,
 
                 () -> prodBuilding.getBuilding() instanceof VillagerDrill
-                        && prodBuilding.getUpgradeLevel() < 2
+                        && prodBuilding.getUpgradeLevel() == 1
                         && (ResearchClient.hasResearch(ProductionItems.RESEARCH_DRILL_T3)
                                 || ResearchClient.hasCheat("modifythephasevariance")
                 ),

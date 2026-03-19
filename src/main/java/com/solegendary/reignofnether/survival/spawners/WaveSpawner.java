@@ -107,10 +107,16 @@ public class WaveSpawner {
     }
 
     public static List<BlockPos> getValidSpawnPoints(int amount, Level level, boolean allowLiquid, int flatnessRadius) {
+        return getValidSpawnPointsForOwner(amount, level, allowLiquid, flatnessRadius, null);
+    }
+
+    public static List<BlockPos> getValidSpawnPointsForOwner(int amount, Level level, boolean allowLiquid, int flatnessRadius, String ownerName) {
         List<BuildingPlacement> buildings = new ArrayList<>();
         for (BuildingPlacement buildingPlacement : BuildingServerEvents.getBuildings()) {
             if (!ENEMY_OWNER_NAME.equals(buildingPlacement.ownerName) && !buildingPlacement.ownerName.isBlank()) {
-                buildings.add(buildingPlacement);
+                if (ownerName == null || ownerName.isBlank() || buildingPlacement.ownerName.equals(ownerName)) {
+                    buildings.add(buildingPlacement);
+                }
             }
         }
 

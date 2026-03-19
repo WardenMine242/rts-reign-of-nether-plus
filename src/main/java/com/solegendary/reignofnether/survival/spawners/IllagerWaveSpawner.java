@@ -5,6 +5,7 @@ import com.solegendary.reignofnether.building.BuildingPlacement;
 import com.solegendary.reignofnether.building.Buildings;
 import com.solegendary.reignofnether.building.production.ProductionItems;
 import com.solegendary.reignofnether.player.PlayerServerEvents;
+import com.solegendary.reignofnether.player.RTSPlayer;
 import com.solegendary.reignofnether.registrars.EnchantmentRegistrar;
 import com.solegendary.reignofnether.registrars.EntityRegistrar;
 import com.solegendary.reignofnether.research.ResearchServerEvents;
@@ -141,9 +142,24 @@ public class IllagerWaveSpawner {
     public static void spawnIllagerWave(ServerLevel level, Wave wave) {
         checkAndApplyUpgrades(wave.highestUnitTier);
 
-        final int pop = wave.population * PlayerServerEvents.rtsPlayers.size();
-        int remainingPop = wave.population * PlayerServerEvents.rtsPlayers.size();
-        List<BlockPos> spawnBps = getValidSpawnPoints(remainingPop, level, true, 6);
+        List<RTSPlayer> targets = PlayerServerEvents.rtsPlayers;
+        if (targets.isEmpty()) {
+            targets = List.of();
+        }
+
+        if (targets.isEmpty()) {
+            spawnIllagerWaveForOwner(level, wave, null);
+        } else {
+            for (RTSPlayer rtsPlayer : targets) {
+                spawnIllagerWaveForOwner(level, wave, rtsPlayer.name);
+            }
+        }
+        lastFaction = Faction.VILLAGERS;
+    }
+
+    private static void spawnIllagerWaveForOwner(ServerLevel level, Wave wave, String ownerName) {
+        int remainingPop = wave.population;
+        List<BlockPos> spawnBps = getValidSpawnPointsForOwner(remainingPop, level, true, 6, ownerName);
         int spawnsThisDir = 0;
         int spawnUntilNextTurn = -2;
 
@@ -187,8 +203,8 @@ public class IllagerWaveSpawner {
                 entities.get(i).moveTo(bps.get(i).getX(), entities.get(i).getY() + 0.5f, bps.get(i).getZ());
         }
         if (remainingPop > 0) {
-            PlayerServerEvents.sendMessageToAllPlayers("Failed to spawn " + remainingPop + "/" + pop + " population worth of villager units");
+            String suffix = ownerName != null && !ownerName.isBlank() ? (" for " + ownerName) : "";
+            PlayerServerEvents.sendMessageToAllPlayers("Failed to spawn " + remainingPop + "/" + wave.population + " population worth of villager units" + suffix);
         }
-        lastFaction = Faction.VILLAGERS;
     }
 }

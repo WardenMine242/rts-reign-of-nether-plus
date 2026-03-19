@@ -234,8 +234,8 @@ public class CursorClientEvents {
         UnitClientEvents.clearPreselectedUnits();
 
         for (LivingEntity entity : nearbyEntities) {
-            // don't let the player select themselves
-            if (entity.getId() == MC.player.getId())
+            // don't let the player select themselves (unless RTS mode)
+            if (entity.getId() == MC.player.getId() && !OrthoviewClientEvents.isEnabled())
                 continue;
 
             // inflate by set amount to improve click accuracy
@@ -269,7 +269,7 @@ public class CursorClientEvents {
             );
             for (LivingEntity entity : entitiesInRange) {
                 if (MyMath.isPointInsideRect3d(uvwp, entity.getBoundingBox().getCenter()) &&
-                        entity.getId() != MC.player.getId() &&
+                        (OrthoviewClientEvents.isEnabled() || entity.getId() != MC.player.getId()) &&
                         !UnitClientEvents.getPreselectedUnits().contains(entity))
                     UnitClientEvents.addPreselectedUnit(entity);
             }
@@ -558,5 +558,7 @@ public class CursorClientEvents {
         return bestBp;
     }
 }
+
+
 
 

@@ -186,6 +186,15 @@ public class ReignOfNetherCommonConfigs {
         AbilityCosts.ENCHANT_VIGOR.define(BUILDER);
         AbilityCosts.EQUIP_LEATHER_ARMOR.define(BUILDER);
         AbilityCosts.EQUIP_CHAINMAIL_ARMOR.define(BUILDER);
+        AbilityCosts.EQUIP_IRON_ARMOR.define(BUILDER);
+        AbilityCosts.EQUIP_IRON_SWORD.define(BUILDER);
+        AbilityCosts.EQUIP_IRON_PICKAXE.define(BUILDER);
+        AbilityCosts.EQUIP_IRON_AXE.define(BUILDER);
+        AbilityCosts.EQUIP_IRON_HOE.define(BUILDER);
+        AbilityCosts.STEAK.define(BUILDER);
+        AbilityCosts.EQUIP_BOW.define(BUILDER);
+        AbilityCosts.EQUIP_ARROWS.define(BUILDER);
+
         SPEC = BUILDER.build();
     }
 
@@ -270,7 +279,7 @@ public class ReignOfNetherCommonConfigs {
         public static final ResourceCostConfigEntry VILLAGER_HOUSE = ResourceCostConfigEntry.Building(0,500,200, 10, ResourceCosts.VILLAGER_HOUSE, "Villager House Config");
         public static final ResourceCostConfigEntry WHEAT_FARM = ResourceCostConfigEntry.Building(0,300,50, 0, ResourceCosts.WHEAT_FARM, "Wheat Farm Config");
         public static final ResourceCostConfigEntry BARRACKS = ResourceCostConfigEntry.Building(0,800,600, 0, ResourceCosts.BARRACKS, "Barracks Config");
-        public static final ResourceCostConfigEntry BLACKSMITH = ResourceCostConfigEntry.Building(0,3000,3500, 0, ResourceCosts.BLACKSMITH, "Blacksmith Config");
+        public static final ResourceCostConfigEntry BLACKSMITH = ResourceCostConfigEntry.Building(0,1000,1200, 0, ResourceCosts.BLACKSMITH, "Blacksmith Config");
         public static final ResourceCostConfigEntry ARCANE_TOWER = ResourceCostConfigEntry.Building(0,1200,1300, 0, ResourceCosts.ARCANE_TOWER, "Arcane Tower Config");
         public static final ResourceCostConfigEntry LIBRARY = ResourceCostConfigEntry.Building(0,1200,1000, 0, ResourceCosts.LIBRARY, "Library Config");
         public static final ResourceCostConfigEntry WATCHTOWER = ResourceCostConfigEntry.Building(0,200,275, 0, ResourceCosts.WATCHTOWER, "Watchtower Config");
@@ -361,7 +370,14 @@ public class ReignOfNetherCommonConfigs {
         public static final ResourceCostConfigEntry ENCHANT_VIGOR = ResourceCostConfigEntry.Ability(0,50, 50, ResourceCosts.ENCHANT_VIGOR, "Vigor Enchantment Config");
         public static final ResourceCostConfigEntry EQUIP_LEATHER_ARMOR = ResourceCostConfigEntry.Ability(0,0, 100, ResourceCosts.EQUIP_LEATHER_ARMOR, "Equip Leather Armor Config");
         public static final ResourceCostConfigEntry EQUIP_CHAINMAIL_ARMOR = ResourceCostConfigEntry.Ability(0,0, 200, ResourceCosts.EQUIP_CHAINMAIL_ARMOR, "Equip Chainmail Armor Config");
-
+        public static final ResourceCostConfigEntry EQUIP_IRON_ARMOR = ResourceCostConfigEntry.Ability(0,0, 300, ResourceCosts.EQUIP_IRON_ARMOR, "Equip Iron Armor Config");
+        public static final ResourceCostConfigEntry EQUIP_IRON_SWORD = ResourceCostConfigEntry.Ability(0,15, 130, ResourceCosts.EQUIP_IRON_SWORD, "Equip Iron Sword Config");
+        public static final ResourceCostConfigEntry EQUIP_IRON_PICKAXE = ResourceCostConfigEntry.Ability(0,30, 195, ResourceCosts.EQUIP_IRON_PICKAXE, "Equip Iron Pickaxe Config");
+        public static final ResourceCostConfigEntry EQUIP_IRON_AXE = ResourceCostConfigEntry.Ability(0,30, 195, ResourceCosts.EQUIP_IRON_AXE, "Equip Iron Axe Config");
+        public static final ResourceCostConfigEntry EQUIP_IRON_HOE = ResourceCostConfigEntry.Ability(0,30, 130, ResourceCosts.EQUIP_IRON_HOE, "Equip Iron Hoe Config");
+        public static final ResourceCostConfigEntry STEAK = ResourceCostConfigEntry.Ability(200,0, 0, ResourceCosts.STEAK, "Steak Config");
+        public static final ResourceCostConfigEntry EQUIP_BOW = ResourceCostConfigEntry.Ability(0,300, 200, ResourceCosts.EQUIP_BOW, "Bow Config");
+        public static final ResourceCostConfigEntry EQUIP_ARROWS = ResourceCostConfigEntry.Ability(0,100, 50, ResourceCosts.EQUIP_ARROWS, "Arrows Config");
 
     }
     public interface Costs {}

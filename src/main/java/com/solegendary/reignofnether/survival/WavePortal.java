@@ -8,6 +8,7 @@ import com.solegendary.reignofnether.unit.interfaces.Unit;
 import com.solegendary.reignofnether.unit.units.piglins.GhastUnit;
 import com.solegendary.reignofnether.unit.units.piglins.HoglinUnit;
 import com.solegendary.reignofnether.unit.units.piglins.MagmaCubeUnit;
+import com.solegendary.reignofnether.player.PlayerServerEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -54,7 +55,8 @@ public class WavePortal {
             doSpawn();
         } else {
             int pop = SurvivalServerEvents.getTotalEnemyPopulation();
-            if (pop > wave.population * 2.0f) {
+            int playerCount = Math.max(1, PlayerServerEvents.rtsPlayers.size());
+            if (pop > wave.population * 2.0f * playerCount) {
                 return;
             }
             else if (spawnTicks >= SPAWN_TICKS_MAX) {

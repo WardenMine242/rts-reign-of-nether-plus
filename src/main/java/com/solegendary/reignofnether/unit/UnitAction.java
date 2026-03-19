@@ -124,6 +124,13 @@ public enum UnitAction {
 
     EQUIP_LEATHER_ARMOR,
     EQUIP_CHAINMAIL_ARMOR,
+    EQUIP_IRON_ARMOR,
+    EQUIP_IRON_SWORD,
+    EQUIP_IRON_PICKAXE,
+    EQUIP_IRON_AXE,
+    EQUIP_IRON_HOE,
+    EQUIP_BOW,
+    EQUIP_ARROWS,
 
     BEACON_HASTE,
     BEACON_RESISTANCE,
@@ -138,5 +145,6 @@ public enum UnitAction {
     SET_ATTACK_COUNT, // for marauders
 
     DEBUG1,
-    DEBUG2
+    DEBUG2,
+    FARM_GIVE_STEAK
 }

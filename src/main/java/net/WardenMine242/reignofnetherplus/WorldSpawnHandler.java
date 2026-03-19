@@ -40,8 +40,8 @@ public class WorldSpawnHandler {
 
         for (int i = 0; i < 5000; i++) {
 
-            int x = level.random.nextInt(-2000, 2000);
-            int z = level.random.nextInt(-2000, 2000);
+            int x = level.random.nextInt(-4000, 4000);
+            int z = level.random.nextInt(-4000, 4000);
 
             int y = level.getHeight(
                     Heightmap.Types.WORLD_SURFACE,
