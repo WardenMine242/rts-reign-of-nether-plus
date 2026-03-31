@@ -19,11 +19,12 @@
   "structures": {
     "structures": [
       {
-        "structure": "reignofnether:iron_deposit"
+        "structure": "siege_of_settlements:iron_deposit"
       }
     ]
   },
   "features": [
+    [],
     [],
     [],
     [],
@@ -58,7 +59,8 @@
       "minecraft:disk_sand",
       "minecraft:disk_clay",
       "minecraft:disk_gravel",
-      "minecraft:ore_coal_surface_small"
+      "minecraft:ore_coal_surface_small",
+      "minecraft:ore_emerald_surface"
     ],
     [],
     [

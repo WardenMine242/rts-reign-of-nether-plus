@@ -1,36 +1,29 @@
-# Reign of Nether: RTS in Minecraft
+# Siege of Settlements
 
-Inspired the classic Real Time Strategy games of the early 2000s including Starcraft, Warcraft and Age of Empires, Reign of Nether is trying to transform Minecraft into a experience just like one of them using all the same assets and models you find in the vanilla game.
+Siege of Settlements is a Minecraft mod that reimagines the game as a real-time strategy (RTS) experience. Take control of settlements, manage resources, build up your forces, and command units in large-scale battles — all within the familiar Minecraft world.
 
-Reign of Nether doesn't try to imitate one of these games exactly, but instead aims to have uniquely-minecraft features. For example, buildings health is proportional to their blocks placed and all units are based on vanilla Minecraft mobs like Illagers, Creepers, and Piglins.
+Rather than directly copying traditional RTS games, the mod focuses on mechanics that feel natural to Minecraft. Structures derive their durability from the blocks they are made of, and units are inspired by vanilla mobs such as Illagers, Creepers, and Piglins.
 
-# Soft roadmap
-These plans are not set in stone but are roughly what I plan to look at next in order of priority:
-1. Custom building customisation menu
-2. Improved API for command blocks
-3. New set of heroes for each faction
-4. Walls
-5. Fog of war rework
-6. Hero equippable items
+This project is built upon the source code of Reign of Nether, expanding on its foundation with new ideas and gameplay systems.
 
-# Release
-Download release files here:
-https://www.curseforge.com/minecraft/mc-mods/reign-of-nether-rts-in-minecraft
-https://modrinth.com/mod/reign-of-nether-rts
+# Beta
+Download beta files here:
+https://www.curseforge.com/minecraft/mc-mods/siege-of-settlements
+https://modrinth.com/mod/siege-of-settlements
 
 🏗️ Installation
 
 1. Install Forge 1.20.1: https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html
-2. Download and add the Reign of Nether mod jar file to your Minecraft mods folder
+2. Download and add the Siege of Settlements mod jar file to your Minecraft mods folder
 3. Launch Minecraft, selecting your installation as Forge 1.20.1
-For mod versions 1.1.3 and below, use Forge 1.19.2 instead
 
 # License
 GNU General Public License v3.0
 See License.txt for the full text
 
-# Other stuff
-Please join the discord if you want to discuss the mod: https://discord.gg/erBen9CzbD
-I also look at bug reports there much more than here in Github unless you have an actual PR fix
+# Reign of Nether
+Download Reign of Nether Release files here:
+https://www.curseforge.com/minecraft/mc-mods/reign-of-nether-rts-in-minecraft
+https://modrinth.com/mod/reign-of-nether-rts
 
 

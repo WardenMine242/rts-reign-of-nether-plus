@@ -1,0 +1,91 @@
+package com.solegendary.siege_of_settlements.building.buildings.placements;
+
+import com.solegendary.siege_of_settlements.ability.EquipAbility;
+import com.solegendary.siege_of_settlements.building.Building;
+import com.solegendary.siege_of_settlements.building.BuildingBlock;
+import com.solegendary.siege_of_settlements.building.NetherZone;
+import com.solegendary.siege_of_settlements.building.RangeIndicator;
+import com.solegendary.siege_of_settlements.time.TimeClientEvents;
+import com.solegendary.siege_of_settlements.util.MiscUtil;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Rotation;
+import org.joml.Vector3d;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class BlacksmithPlacement extends ProductionPlacement implements RangeIndicator {
+    public EquipAbility autoCastEquip = null;
+    public BlacksmithPlacement(Building building, Level level, BlockPos originPos, Rotation rotation, String ownerName, ArrayList<BuildingBlock> blocks, boolean isCapitol) {
+        super(building, level, originPos, rotation, ownerName, blocks, isCapitol);
+    }
+
+    @Override
+    public String getUpgradedName() {
+        return I18n.get("buildings.villagers.siege_of_settlements.blacksmith.superior");
+    }
+
+    @Override
+    public void onBuilt() {
+        super.onBuilt();
+        updateBorderBps();
+    }
+
+    @Override
+    public void tick(Level tickLevel) {
+        super.tick(tickLevel);
+
+        if (tickAgeAfterBuilt > 0 && tickAgeAfterBuilt % 15 == 0 && isBuilt && autoCastEquip != null
+                && autoCastEquip.isOffCooldown(this)) {
+
+            List<Mob> mobs = new ArrayList<>();
+            for (Mob e : MiscUtil.getEntitiesWithinRange(new Vector3d(
+                    this.centrePos.getX(),
+                    this.centrePos.getY(),
+                    this.centrePos.getZ()
+                ),
+                    autoCastEquip.range - 1,
+                Mob.class,
+                tickLevel
+            )) {
+                if ((autoCastEquip.isCorrectUnit(e) && autoCastEquip.canAfford(this)
+                    && !autoCastEquip.hasItemInSlot(e)
+                )) {
+                    mobs.add(e);
+                }
+            }
+            if (!mobs.isEmpty()) {
+                autoCastEquip.use(tickLevel, this, mobs.get(0));
+            }
+        }
+        if (tickLevel.isClientSide && tickAgeAfterBuilt > 0 && tickAgeAfterBuilt % 100 == 0)
+            updateBorderBps();
+    }
+
+    private final Set<BlockPos> borderBps = new HashSet<>();
+
+    @Override
+    public void updateBorderBps() {
+        if (!level.isClientSide())
+            return;
+        this.borderBps.clear();
+        this.borderBps.addAll(MiscUtil.getRangeIndicatorCircleBlocks(centrePos,
+                EquipAbility.RANGE - TimeClientEvents.VISIBLE_BORDER_ADJ, level));
+    }
+
+    @Override
+    public Set<BlockPos> getBorderBps() {
+        return borderBps;
+    }
+
+    @Override
+    public boolean showOnlyWhenSelected() {
+        return true;
+    }
+}

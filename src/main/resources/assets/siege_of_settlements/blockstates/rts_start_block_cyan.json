@@ -1,0 +1,7 @@
+{
+    "variants": {
+        "": {
+            "model": "siege_of_settlements:block/rts_start_block_cyan"
+        }
+    }
+}

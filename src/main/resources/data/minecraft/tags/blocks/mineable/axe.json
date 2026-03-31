@@ -1,14 +1,14 @@
 {
     "replace": false,
     "values": [
-        "reignofnether:falling_oak_log",
-        "reignofnether:falling_spruce_log",
-        "reignofnether:falling_dark_oak_log",
-        "reignofnether:falling_birch_log",
-        "reignofnether:falling_jungle_log",
-        "reignofnether:falling_mangrove_log",
-        "reignofnether:falling_acacia_log",
-        "reignofnether:falling_crimson_stem",
-        "reignofnether:falling_warped_stem"
+        "siege_of_settlements:falling_oak_log",
+        "siege_of_settlements:falling_spruce_log",
+        "siege_of_settlements:falling_dark_oak_log",
+        "siege_of_settlements:falling_birch_log",
+        "siege_of_settlements:falling_jungle_log",
+        "siege_of_settlements:falling_mangrove_log",
+        "siege_of_settlements:falling_acacia_log",
+        "siege_of_settlements:falling_crimson_stem",
+        "siege_of_settlements:falling_warped_stem"
     ]
 }

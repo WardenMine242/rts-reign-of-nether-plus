@@ -1,0 +1,7 @@
+{
+    "render_type": "minecraft:cutout",
+    "parent": "block/cross",
+    "textures": {
+        "cross": "siege_of_settlements:block/garrison_exit_block"
+    }
+}

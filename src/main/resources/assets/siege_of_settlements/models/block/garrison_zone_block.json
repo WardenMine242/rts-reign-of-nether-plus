@@ -1,0 +1,6 @@
+{
+    "parent": "block/cube_all",
+    "textures": {
+        "all": "siege_of_settlements:block/garrison_zone_block"
+    }
+}

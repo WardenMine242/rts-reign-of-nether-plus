@@ -1,0 +1,113 @@
+{
+    "under_attack": {
+        "subtitle": "sounds.siege_of_settlements.under_attack",
+        "sounds": [ "siege_of_settlements:under_attack" ]
+    },
+    "victory": {
+        "subtitle": "sounds.siege_of_settlements.victory",
+        "sounds": [ "siege_of_settlements:victory" ]
+    },
+    "defeat": {
+        "subtitle": "sounds.siege_of_settlements.defeat",
+        "sounds": [ "siege_of_settlements:defeat" ]
+    },
+    "chat": {
+        "subtitle": "sounds.siege_of_settlements.chat",
+        "sounds": [ "siege_of_settlements:chat" ]
+    },
+    "ally": {
+        "subtitle": "sounds.siege_of_settlements.ally",
+        "sounds": [ "siege_of_settlements:ally" ]
+    },
+    "enemy": {
+        "subtitle": "sounds.siege_of_settlements.enemy",
+        "sounds": [ "siege_of_settlements:enemy" ]
+    },
+    "main_menu": {
+        "subtitle": "sounds.siege_of_settlements.main_menu",
+        "sounds": [ "siege_of_settlements:main_menu" ]
+    },
+    "blood_moon": {
+        "subtitle": "sounds.siege_of_settlements.blood_moon",
+        "sounds": [ "siege_of_settlements:blood_moon" ]
+    },
+    "bloodlust": {
+        "subtitle": "sounds.siege_of_settlements.bloodlust",
+        "sounds": [ "siege_of_settlements:bloodlust" ]
+    },
+    "heroism": {
+        "subtitle": "sounds.siege_of_settlements.heroism",
+        "sounds": [ "siege_of_settlements:heroism" ]
+    },
+    "sharpened_grassblades_calm": {
+        "subtitle": "sounds.siege_of_settlements.sharpened_grassblades_calm",
+        "sounds": [ "siege_of_settlements:sharpened_grassblades_calm" ]
+    },
+    "life_scourge_calm": {
+        "subtitle": "sounds.siege_of_settlements.life_scourge_calm",
+        "sounds": [ "siege_of_settlements:life_scourge_calm" ]
+    },
+    "soul_resonance_calm": {
+        "subtitle": "sounds.siege_of_settlements.soul_resonance_calm",
+        "sounds": [ "siege_of_settlements:soul_resonance_calm" ]
+    },
+
+    "wretchedwraith_attack_loud": {
+        "subtitle": "sounds.siege_of_settlements.wretchedwraith_attack_loud",
+        "sounds": [ "siege_of_settlements:wretchedwraith_attack_loud" ]
+    },
+    "wretchedwraith_attack_quiet": {
+        "subtitle": "sounds.siege_of_settlements.wretchedwraith_attack_quiet",
+        "sounds": [ "siege_of_settlements:wretchedwraith_attack_quiet" ]
+    },
+    "wretchedwraith_teleport_end": {
+        "subtitle": "sounds.siege_of_settlements.wretchedwraith_teleport_end",
+        "sounds": [ "siege_of_settlements:wretchedwraith_teleport_end" ]
+    },
+    "wretchedwraith_teleport_start": {
+        "subtitle": "sounds.siege_of_settlements.wretchedwraith_teleport_start",
+        "sounds": [ "siege_of_settlements:wretchedwraith_teleport_start" ]
+    },
+    "wretchedwraith_blizzard": {
+        "subtitle": "sounds.siege_of_settlements.wretchedwraith_blizzard",
+        "sounds": [{
+            "name": "siege_of_settlements:wretchedwraith_blizzard",
+            "stream": true
+        }]
+    },
+    "wretchedwraith_death": {
+        "subtitle": "sounds.siege_of_settlements.wretchedwraith_attack_loud",
+        "sounds": [
+            "siege_of_settlements:wretchedwraith_death_01",
+            "siege_of_settlements:wretchedwraith_death_02"
+        ]
+    },
+    "wretchedwraith_hurt": {
+        "subtitle": "sounds.siege_of_settlements.wretchedwraith_hurt",
+        "sounds": [
+            "siege_of_settlements:wretchedwraith_hurt_01",
+            "siege_of_settlements:wretchedwraith_hurt_02",
+            "siege_of_settlements:wretchedwraith_hurt_03"
+        ]
+    },
+    "wretchedwraith_ambient": {
+        "subtitle": "sounds.siege_of_settlements.wretchedwraith_ambient",
+        "sounds": [
+            "siege_of_settlements:wretchedwraith_ambient_01",
+            "siege_of_settlements:wretchedwraith_ambient_02",
+            "siege_of_settlements:wretchedwraith_ambient_03",
+            "siege_of_settlements:wretchedwraith_ambient_04",
+            "siege_of_settlements:wretchedwraith_ambient_05"
+        ]
+    }
+}
+
+
+
+
+
+
+
+
+
+

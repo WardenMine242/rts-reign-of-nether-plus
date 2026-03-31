@@ -1,1 +1,1 @@
-MixinConfigs: reignofnether.mixins.json
+MixinConfigs: siege_of_settlements.mixins.json
