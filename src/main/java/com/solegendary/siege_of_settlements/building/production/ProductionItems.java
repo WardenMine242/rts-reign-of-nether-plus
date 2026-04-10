@@ -12,6 +12,7 @@ import net.WardenMine242.siege_of_settlements.research.*;
 import net.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerProd;
 import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherProd;
 import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorProd;
+import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseProd;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
@@ -28,6 +29,7 @@ public class ProductionItems {
     public static final AuromancerProd AUROMANCER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "auromancer"), new AuromancerProd());
     public static final EliteVindicatorProd ELITE_VINDICATOR = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "elite_vindicator"), new EliteVindicatorProd());
     public static final EliteArcherProd ELITE_ARCHER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "elite_archer"), new EliteArcherProd());
+    public static final HorseProd HORSE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "horse"), new HorseProd());
     public static final ZombieVillagerProd ZOMBIE_VILLAGER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "zombie_villager"), new ZombieVillagerProd());
     public static final VindicatorProd VINDICATOR = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "vindicator"), new VindicatorProd());
     public static final PillagerProd PILLAGER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "pillager"), new PillagerProd());

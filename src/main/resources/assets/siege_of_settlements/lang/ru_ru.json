@@ -76,7 +76,7 @@
   "abilities.siege_of_settlements.go_to_portal": "Перейти к соединённому порталу",
   "abilities.siege_of_settlements.mount_hoglin": "Оседлать хоглина (ПКМ для авто-поиска)",
   "abilities.siege_of_settlements.mount_hoglin.error1": "Недопустимая цель!",
-  "abilities.siege_of_settlements.mount_ravager": "Оседлать опустошителя (ПКМ для авто-поиска)",
+  "abilities.siege_of_settlements.mount_ravager": "Оседлать разорителя (ПКМ для авто-поиска)",
   "abilities.siege_of_settlements.mount_ravager.error1": "Недопустимая цель!",
   "abilities.siege_of_settlements.mount_ravager.tooltip1": "Оседланные разбойники получают взрывные стрелы",
   "abilities.siege_of_settlements.mount_spider": "Оседлать паука (ПКМ для авто-поиска)",
@@ -557,6 +557,21 @@
   "abilities.siege_of_settlements.become_trader.tooltip2": "Каждый торговец в Рынке приносит по 10 изумрудов в минуту.",
   "abilities.siege_of_settlements.occupy_marketplace": "Занять Рынок",
   "abilities.siege_of_settlements.exit_marketplace": "Покинуть Рынок",
+
+  "units.villagers.siege_of_settlements.ravager_rider_player": "Наездник на разорителе",
+  "abilities.siege_of_settlements.mount_horse": "Оседлать Лошадь",
+  "abilities.siege_of_settlements.mount_horse.tooltip1": "Юнит на лошаде передвигаеться намного быстрее.",
+  "abilities.siege_of_settlements.mount_horse.error1": "Не допустимая цель",
+
+  "buildings.villagers.siege_of_settlements.stable": "Стойло для Лошадей",
+  "buildings.villagers.siege_of_settlements.stable.tooltip1": "Позволяет создавать лошадей.",
+
+  "units.villagers.siege_of_settlements.horse": "Лошадь",
+  "units.villagers.siege_of_settlements.horse.tooltip1": "Быстрый юнит.",
+  "units.villagers.siege_of_settlements.horse.tooltip2": "Можно оседлать.",
+
+  "units.villagers.siege_of_settlements.horse_rider_unit": "Конская артиллерия",
+  "units.villagers.siege_of_settlements.horse_rider_player": "Наездник на лошаде",
 
   "units.villagers.siege_of_settlements.auromancer": "Нанять: Ауромант",
   "units.villagers.siege_of_settlements.auromancer.tooltip1": "Маг, создающий ауру которая значительно",
@@ -1182,7 +1197,7 @@
   "tutorial.siege_of_settlements.tutorial_disabled": "Режим обучения отключён",
 
   "units.villagers.siege_of_settlements.captain": "Капитан",
-  "units.villagers.siege_of_settlements.ravager_artillery": "Артиллерия Разрушителя",
+  "units.villagers.siege_of_settlements.ravager_artillery": "Артиллерия Разрушителей",
   "units.monsters.siege_of_settlements.spider_jockey": "Наездник на пауке",
   "units.monsters.siege_of_settlements.poison_spider_jockey": "Наездник на ядовитом пауке",
   "units.piglins.siege_of_settlements.hoglin_rider": "Наездник на хоглине",

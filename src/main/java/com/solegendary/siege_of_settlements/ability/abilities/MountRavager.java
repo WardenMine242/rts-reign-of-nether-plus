@@ -73,14 +73,17 @@ public class MountRavager extends Ability {
     @Override
     public void use(Level level, Unit unitUsing, BlockPos targetBp) {
         MountGoal mountGoal = getMountGoal((Entity) unitUsing);
-        if (mountGoal != null)
+        if (mountGoal != null) {
+            mountGoal.setTargetType(MountGoal.TargetType.RAVAGER);
             mountGoal.autofind = true;
+        }
     }
 
     @Override
     public void use(Level level, Unit unitUsing, LivingEntity targetEntity) {
         MountGoal mountGoal = getMountGoal((Entity) unitUsing);
         if (mountGoal != null && targetEntity instanceof RavagerUnit) {
+            mountGoal.setTargetType(MountGoal.TargetType.RAVAGER);
             mountGoal.setTarget(targetEntity);
         } else if (level.isClientSide()) {
             HudClientEvents.showTemporaryMessage(I18n.get("abilities.siege_of_settlements.mount_ravager.error1"));

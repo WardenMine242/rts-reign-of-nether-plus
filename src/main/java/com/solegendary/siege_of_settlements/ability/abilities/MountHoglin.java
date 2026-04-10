@@ -70,15 +70,18 @@ public class MountHoglin extends Ability {
     @Override
     public void use(Level level, Unit unitUsing, BlockPos targetBp) {
         MountGoal mountGoal = getMountGoal((Entity) unitUsing);
-        if (mountGoal != null)
+        if (mountGoal != null) {
+            mountGoal.setTargetType(MountGoal.TargetType.HOGLIN);
             mountGoal.autofind = true;
+        }
     }
 
     @Override
     public void use(Level level, Unit unitUsing, LivingEntity targetEntity) {
         MountGoal mountGoal = getMountGoal((Entity) unitUsing);
         if (mountGoal != null && targetEntity instanceof HoglinUnit) {
-            getMountGoal((Entity) unitUsing).setTarget(targetEntity);
+            mountGoal.setTargetType(MountGoal.TargetType.HOGLIN);
+            mountGoal.setTarget(targetEntity);
         } else if (level.isClientSide()) {
             HudClientEvents.showTemporaryMessage(I18n.get("abilities.siege_of_settlements.mount_hoglin.error1"));
         }

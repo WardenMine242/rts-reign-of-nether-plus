@@ -665,6 +665,20 @@
   "abilities.siege_of_settlements.exit_marketplace": "Exit Marketplace",
   "buildings.siege_of_settlements.only.one_building": "You can have only one such building per settlement.",
 
+  "units.villagers.siege_of_settlements.ravager_rider_player": "Ravager Rider",
+  "abilities.siege_of_settlements.mount_horse": "Mount Horse",
+  "abilities.siege_of_settlements.mount_horse.tooltip1": "A unit on a horse moves much faster.",
+  "abilities.siege_of_settlements.mount_horse.error1": "Invalid target",
+
+  "buildings.villagers.siege_of_settlements.stable": "Horse Stable",
+  "buildings.villagers.siege_of_settlements.stable.tooltip1": "Allows you to create horses.",
+
+  "units.villagers.siege_of_settlements.horse": "Horse",
+  "units.villagers.siege_of_settlements.horse.tooltip1": "A fast unit.",
+  "units.villagers.siege_of_settlements.horse.tooltip2": "Can be mounted.",
+
+  "units.villagers.siege_of_settlements.horse_rider_unit": "Horse Artillery",
+  "units.villagers.siege_of_settlements.horse_rider_player": "Horse Rider",
 
   "ability.siege_of_settlements.marketplace.trade_gui": "Trade",
   "ability.siege_of_settlements.marketplace.trade_gui.tooltip1": "Open marketplace trading GUI",

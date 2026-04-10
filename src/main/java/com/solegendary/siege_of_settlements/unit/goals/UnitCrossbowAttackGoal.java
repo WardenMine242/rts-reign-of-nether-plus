@@ -9,6 +9,7 @@ import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.piglins.GhastUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
 import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
+import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -223,6 +224,7 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
             // Vertical offset inside towers can otherwise block shots at valid targets.
             double firingDist = treatAsGarrison ? horizontalDistToTarget : distToTarget;
             boolean inFiringRange = firingDist <= attackRange + 0.25f;
+            alignHorseWithTarget(target, buildTarget, canSeeTarget, inFiringRange);
 
             // Elite Archer behaves like a bow user: he starts drawing only when actually attacking,
             // not pre-charging long before a shot.
@@ -283,5 +285,47 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
 
     private boolean isEliteArcher() {
         return this.mob instanceof EliteArcherUnit;
+    }
+
+    private void alignHorseWithTarget(LivingEntity target, BuildingPlacement buildTarget, boolean canSeeTarget, boolean inFiringRange) {
+        if (isEliteArcher()) {
+            return;
+        }
+        if (!canSeeTarget || !inFiringRange || !(this.mob.getVehicle() instanceof HorseUnit horse)) {
+            return;
+        }
+
+        double targetX;
+        double targetZ;
+        if (target != null) {
+            targetX = target.getX();
+            targetZ = target.getZ();
+        } else if (buildTarget != null) {
+            targetX = buildTarget.centrePos.getX();
+            targetZ = buildTarget.centrePos.getZ();
+        } else {
+            return;
+        }
+
+        double dx = targetX - horse.getX();
+        double dz = targetZ - horse.getZ();
+        if (dx * dx + dz * dz < 1.0E-6D) {
+            return;
+        }
+
+        float yawToTarget = (float) (Math.atan2(dz, dx) * (180.0D / Math.PI)) - 90.0F;
+        horse.setYRot(yawToTarget);
+        horse.yRotO = yawToTarget;
+        horse.setYBodyRot(yawToTarget);
+        horse.setYHeadRot(yawToTarget);
+        horse.yBodyRotO = yawToTarget;
+        horse.yHeadRotO = yawToTarget;
+
+        this.mob.setYRot(yawToTarget);
+        this.mob.yRotO = yawToTarget;
+        this.mob.setYBodyRot(yawToTarget);
+        this.mob.setYHeadRot(yawToTarget);
+        this.mob.yBodyRotO = yawToTarget;
+        this.mob.yHeadRotO = yawToTarget;
     }
 }

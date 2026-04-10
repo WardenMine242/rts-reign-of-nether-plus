@@ -1190,6 +1190,9 @@ public class BuildingClientEvents {
     // does the given player own any of these buildings (built or in-progress)?
     public static boolean playerHasAnyBuilding(Building building, String playerName) {
         for (BuildingPlacement bpl : buildings) {
+            if (bpl.isDestroyedServerside || bpl.shouldBeDestroyed()) {
+                continue;
+            }
             if (bpl.getBuilding().isTypeOf(building) && bpl.ownerName.equals(playerName)) {
                 return true;
             }

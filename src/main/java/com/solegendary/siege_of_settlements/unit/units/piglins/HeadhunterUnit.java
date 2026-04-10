@@ -128,7 +128,12 @@ public class HeadhunterUnit extends PiglinBrute implements Unit, AttackerUnit, R
     }
 
     // combat stats
-    public float getMovementSpeed() {return movementSpeed;}
+    public float getMovementSpeed() {
+        if (this.isPassenger() && this.getVehicle() instanceof Unit mountedUnit) {
+            return mountedUnit.getMovementSpeed();
+        }
+        return movementSpeed;
+    }
     public float getUnitMaxHealth() {return maxHealth;}
 
     @Nullable

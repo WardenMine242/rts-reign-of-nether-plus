@@ -14,6 +14,8 @@ import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherPr
 import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
 import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorProd;
 import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorUnit;
+import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseProd;
+import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -127,6 +129,12 @@ public class EntityRegistrar {
                     .sized(EntityType.PILLAGER.getWidth(), EntityType.PILLAGER.getHeight())
                     .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
                     .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "elite_archer_unit").toString()));
+
+    public static final RegistryObject<EntityType<HorseUnit>> HORSE_UNIT = ENTITIES.register("horse_unit",
+            () -> EntityType.Builder.of(HorseUnit::new, MobCategory.CREATURE)
+                    .sized(EntityType.HORSE.getWidth(), EntityType.HORSE.getHeight())
+                    .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
+                    .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "horse_unit").toString()));
 
     public static final RegistryObject<EntityType<MilitiaUnit>> MILITIA_UNIT = ENTITIES.register("militia_unit",
             () -> EntityType.Builder.of(MilitiaUnit::new, MobCategory.CREATURE)
@@ -399,6 +407,7 @@ public class EntityRegistrar {
             case AuromancerProd.itemName -> EntityRegistrar.AUROMANCER_UNIT.get();
             case EliteVindicatorProd.itemName -> EntityRegistrar.ELITE_VINDICATOR_UNIT.get();
             case EliteArcherProd.itemName -> EntityRegistrar.ELITE_ARCHER_UNIT.get();
+            case HorseProd.itemName -> EntityRegistrar.HORSE_UNIT.get();
             case ZombieVillagerProd.itemName -> EntityRegistrar.ZOMBIE_VILLAGER_UNIT.get();
             case VindicatorProd.itemName -> EntityRegistrar.VINDICATOR_UNIT.get();
             case PillagerProd.itemName -> EntityRegistrar.PILLAGER_UNIT.get();

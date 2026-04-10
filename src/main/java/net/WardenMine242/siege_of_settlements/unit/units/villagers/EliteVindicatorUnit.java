@@ -60,7 +60,6 @@ public class EliteVindicatorUnit extends VindicatorUnit {
     private static final int BERSERK_RAPID_HITS_PER_BURST = 30;
     private static final int BERSERK_RAPID_HIT_DELAY_TICKS = 10;
     private static final double BASE_MOVEMENT_SPEED = VindicatorUnit.movementSpeed; // 0.28
-    private static final double BERSERK_MOVEMENT_SPEED = 0.32D;
     private static final String TAG_BERSERK_TICKS_LEFT = "ronPlusEliteVindicatorBerserkTicksLeft";
     @Nullable
     private static final Field MELEE_GOAL_TICKS_UNTIL_NEXT_ATTACK_FIELD = resolveMeleeGoalCooldownField();
@@ -189,12 +188,12 @@ public class EliteVindicatorUnit extends VindicatorUnit {
     }
 
     public float getWalkAnimationSpeedMultiplier() {
-        return isBerserkActive() ? (0.32F / 0.28F) : 1.0F;
+        return 1.0F;
     }
 
     @Override
     public float getMovementSpeed() {
-        return isBerserkActive() ? (float) BERSERK_MOVEMENT_SPEED : (float) BASE_MOVEMENT_SPEED;
+        return (float) BASE_MOVEMENT_SPEED;
     }
 
     public void activateBerserk() {
@@ -438,9 +437,8 @@ public class EliteVindicatorUnit extends VindicatorUnit {
         if (ai == null) {
             return;
         }
-        double targetBase = isBerserkActive() ? BERSERK_MOVEMENT_SPEED : BASE_MOVEMENT_SPEED;
-        if (Math.abs(ai.getBaseValue() - targetBase) > 1.0E-6) {
-            ai.setBaseValue(targetBase);
+        if (Math.abs(ai.getBaseValue() - BASE_MOVEMENT_SPEED) > 1.0E-6) {
+            ai.setBaseValue(BASE_MOVEMENT_SPEED);
         }
     }
 

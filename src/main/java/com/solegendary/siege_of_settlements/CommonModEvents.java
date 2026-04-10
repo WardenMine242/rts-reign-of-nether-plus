@@ -19,6 +19,7 @@ import com.solegendary.siege_of_settlements.unit.units.villagers.*;
 import net.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerUnit;
 import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
 import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorUnit;
+import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.*;
@@ -90,6 +91,7 @@ public class CommonModEvents {
         evt.registerEntityRenderer(EntityRegistrar.AUROMANCER_UNIT.get(), AuromancerRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.ELITE_VINDICATOR_UNIT.get(), EliteVindicatorRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.ELITE_ARCHER_UNIT.get(), EliteArcherGeoRenderer::new);
+        evt.registerEntityRenderer(EntityRegistrar.HORSE_UNIT.get(), HorseRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.MILITIA_UNIT.get(), VillagerUnitRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.ZOMBIE_VILLAGER_UNIT.get(), ZombieVillagerUnitRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.PILLAGER_UNIT.get(), PillagerUnitRenderer::new);
@@ -159,6 +161,7 @@ public class CommonModEvents {
         evt.put(EntityRegistrar.AUROMANCER_UNIT.get(), AuromancerUnit.createAttributes().build());
         evt.put(EntityRegistrar.ELITE_VINDICATOR_UNIT.get(), EliteVindicatorUnit.createAttributes().build());
         evt.put(EntityRegistrar.ELITE_ARCHER_UNIT.get(), EliteArcherUnit.createAttributes().build());
+        evt.put(EntityRegistrar.HORSE_UNIT.get(), HorseUnit.createAttributes().build());
         evt.put(EntityRegistrar.MILITIA_UNIT.get(), MilitiaUnit.createAttributes().build());
         evt.put(EntityRegistrar.ZOMBIE_VILLAGER_UNIT.get(), ZombieVillagerUnit.createAttributes().build());
         evt.put(EntityRegistrar.PILLAGER_UNIT.get(), PillagerUnit.createAttributes().build());

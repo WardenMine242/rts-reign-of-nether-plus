@@ -1,12 +1,15 @@
 package com.solegendary.siege_of_settlements.mixin;
 
 import com.google.common.collect.Lists;
+import com.solegendary.siege_of_settlements.building.production.ProductionItems;
 import com.solegendary.siege_of_settlements.building.BuildingPlacement;
 import com.solegendary.siege_of_settlements.building.BuildingUtils;
 import com.solegendary.siege_of_settlements.building.GarrisonableBuilding;
+import com.solegendary.siege_of_settlements.research.ResearchServerEvents;
 import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
+import com.solegendary.siege_of_settlements.unit.units.villagers.RavagerUnit;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
@@ -161,6 +164,33 @@ public abstract class AbstractArrowMixin extends Projectile {
                 !unit1.getTargetGoal().getTarget().equals(unit2));
     }
 
+    @Unique
+    private boolean siege_of_settlements$shouldExplodeMountedShot() {
+        Entity owner = this.getOwner();
+
+        if (owner instanceof PillagerUnit pUnit) {
+            return !pUnit.level().isClientSide() &&
+                    pUnit.isPassenger() &&
+                    pUnit.getVehicle() instanceof RavagerUnit;
+        }
+
+        if (owner instanceof Player player) {
+            if (player.level().isClientSide()) {
+                return false;
+            }
+            if (!player.isPassenger() || !(player.getVehicle() instanceof RavagerUnit ravagerUnit)) {
+                return false;
+            }
+            String playerName = player.getName().getString();
+            if (!playerName.equals(ravagerUnit.getOwnerName())) {
+                return false;
+            }
+            return ResearchServerEvents.playerHasResearch(playerName, ProductionItems.RESEARCH_RAVAGER_CAVALRY);
+        }
+
+        return false;
+    }
+
     protected boolean canHitEntity(Entity entity) {
         return super.canHitEntity(entity) &&
                 (this.piercingIgnoreEntityIds == null || !this.piercingIgnoreEntityIds.contains(entity.getId())) &&
@@ -279,9 +309,8 @@ public abstract class AbstractArrowMixin extends Projectile {
             this.piercingIgnoreEntityIds.add(entity.getId());
         }
 
-        if (this.getOwner() instanceof PillagerUnit pUnit &&
-            !pUnit.level().isClientSide() && pUnit.isPassenger()) {
-            pUnit.level().explode(this.getOwner(), damagesource, null,
+        if (siege_of_settlements$shouldExplodeMountedShot()) {
+            this.level().explode(this.getOwner(), damagesource, null,
                     pResult.getEntity().getEyePosition().x,
                     pResult.getEntity().getEyePosition().y,
                     pResult.getEntity().getEyePosition().z,
@@ -296,9 +325,8 @@ public abstract class AbstractArrowMixin extends Projectile {
             at = @At("HEAD")
     )
     protected void onHitBlock(BlockHitResult pResult, CallbackInfo ci) {
-        if (this.getOwner() instanceof PillagerUnit pUnit &&
-                !pUnit.level().isClientSide() && pUnit.isPassenger()) {
-            pUnit.level().explode(this.getOwner(), null, null,
+        if (siege_of_settlements$shouldExplodeMountedShot()) {
+            this.level().explode(this.getOwner(), null, null,
                     pResult.getLocation().x,
                     pResult.getLocation().y,
                     pResult.getLocation().z,

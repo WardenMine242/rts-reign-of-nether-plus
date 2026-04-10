@@ -27,6 +27,7 @@ import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
+import software.bernie.geckolib.animatable.GeoEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,10 @@ public class HealthBarClientEvents {
     public static void onRenderLevel(RenderLevelStageEvent evt) {
         if (evt.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS)
             return;
+
+        // GeoEntityRenderer-based units don't fire RenderLivingEvent.Post in all cases,
+        // so collect them here to keep in-world HP bars consistent.
+        collectGeoRenderedEntities();
 
         Camera camera = MC.gameRenderer.getMainCamera();
         renderBarsInWorld(evt.getPartialTick(), evt.getPoseStack(), camera);
@@ -87,7 +92,19 @@ public class HealthBarClientEvents {
         if (entity.getAbsorptionAmount() > 0)
             BarStates.getState(entity, BarState.BarStateType.ABSORB);
 
-        renderedEntities.add(entity);
+        if (!renderedEntities.contains(entity))
+            renderedEntities.add(entity);
+    }
+
+    private static void collectGeoRenderedEntities() {
+        if (MC.level == null)
+            return;
+
+        for (Entity entity : MC.level.entitiesForRendering()) {
+            if (entity instanceof LivingEntity living && entity instanceof GeoEntity) {
+                prepareRenderInWorld(living);
+            }
+        }
     }
 
     private static void renderBarsInWorld(float partialTick, PoseStack matrix, Camera camera) {

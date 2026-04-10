@@ -13,6 +13,7 @@ import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.RavagerUnit;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
 import com.solegendary.siege_of_settlements.util.MyMath;
+import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import org.joml.Vector3d;
@@ -22,10 +23,19 @@ import java.util.List;
 // allows a unit to be able to mount any target as long as their ability allows them to
 public class MountGoal extends MoveToTargetBlockGoal {
 
+    public enum TargetType {
+        AUTO,
+        RAVAGER,
+        HORSE,
+        SPIDER,
+        HOGLIN
+    }
+
     public static final float SEARCH_RANGE = 30;
     public static final float RANGE = 2;
     private LivingEntity targetEntity = null;
     public boolean autofind = false;
+    private TargetType targetType = TargetType.AUTO;
 
     public MountGoal(Mob mob) {
         super(mob, false, 0);
@@ -33,6 +43,20 @@ public class MountGoal extends MoveToTargetBlockGoal {
 
     public void setTarget(LivingEntity entity) {
         this.targetEntity = entity;
+    }
+
+    public void setTargetType(TargetType targetType) {
+        this.targetType = targetType == null ? TargetType.AUTO : targetType;
+    }
+
+    private boolean isTypeAllowed(Mob m) {
+        return switch (this.targetType) {
+            case AUTO -> true;
+            case RAVAGER -> m instanceof RavagerUnit;
+            case HORSE -> m instanceof HorseUnit;
+            case SPIDER -> m instanceof SpiderUnit || m instanceof PoisonSpiderUnit;
+            case HOGLIN -> m instanceof HoglinUnit;
+        };
     }
 
     private boolean isMountableUnit(Mob m) {
@@ -43,10 +67,12 @@ public class MountGoal extends MoveToTargetBlockGoal {
             return false;
         else if (!unit.getOwnerName().equals(((Unit) this.mob).getOwnerName()))
             return false;
-        else return (this.mob instanceof PillagerUnit pillager && m instanceof RavagerUnit ravager) ||
-                    (this.mob instanceof SkeletonUnit skeleton && (m instanceof SpiderUnit || m instanceof PoisonSpiderUnit)) ||
-                    (this.mob instanceof StrayUnit stray && (m instanceof SpiderUnit || m instanceof PoisonSpiderUnit)) ||
-                    (this.mob instanceof HeadhunterUnit headhunter && m instanceof HoglinUnit);
+        else if (!isTypeAllowed(m))
+            return false;
+        else return (this.mob instanceof PillagerUnit && (m instanceof RavagerUnit || m instanceof HorseUnit)) ||
+                    (this.mob instanceof SkeletonUnit && (m instanceof SpiderUnit || m instanceof PoisonSpiderUnit)) ||
+                    (this.mob instanceof StrayUnit && (m instanceof SpiderUnit || m instanceof PoisonSpiderUnit)) ||
+                    (this.mob instanceof HeadhunterUnit && m instanceof HoglinUnit);
     }
 
     public void setNearestTarget() {
@@ -108,5 +134,6 @@ public class MountGoal extends MoveToTargetBlockGoal {
         this.autofind = false;
         this.stopMoving();
         this.setTarget(null);
+        this.setTargetType(TargetType.AUTO);
     }
 }

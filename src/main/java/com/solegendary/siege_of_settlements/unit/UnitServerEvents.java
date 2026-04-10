@@ -34,6 +34,7 @@ import com.solegendary.siege_of_settlements.unit.units.piglins.*;
 import com.solegendary.siege_of_settlements.unit.units.villagers.*;
 import com.solegendary.siege_of_settlements.util.EnchantmentUtil;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
+import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -56,6 +57,7 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.EvokerFangs;
 import net.minecraft.world.entity.projectile.Fireball;
 import net.minecraft.world.entity.projectile.ThrownTrident;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -78,6 +80,7 @@ import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -842,6 +845,49 @@ public class UnitServerEvents {
         if (!ownerName.isBlank() && ownerName.equals(player.getName().getString())) {
             evt.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerInteractEntity(PlayerInteractEvent.EntityInteract evt) {
+        if (evt.getLevel().isClientSide()) {
+            return;
+        }
+
+        Player player = evt.getEntity();
+        String playerName = player.getName().getString();
+
+        if (evt.getTarget() instanceof HorseUnit horseUnit) {
+            String ownerName = horseUnit.getOwnerName();
+            if (!ownerName.isBlank() && !playerName.equals(ownerName)) {
+                evt.setCancellationResult(InteractionResult.FAIL);
+                evt.setCanceled(true);
+            }
+            return;
+        }
+
+        if (!(evt.getTarget() instanceof RavagerUnit ravagerUnit)) {
+            return;
+        }
+
+        // Player can mount only own ravager and only after Ravager Cavalry research.
+        if (!playerName.equals(ravagerUnit.getOwnerName())) {
+            evt.setCancellationResult(InteractionResult.FAIL);
+            evt.setCanceled(true);
+            return;
+        }
+        if (!ResearchServerEvents.playerHasResearch(playerName, ProductionItems.RESEARCH_RAVAGER_CAVALRY)) {
+            return;
+        }
+        if (ravagerUnit.isVehicle() && !ravagerUnit.hasPassenger(player)) {
+            return;
+        }
+
+        if (!player.isPassenger()) {
+            Unit.fullResetBehaviours(ravagerUnit);
+            player.startRiding(ravagerUnit, true);
+        }
+        evt.setCancellationResult(InteractionResult.SUCCESS);
+        evt.setCanceled(true);
     }
 
     @SubscribeEvent

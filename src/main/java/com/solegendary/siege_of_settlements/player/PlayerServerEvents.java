@@ -53,6 +53,7 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -88,6 +89,7 @@ public class PlayerServerEvents {
     public static final ArrayList<ServerPlayer> players = new ArrayList<>();
     public static final ArrayList<ServerPlayer> orthoviewPlayers = new ArrayList<>();
     private static final Map<UUID, Vec3> orthoviewFrozenPositions = new HashMap<>();
+    private static final Map<UUID, Vec3> orthoviewFrozenMountPositions = new HashMap<>();
     private static final Map<UUID, Vec3> orthoviewCameraPositions = new HashMap<>();
     // players that are currently playing a match
     public static final List<RTSPlayer> rtsPlayers = Collections.synchronizedList(new ArrayList<>());
@@ -266,11 +268,14 @@ public class PlayerServerEvents {
     private static void freezeOrthoviewPlayers() {
         if (orthoviewPlayers.isEmpty()) {
             orthoviewFrozenPositions.clear();
+            orthoviewFrozenMountPositions.clear();
             orthoviewCameraPositions.clear();
             return;
         }
 
         orthoviewFrozenPositions.keySet().removeIf(uuid ->
+            orthoviewPlayers.stream().noneMatch(p -> p != null && p.getUUID().equals(uuid)));
+        orthoviewFrozenMountPositions.keySet().removeIf(uuid ->
             orthoviewPlayers.stream().noneMatch(p -> p != null && p.getUUID().equals(uuid)));
         orthoviewCameraPositions.keySet().removeIf(uuid ->
             orthoviewPlayers.stream().noneMatch(p -> p != null && p.getUUID().equals(uuid)));
@@ -287,6 +292,30 @@ public class PlayerServerEvents {
             }
             player.setDeltaMovement(Vec3.ZERO);
             player.fallDistance = 0;
+
+            freezeOrthoviewMount(player);
+        }
+    }
+
+    private static void freezeOrthoviewMount(ServerPlayer player) {
+        Entity mount = player.getVehicle();
+        if (mount == null) {
+            orthoviewFrozenMountPositions.remove(player.getUUID());
+            return;
+        }
+
+        Vec3 frozenMountPos = orthoviewFrozenMountPositions.computeIfAbsent(player.getUUID(), id -> mount.position());
+        if (mount.position().distanceToSqr(frozenMountPos) > 1.0e-6) {
+            mount.teleportTo(frozenMountPos.x, frozenMountPos.y, frozenMountPos.z);
+        }
+        mount.setDeltaMovement(Vec3.ZERO);
+        mount.fallDistance = 0;
+        mount.xo = frozenMountPos.x;
+        mount.yo = frozenMountPos.y;
+        mount.zo = frozenMountPos.z;
+
+        if (mount instanceof Mob mob) {
+            mob.getNavigation().stop();
         }
     }
 
@@ -459,6 +488,7 @@ public class PlayerServerEvents {
         players.removeIf(player -> player.getId() == id);
         orthoviewPlayers.removeIf(player -> player.getId() == id);
         orthoviewFrozenPositions.remove(evt.getEntity().getUUID());
+        orthoviewFrozenMountPositions.remove(evt.getEntity().getUUID());
         if (evt.getEntity() instanceof ServerPlayer serverPlayer) {
             clearOrthoviewCameraData(serverPlayer, true);
         } else {
@@ -781,6 +811,17 @@ public class PlayerServerEvents {
         orthoviewPlayers.removeIf(p -> p.getId() == id);
         orthoviewPlayers.add(player);
         orthoviewFrozenPositions.put(player.getUUID(), player.position());
+        Entity mount = player.getVehicle();
+        if (mount != null) {
+            orthoviewFrozenMountPositions.put(player.getUUID(), mount.position());
+            mount.setDeltaMovement(Vec3.ZERO);
+            mount.fallDistance = 0;
+            if (mount instanceof Mob mob) {
+                mob.getNavigation().stop();
+            }
+        } else {
+            orthoviewFrozenMountPositions.remove(player.getUUID());
+        }
         orthoviewCameraPositions.put(player.getUUID(), player.position());
         player.setDeltaMovement(Vec3.ZERO);
         player.fallDistance = 0;
@@ -813,6 +854,7 @@ public class PlayerServerEvents {
         ServerPlayer player = getPlayerById(id);
         if (player != null) {
             orthoviewFrozenPositions.remove(player.getUUID());
+            orthoviewFrozenMountPositions.remove(player.getUUID());
             clearOrthoviewCameraData(player, true);
             // After camera mode is disabled, restore vanilla tracking around real player body immediately.
             if (player.level() instanceof ServerLevel level) {

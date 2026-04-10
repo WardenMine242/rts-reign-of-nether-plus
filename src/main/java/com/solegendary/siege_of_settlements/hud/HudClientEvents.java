@@ -59,6 +59,10 @@ import com.solegendary.siege_of_settlements.unit.units.villagers.VillagerUnit;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
 import com.solegendary.siege_of_settlements.util.MyRenderer;
 import net.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeTrader;
+import net.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerUnit;
+import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
+import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorUnit;
+import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.model.Model;
@@ -191,8 +195,12 @@ public class HudClientEvents {
         }
         if (entity.getPassengers().size() == 1) {
             Entity passenger = entity.getPassengers().get(0);
-            if (entity instanceof RavagerUnit && passenger instanceof PillagerUnit) {
-                name = I18n.get("units.villagers.siege_of_settlements.ravager_artillery");
+            if (entity instanceof RavagerUnit) {
+                if (passenger instanceof PillagerUnit) {
+                    name = I18n.get("units.villagers.siege_of_settlements.ravager_artillery");
+                } else if (passenger instanceof Player) {
+                    name = I18n.get("units.villagers.siege_of_settlements.ravager_rider_player");
+                }
             } else if (entity instanceof PoisonSpiderUnit && (
                     passenger instanceof SkeletonUnit || passenger instanceof StrayUnit
             )) {
@@ -203,6 +211,12 @@ public class HudClientEvents {
                 name = I18n.get("units.monsters.siege_of_settlements.spider_jockey");
             }else if (entity instanceof HoglinUnit && passenger instanceof HeadhunterUnit) {
                 name = I18n.get("units.piglins.siege_of_settlements.hoglin_rider");
+            } else if (entity instanceof HorseUnit) {
+                if (passenger instanceof Player) {
+                    name = I18n.get("units.villagers.siege_of_settlements.horse_rider_player");
+                } else if (passenger instanceof Unit) {
+                    name = I18n.get("units.villagers.siege_of_settlements.horse_rider_unit");
+                }
             } else {
                 String pName = MiscUtil.getSimpleEntityName(entity.getPassengers().get(0)).replace("_", " ");
                 String nameCap = pName.substring(0, 1).toUpperCase() + pName.substring(1);
@@ -257,6 +271,27 @@ public class HudClientEvents {
     public static void showTemporaryMessage(String msg, int ticks) {
         tempMsgTicksLeft = ticks;
         tempMsg = msg;
+    }
+
+    private static int getHiredWarriorsCount(String ownerName) {
+        if (ownerName == null || ownerName.isEmpty()) {
+            return 0;
+        }
+        int count = 0;
+        for (LivingEntity entity : UnitClientEvents.getAllUnits()) {
+            if (!(entity instanceof Unit unit)) {
+                continue;
+            }
+            if (!ownerName.equals(unit.getOwnerName()) || !entity.isAlive() || entity.isRemoved()) {
+                continue;
+            }
+            if (entity instanceof EliteArcherUnit
+                    || entity instanceof EliteVindicatorUnit
+                    || entity instanceof AuromancerUnit) {
+                count += 1;
+            }
+        }
+        return count;
     }
 
     private static void disableControlGroups(Throwable throwable) {
@@ -1222,6 +1257,7 @@ public class HudClientEvents {
         int resourcePanelBottomY = blitY;
 
         if (resources != null && MC.player != null) {
+            final int hiredWarriorsCount = getHiredWarriorsCount(selPlayerName);
             for (String resourceName : new String[] { "food", "wood", "ore", "emerald", "pop" }) {
                 ResourceLocation rl;
                 String resValueStr = "";
@@ -1306,6 +1342,8 @@ public class HudClientEvents {
                                     && ((Unit) u).getOwnerName().equals(finalSelPlayerName))
                             .toList()
                             .size();
+                } else if (resName == ResourceName.EMERALDS) {
+                    numWorkersAssigned = hiredWarriorsCount;
                 } else {
                     for (LivingEntity le : UnitClientEvents.getAllUnits()) {
                         if (le instanceof Unit u && le instanceof WorkerUnit wu && u.getOwnerName()
@@ -1387,6 +1425,13 @@ public class HudClientEvents {
                                 List.of(FormattedCharSequence.forward(I18n.get("hud.siege_of_settlements.total_workers",
                                         numWorkers
                                 ), Style.EMPTY));
+                    } else if (resourceName.equals("emerald")) {
+                        String emeraldHoverText = MC.getLanguageManager().getSelected() != null
+                                && MC.getLanguageManager().getSelected().startsWith("ru")
+                                ? "\u041d\u0430\u043d\u044f\u0442\u044b\u0445 \u0432\u043e\u0438\u043d\u043e\u0432"
+                                : "Hired warriors";
+                        tooltipWorkersAssigned =
+                                List.of(FormattedCharSequence.forward(emeraldHoverText, Style.EMPTY));
                     } else {
                         tooltipWorkersAssigned =
                                 List.of(FormattedCharSequence.forward(I18n.get("hud.siege_of_settlements.workers_on_" + resourceName

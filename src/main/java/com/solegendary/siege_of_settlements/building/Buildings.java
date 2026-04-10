@@ -63,6 +63,7 @@ public class Buildings {
     public static final VillagerCornerWall VILLAGER_CORNER_WALL = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "villager_corner_wall"), new VillagerCornerWall());
     public static final ResearchCentre RESEARCH_CENTRE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_centre"), new ResearchCentre());
     public static final Marketplace MARKETPLACE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "marketplace"), new Marketplace());
+    public static final Stable STABLE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "stable"), new Stable());
 
     private static <T extends Building> T register(ResourceLocation id, T building) {
         return Registry.register(SiegeOfSettlementsRegistries.BUILDING, id, building);

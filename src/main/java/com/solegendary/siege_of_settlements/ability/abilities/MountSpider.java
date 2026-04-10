@@ -70,14 +70,17 @@ public class MountSpider extends Ability {
     @Override
     public void use(Level level, Unit unitUsing, BlockPos targetBp) {
         MountGoal mountGoal = getMountGoal((Entity) unitUsing);
-        if (mountGoal != null)
+        if (mountGoal != null) {
+            mountGoal.setTargetType(MountGoal.TargetType.SPIDER);
             mountGoal.autofind = true;
+        }
     }
 
     @Override
     public void use(Level level, Unit unitUsing, LivingEntity targetEntity) {
         MountGoal mountGoal = getMountGoal((Entity) unitUsing);
         if (mountGoal != null && targetEntity instanceof SpiderUnit) {
+            mountGoal.setTargetType(MountGoal.TargetType.SPIDER);
             mountGoal.setTarget(targetEntity);
         } else if (level.isClientSide()) {
             HudClientEvents.showTemporaryMessage(I18n.get("abilities.siege_of_settlements.mount_spider.error1"));

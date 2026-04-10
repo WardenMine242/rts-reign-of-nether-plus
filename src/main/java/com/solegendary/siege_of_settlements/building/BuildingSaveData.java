@@ -176,6 +176,7 @@ public class BuildingSaveData extends SavedData {
             case PortalTransport.buildingName -> building = Buildings.PORTAL_TRANSPORT;
             case NetherwartFarm.buildingName -> building = Buildings.NETHERWART_FARM;
             case Bastion.buildingName -> building = Buildings.BASTION;
+            case "Stall" -> building = Buildings.STABLE;
             case HoglinStables.buildingName -> building = Buildings.HOGLIN_STABLES;
             case FlameSanctuary.buildingName -> building = Buildings.FLAME_SANCTUARY;
             case WitherShrine.buildingName -> building = Buildings.WITHER_SHRINE;

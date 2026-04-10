@@ -19,6 +19,8 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 public class Dismount extends Ability {
+    private static final String NAME_KEY = "abilities.siege_of_settlements.dismount";
+
     public Dismount() {
         super(
             UnitAction.DISMOUNT,
@@ -33,7 +35,7 @@ public class Dismount extends Ability {
     public AbilityButton getButton(Keybinding hotkey, Unit unit) {
         LivingEntity entity = (LivingEntity) unit;
         return new AbilityButton(
-            "Dismount",
+            I18n.get(NAME_KEY),
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/items/barrier.png"),
             hotkey,
             () -> CursorClientEvents.getLeftClickAction() == UnitAction.DISMOUNT,
@@ -42,7 +44,7 @@ public class Dismount extends Ability {
             () -> UnitClientEvents.sendUnitCommand(UnitAction.DISMOUNT),
             null,
             List.of(
-                FormattedCharSequence.forward(I18n.get("abilities.siege_of_settlements.dismount"), Style.EMPTY)
+                FormattedCharSequence.forward(I18n.get(NAME_KEY), Style.EMPTY)
             ),
             this,
             unit

@@ -46,7 +46,9 @@ import com.solegendary.siege_of_settlements.util.ArrayUtil;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
 import com.solegendary.siege_of_settlements.util.MyMath;
 import com.solegendary.siege_of_settlements.util.MyRenderer;
+import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -68,6 +70,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
@@ -711,6 +714,8 @@ public class UnitClientEvents {
                 if (preselectedUnits.size() == 1 && canMountUnit(hudSelectedEntity, preselectedUnits.get(0))) {
                     if (hudSelectedEntity instanceof PillagerUnit && getPreselectedUnits().get(0) instanceof RavagerUnit)
                         sendUnitCommand(UnitAction.MOUNT_RAVAGER);
+                    if (hudSelectedEntity instanceof PillagerUnit && getPreselectedUnits().get(0) instanceof HorseUnit)
+                        sendUnitCommand(UnitAction.MOUNT_HORSE);
                     if (hudSelectedEntity instanceof HeadhunterUnit && getPreselectedUnits().get(0) instanceof HoglinUnit)
                         sendUnitCommand(UnitAction.MOUNT_HOGLIN);
                     if (hudSelectedEntity instanceof Unit && hudSelectedEntity instanceof Skeleton && getPreselectedUnits().get(0) instanceof RavagerUnit)
@@ -729,7 +734,10 @@ public class UnitClientEvents {
                     (hudSelectedEntity instanceof Unit || NonUnitClientEvents.canAttack(hudSelectedEntity)) &&
                     ((GameruleClient.neutralAggro && getPlayerToEntityRelationship(preselectedUnits.get(0)) == Relationship.NEUTRAL) ||
                     getPlayerToEntityRelationship(preselectedUnits.get(0)) == Relationship.HOSTILE ||
-                     ResourceSources.isHuntableAnimal(preselectedUnits.get(0)))) {
+                     (ResourceSources.isHuntableAnimal(preselectedUnits.get(0)) &&
+                      !(preselectedUnits.get(0) instanceof Unit) &&
+                      getPlayerToEntityRelationship(preselectedUnits.get(0)) != Relationship.OWNED &&
+                      getPlayerToEntityRelationship(preselectedUnits.get(0)) != Relationship.FRIENDLY))) {
 
                      if (hudSelectedEntity instanceof WitchUnit witchUnit) {
                          sendUnitCommand(UnitAction.THROW_LINGERING_HARMING_POTION);
@@ -963,6 +971,28 @@ public class UnitClientEvents {
             if ((entity != null && getPlayerToEntityRelationship(entity) == Relationship.OWNED || isSandboxPlayer) &&
                     !(entity instanceof CreeperUnit))
                 sendUnitCommand(UnitAction.DELETE);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRawKeyInput(InputEvent.Key evt) {
+        if (evt.getAction() != GLFW.GLFW_PRESS || MC.player == null) {
+            return;
+        }
+        if (OrthoviewClientEvents.isEnabled()) {
+            return;
+        }
+        if (evt.getKey() == MC.options.keyInventory.getKey().getValue()
+                && MC.player.isPassenger()
+                && MC.player.getVehicle() instanceof HorseUnit) {
+            // Horse inventory is disabled; always open player's own inventory while mounted.
+            if (MC.screen == null) {
+                MC.setScreen(new InventoryScreen(MC.player));
+            }
+            MC.options.keyInventory.setDown(false);
+            if (evt.isCancelable()) {
+                evt.setCanceled(true);
+            }
         }
     }
 
@@ -1209,6 +1239,8 @@ public class UnitClientEvents {
             return false;
         if (hudSelectedEntity instanceof PillagerUnit && getPreselectedUnits().get(0) instanceof RavagerUnit &&
             ResearchClient.hasResearch(ProductionItems.RESEARCH_RAVAGER_CAVALRY))
+            return true;
+        if (hudSelectedEntity instanceof PillagerUnit && getPreselectedUnits().get(0) instanceof HorseUnit)
             return true;
         if (hudSelectedEntity instanceof HeadhunterUnit && getPreselectedUnits().get(0) instanceof HoglinUnit &&
             ResearchClient.hasResearch(ProductionItems.RESEARCH_HOGLIN_CAVALRY))

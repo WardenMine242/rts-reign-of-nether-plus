@@ -2,6 +2,8 @@ package com.solegendary.siege_of_settlements.unit.units.villagers;
 
 import com.solegendary.siege_of_settlements.ability.Abilities;
 import com.solegendary.siege_of_settlements.ability.Ability;
+import com.solegendary.siege_of_settlements.ability.abilities.Dismount;
+import com.solegendary.siege_of_settlements.ability.abilities.MountHorse;
 import com.solegendary.siege_of_settlements.ability.abilities.MountRavager;
 import com.solegendary.siege_of_settlements.ability.abilities.PromoteIllager;
 import com.solegendary.siege_of_settlements.building.GarrisonableBuilding;
@@ -65,7 +67,9 @@ public class PillagerUnit extends Pillager implements Unit, AttackerUnit, Ranged
 
     public static final Abilities ABILITIES = new Abilities();
     static {
-        ABILITIES.add(new MountRavager(), Keybindings.keyQ);
+        ABILITIES.add(new Dismount(), Keybindings.keyQ);
+        ABILITIES.add(new MountHorse(), Keybindings.keyQ);
+        ABILITIES.add(new MountRavager(), Keybindings.keyW);
     }
 
     //region
@@ -161,7 +165,12 @@ public class PillagerUnit extends Pillager implements Unit, AttackerUnit, Ranged
     public float getAggroRange() { return aggroRange; }
     public boolean getAggressiveWhenIdle() { return aggressiveWhenIdle && !isVehicle(); }
     public float getAttackRange() { return attackRange; }
-    public float getMovementSpeed() { return movementSpeed; }
+    public float getMovementSpeed() {
+        if (this.isPassenger() && this.getVehicle() instanceof Unit mountedUnit) {
+            return mountedUnit.getMovementSpeed();
+        }
+        return movementSpeed;
+    }
     @Override
     public float getUnitAttackDamage() {
         return attackDamage + getTowerDamageResearchBonus();

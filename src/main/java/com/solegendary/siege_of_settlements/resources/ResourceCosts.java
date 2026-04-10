@@ -43,6 +43,7 @@ public class ResourceCosts {
     public static final ResourceCost GHAST = new ResourceCost(ID, "GHAST");
     public static final ResourceCost MAGMA_CUBE = new ResourceCost(ID, "MAGMA_CUBE");
     public static final ResourceCost AUROMANCER = new ResourceCost(ID, "AUROMANCER");
+    public static final ResourceCost HORSE = new ResourceCost(ID, "HORSE");
 
 
     public static final ResourceCost NECROMANCER = new ResourceCost(ID, "NECROMANCER");
@@ -99,6 +100,8 @@ public class ResourceCosts {
     public static final ResourceCost CORNER_WALL = new ResourceCost(ID, "CORNER_WALL");
     public static final ResourceCost RESEARCH_CENTRE = new ResourceCost(ID, "RESEARCH_CENTRE");
     public static final ResourceCost MARKETPLACE = new ResourceCost(ID, "MARKETPLACE");
+    public static final ResourceCost STABLE = new ResourceCost(ID, "STABLE");
+
     //Piglins
     public static final ResourceCost CENTRAL_PORTAL = new ResourceCost(ID, "CENTRAL_PORTAL");
     public static final ResourceCost BASIC_PORTAL = new ResourceCost(ID, "BASIC_PORTAL");

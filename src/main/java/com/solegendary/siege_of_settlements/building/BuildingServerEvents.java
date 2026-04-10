@@ -279,6 +279,9 @@ public class BuildingServerEvents {
             // only allow one Town Centre per owner
             if (building instanceof TownCentre) {
                 for (BuildingPlacement placement : buildings) {
+                    if (placement.shouldBeDestroyed()) {
+                        continue;
+                    }
                     if (placement.ownerName.equals(ownerName) && placement.getBuilding() instanceof TownCentre) {
                         return null;
                     }
@@ -287,6 +290,9 @@ public class BuildingServerEvents {
             // only allow one Marketplace per owner
             if (building instanceof Marketplace) {
                 for (BuildingPlacement placement : buildings) {
+                    if (placement.shouldBeDestroyed()) {
+                        continue;
+                    }
                     if (placement.ownerName.equals(ownerName) && placement.getBuilding() instanceof Marketplace) {
                         return null;
                     }

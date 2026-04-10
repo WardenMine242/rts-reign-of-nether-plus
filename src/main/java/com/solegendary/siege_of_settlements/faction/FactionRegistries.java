@@ -80,6 +80,7 @@ public class FactionRegistries {
         register(Faction.VILLAGERS, Buildings.VILLAGER_CORNER_WALL, Keybindings.keyZ);
         register(Faction.VILLAGERS, Buildings.RESEARCH_CENTRE, Keybindings.keyZ);
         register(Faction.VILLAGERS, Buildings.MARKETPLACE, Keybindings.keyZ);
+        register(Faction.VILLAGERS, Buildings.STABLE, Keybindings.keyX);
         register(Faction.VILLAGERS, Buildings.BEACON);
 
         //Neutral

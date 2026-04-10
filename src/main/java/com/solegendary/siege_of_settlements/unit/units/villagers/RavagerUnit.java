@@ -31,6 +31,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -40,6 +41,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
 
@@ -133,7 +135,16 @@ public class RavagerUnit extends Ravager implements Unit, AttackerUnit {
     public float getAttacksPerSecond() {return 20f / getAttackCooldown();}
     public float getBaseAttacksPerSecond() {return attacksPerSecond;}
     public float getAggroRange() {return aggroRange;}
-    public boolean getAggressiveWhenIdle() {return aggressiveWhenIdle && !isVehicle();}
+    public boolean getAggressiveWhenIdle() {
+        if (!aggressiveWhenIdle) {
+            return false;
+        }
+        if (!isVehicle()) {
+            return true;
+        }
+        // Keep autonomous attacks while a player is directly riding the ravager.
+        return this.getFirstPassenger() instanceof Player;
+    }
     public float getAttackRange() {return attackRange;}
     public float getMovementSpeed() {return movementSpeed;}
     public float getUnitAttackDamage() {return attackDamage;}
@@ -165,6 +176,14 @@ public class RavagerUnit extends Ravager implements Unit, AttackerUnit {
 
     private Abilities abilities = ABILITIES.clone();
     private final List<ItemStack> items = new ArrayList<>();
+    private boolean wasPlayerControlledLastTick = false;
+    private float boatLikeYaw = 0.0F;
+    private float boatLikeDeltaRotation = 0.0F;
+    private static final float PLAYER_RIDER_SPEED_MULT = 0.35F;
+    private static final float BOAT_TURN_DEGREES_PER_TICK = 3.8F;
+    private static final float BOAT_FORWARD_FORCE = 0.04F;
+    private static final float BOAT_BACKWARD_FORCE = 0.005F;
+    private static final float BOAT_TURN_ONLY_FORCE = 0.0F;
 
     public final static float ROAR_DAMAGE = 8.0f;
     public final static float ROAR_RANGE = 4.0f;
@@ -186,6 +205,75 @@ public class RavagerUnit extends Ravager implements Unit, AttackerUnit {
     @Override
     public boolean removeWhenFarAway(double d) { return false; }
 
+    @Override
+    @Nullable
+    public LivingEntity getControllingPassenger() {
+        Entity passenger = this.getFirstPassenger();
+        return passenger instanceof LivingEntity living ? living : null;
+    }
+
+    public boolean canBeControlledByRider() {
+        return this.getControllingPassenger() instanceof Player;
+    }
+
+    @Override
+    public void travel(Vec3 travelVector) {
+        if (this.isAlive() && this.isVehicle() && this.getControllingPassenger() instanceof Player player) {
+            // Adapted from vanilla Boat.controlBoat() for boat-like turn feel.
+            boolean inputLeft = player.xxa > 0.0F;
+            boolean inputRight = player.xxa < 0.0F;
+            boolean inputUp = player.zza > 0.0F;
+            boolean inputDown = player.zza < 0.0F;
+
+            float moveForce = 0.0F;
+            if (inputLeft && !inputRight) {
+                boatLikeDeltaRotation = -1.0F;
+            } else if (inputRight && !inputLeft) {
+                boatLikeDeltaRotation = 1.0F;
+            } else {
+                boatLikeDeltaRotation = 0.0F;
+            }
+            if (inputRight != inputLeft && !inputUp && !inputDown) {
+                moveForce += BOAT_TURN_ONLY_FORCE;
+            }
+            boatLikeYaw = Mth.wrapDegrees(boatLikeYaw + boatLikeDeltaRotation * BOAT_TURN_DEGREES_PER_TICK);
+
+            if (inputUp) {
+                moveForce += BOAT_FORWARD_FORCE;
+            }
+            if (inputDown) {
+                moveForce -= BOAT_BACKWARD_FORCE;
+            }
+
+            float forwardInput = Mth.clamp(moveForce / BOAT_FORWARD_FORCE, -1.0F, 1.0F);
+
+            applyPlayerControlledRotation();
+
+            float baseSpeed = (float) this.getAttributeValue(Attributes.MOVEMENT_SPEED);
+            this.setSpeed(baseSpeed * PLAYER_RIDER_SPEED_MULT);
+            super.travel(new Vec3(0.0D, travelVector.y, forwardInput));
+            if (inputUp || inputDown) {
+                // No side skid while turning: keep horizontal velocity only along current facing.
+                Vec3 vel = this.getDeltaMovement();
+                double horizontal = Math.sqrt(vel.x * vel.x + vel.z * vel.z);
+                if (horizontal > 1.0E-5D) {
+                    float yawRad = this.getYRot() * ((float) Math.PI / 180.0F);
+                    double dirX = -Mth.sin(yawRad);
+                    double dirZ = Mth.cos(yawRad);
+                    double sign = Math.signum(forwardInput);
+                    this.setDeltaMovement(dirX * horizontal * sign, vel.y, dirZ * horizontal * sign);
+                }
+            } else {
+                // No sliding: stop horizontal movement immediately when throttle is released.
+                Vec3 vel = this.getDeltaMovement();
+                this.setDeltaMovement(0.0D, vel.y, 0.0D);
+            }
+            return;
+        }
+
+        super.travel(travelVector);
+    }
+
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, RavagerUnit.maxHealth)
@@ -204,9 +292,38 @@ public class RavagerUnit extends Ravager implements Unit, AttackerUnit {
     public void tick() {
         this.setCanPickUpLoot(false);
 
+        boolean playerControlledNow = this.getFirstPassenger() instanceof Player;
+        if (playerControlledNow && !wasPlayerControlledLastTick) {
+            // Drop old queued orders so the ravager doesn't snap back after a ride.
+            Unit.fullResetBehaviours(this);
+            this.getNavigation().stop();
+            boatLikeYaw = this.getYRot();
+            boatLikeDeltaRotation = 0.0F;
+        } else if (!playerControlledNow && wasPlayerControlledLastTick) {
+            Unit.fullResetBehaviours(this);
+            this.getNavigation().stop();
+            this.setTarget(null);
+            boatLikeDeltaRotation = 0.0F;
+        }
+        if (playerControlledNow) {
+            // Prevent AI navigation jitter while the player is steering.
+            this.getNavigation().stop();
+        }
+        wasPlayerControlledLastTick = playerControlledNow;
+
         super.tick();
         Unit.tick(this);
         AttackerUnit.tick(this);
+        if (playerControlledNow) {
+            // Keep final orientation stable after ALL AI/look processing this tick.
+            applyPlayerControlledRotation();
+        }
+    }
+
+    private void applyPlayerControlledRotation() {
+        this.setYRot(boatLikeYaw);
+        this.setYBodyRot(boatLikeYaw);
+        this.setYHeadRot(boatLikeYaw);
     }
 
     @Override

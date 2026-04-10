@@ -131,7 +131,12 @@ public class SkeletonUnit extends Skeleton implements Unit, AttackerUnit, Ranged
     public float getAggroRange() {return aggroRange;}
     public boolean getAggressiveWhenIdle() {return aggressiveWhenIdle && !isVehicle();}
     public float getAttackRange() {return attackRange;}
-    public float getMovementSpeed() {return movementSpeed;}
+    public float getMovementSpeed() {
+        if (this.isPassenger() && this.getVehicle() instanceof Unit mountedUnit) {
+            return mountedUnit.getMovementSpeed();
+        }
+        return movementSpeed;
+    }
     public float getUnitAttackDamage() {return attackDamage;}
     public float getUnitMaxHealth() {return maxHealth;}
 

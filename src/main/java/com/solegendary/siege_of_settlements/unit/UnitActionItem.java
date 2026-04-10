@@ -98,6 +98,23 @@ public class UnitActionItem {
         return true;
     }
 
+    private boolean isFriendlyUnitTarget(Unit unit, LivingEntity target, boolean isClientSide) {
+        if (!(target instanceof Unit targetUnit)) {
+            return false;
+        }
+        String sourceOwner = unit.getOwnerName();
+        String targetOwner = targetUnit.getOwnerName();
+        if (sourceOwner.isBlank() || targetOwner.isBlank()) {
+            return false;
+        }
+        if (sourceOwner.equals(targetOwner)) {
+            return true;
+        }
+        return isClientSide ?
+                AlliancesClient.isAllied(sourceOwner, targetOwner) :
+                AlliancesServerEvents.isAllied(sourceOwner, targetOwner);
+    }
+
     private boolean isRedundantMove(Unit unit, BlockPos targetPos) {
         LivingEntity le = (LivingEntity) unit;
         MoveToTargetBlockGoal goal = unit.getMoveGoal();
@@ -275,15 +292,17 @@ public class UnitActionItem {
                     }
                 }
                 case ATTACK -> {
+                    LivingEntity attackTarget = (LivingEntity) level.getEntity(unitId);
                     // if the unit can't actually attack just treat this as a follow action
                     if (unit instanceof AttackerUnit attackerUnit) {
-                        attackerUnit.setUnitAttackTargetForced((LivingEntity) level.getEntity(unitId));
+                        if (attackTarget == null || !isFriendlyUnitTarget(unit, attackTarget, level.isClientSide())) {
+                            attackerUnit.setUnitAttackTargetForced(attackTarget);
+                        }
                     } else {
-                        LivingEntity livingEntity = (LivingEntity) level.getEntity(unitId);
-                        if (livingEntity != null) {
+                        if (attackTarget != null) {
                             MiscUtil.addUnitCheckpoint(unit, unitId, true);
                         }
-                        unit.setFollowTarget(livingEntity);
+                        unit.setFollowTarget(attackTarget);
                     }
                 }
                 case ATTACK_BUILDING -> {

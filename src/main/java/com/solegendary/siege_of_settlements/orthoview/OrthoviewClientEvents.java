@@ -89,6 +89,7 @@ public class OrthoviewClientEvents {
     private static final float CAMROTX_DEFAULT = 135;
     private static final float CAMROTY_DEFAULT = -45;
     private static Vec3 frozenPlayerPos = null;
+    private static Vec3 frozenVehiclePos = null;
     private static final int CAMERA_SYNC_TICKS_MAX = 1;
     private static final double CAMERA_SYNC_MOVE_SQR = 1.0D;
     private static int cameraSyncTicksLeft = 0;
@@ -254,6 +255,7 @@ public class OrthoviewClientEvents {
     private static void freezeLocalPlayer() {
         if (MC.player == null || !enabled) {
             frozenPlayerPos = null;
+            frozenVehiclePos = null;
             return;
         }
 
@@ -271,6 +273,24 @@ public class OrthoviewClientEvents {
         MC.player.xo = frozenPlayerPos.x;
         MC.player.yo = frozenPlayerPos.y;
         MC.player.zo = frozenPlayerPos.z;
+
+        Entity vehicle = MC.player.getVehicle();
+        if (vehicle != null) {
+            if (frozenVehiclePos == null) {
+                frozenVehiclePos = vehicle.position();
+            }
+
+            vehicle.setDeltaMovement(Vec3.ZERO);
+            vehicle.fallDistance = 0;
+            if (vehicle.position().distanceToSqr(frozenVehiclePos) > 1.0e-6) {
+                vehicle.setPos(frozenVehiclePos.x, frozenVehiclePos.y, frozenVehiclePos.z);
+            }
+            vehicle.xo = frozenVehiclePos.x;
+            vehicle.yo = frozenVehiclePos.y;
+            vehicle.zo = frozenVehiclePos.z;
+        } else {
+            frozenVehiclePos = null;
+        }
     }
     public static void updateOrthoviewY() {
         Entity cam = getCameraEntity();
@@ -353,6 +373,7 @@ public class OrthoviewClientEvents {
         camRotAdjX = 0;
         camRotAdjY = 0;
         frozenPlayerPos = null;
+        frozenVehiclePos = null;
         cameraSyncTicksLeft = 0;
         lastSyncedCameraPos = null;
         reset();
@@ -513,6 +534,8 @@ public class OrthoviewClientEvents {
             PlayerServerboundPacket.enableOrthoview();
             ensureCameraEntity();
             frozenPlayerPos = MC.player.position();
+            Entity vehicle = MC.player.getVehicle();
+            frozenVehiclePos = vehicle != null ? vehicle.position() : null;
             updateOrthoviewY();
             moveCameraTo(MC.player.getX(), orthoviewPlayerBaseY, MC.player.getZ());
             cameraSyncTicksLeft = 0;
@@ -530,6 +553,7 @@ public class OrthoviewClientEvents {
             PlayerServerboundPacket.disableOrthoview();
             TopdownGuiServerboundPacket.closeTopdownGui(MC.player.getId());
             frozenPlayerPos = null;
+            frozenVehiclePos = null;
             cameraSyncTicksLeft = 0;
             lastSyncedCameraPos = null;
             cleanupCameraEntity();

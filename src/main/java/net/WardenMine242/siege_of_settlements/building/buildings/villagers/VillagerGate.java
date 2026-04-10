@@ -65,7 +65,7 @@ public class VillagerGate extends ProductionBuilding {
         String name = I18n.get("buildings." + getFaction().name().toLowerCase() + "." + key.getNamespace() + "." + key.getPath());
         return new BuildingPlaceButton(
                 name,
-                ResourceLocation.fromNamespaceAndPath("minecraft","textures/item/oak_door.png"),
+                ResourceLocation.fromNamespaceAndPath("minecraft", "textures/item/oak_door.png"),
                 hotkey,
                 () -> BuildingClientEvents.getBuildingToPlace() == Buildings.VILLAGER_GATE,
                 () -> !TutorialClientEvents.isAtOrPastStage(TutorialStage.EXPLAIN_BUILDINGS),

@@ -3,6 +3,7 @@ package com.solegendary.siege_of_settlements.unit.modelling.renderers;
 import com.solegendary.siege_of_settlements.unit.modelling.models.EliteArcherGeoModel;
 import com.solegendary.siege_of_settlements.unit.units.villagers.RavagerUnit;
 import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
+import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -49,7 +50,8 @@ public class EliteArcherGeoRenderer extends GeoEntityRenderer<EliteArcherUnit> {
                                   float green,
                                   float blue,
                                   float alpha) {
-        boolean ridingRavager = animatable.isPassenger() && animatable.getVehicle() instanceof RavagerUnit;
+        boolean ridingRavager = animatable.isPassenger() &&
+                (animatable.getVehicle() instanceof RavagerUnit || animatable.getVehicle() instanceof HorseUnit);
         boolean isLegBone = "right_leg".equals(bone.getName()) || "left_leg".equals(bone.getName());
 
         float oldRotX = bone.getRotX();

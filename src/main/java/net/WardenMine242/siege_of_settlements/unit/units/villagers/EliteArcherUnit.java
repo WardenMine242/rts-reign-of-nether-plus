@@ -6,11 +6,11 @@ import com.solegendary.siege_of_settlements.resources.ResourceName;
 import com.solegendary.siege_of_settlements.resources.Resources;
 import com.solegendary.siege_of_settlements.resources.ResourcesClientboundPacket;
 import com.solegendary.siege_of_settlements.resources.ResourcesServerEvents;
+import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -19,7 +19,6 @@ import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.util.Mth;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -104,6 +103,9 @@ public class EliteArcherUnit extends PillagerUnit implements GeoEntity {
 
     @Override
     public float getMovementSpeed() {
+        if (this.isPassenger() && this.getVehicle() instanceof Unit mountedUnit) {
+            return mountedUnit.getMovementSpeed();
+        }
         return STAT_MOVEMENT_SPEED;
     }
 
@@ -141,18 +143,6 @@ public class EliteArcherUnit extends PillagerUnit implements GeoEntity {
             forcedAttackTicks--;
         }
 
-        if (shouldUseAttackFacing()) {
-            LivingEntity target = this.getTarget();
-            if (target != null && target.isAlive()) {
-                double dx = target.getX() - this.getX();
-                double dz = target.getZ() - this.getZ();
-                float yawToTarget = (float) (Mth.atan2(dz, dx) * (180.0D / Math.PI)) - 90.0F;
-                this.setYRot(yawToTarget);
-                this.yBodyRot = yawToTarget;
-                this.yHeadRot = yawToTarget;
-                this.yHeadRotO = yawToTarget;
-            }
-        }
     }
 
     @Override
@@ -208,15 +198,17 @@ public class EliteArcherUnit extends PillagerUnit implements GeoEntity {
     }
 
     public boolean isMoveOrderActive() {
+        // Move goal target is assigned immediately when player gives a move command,
+        // so include it to drop attack-facing in the same tick.
         return this.getAttackMoveTarget() != null
                 || this.getFollowTarget() != null
+                || this.getMoveGoal().getMoveTarget() != null
                 || !this.getNavigation().isDone();
     }
 
     public boolean shouldUseAttackFacing() {
-        // Only keep attack-facing while attack animation/charge is active.
-        // This prevents lingering side-facing after combat ends.
-        return !isMoveOrderActive() && isInArcherAttackPose();
+        // Visual-only attack facing. Real entity yaw should not be forced during shooting.
+        return isInArcherAttackPose();
     }
 
     public boolean shouldRenderArrow2() {

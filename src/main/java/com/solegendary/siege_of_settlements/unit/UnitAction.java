@@ -150,5 +150,6 @@ public enum UnitAction {
     BECOME_TRADER,
     OCCUPY_MARKETPLACE,
     EXIT_MARKETPLACE,
-    BERSERK
+    BERSERK,
+    MOUNT_HORSE
 }

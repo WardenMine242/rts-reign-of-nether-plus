@@ -24,10 +24,11 @@ import static com.solegendary.siege_of_settlements.util.MiscUtil.fcs;
 
 public class EliteVindicatorBerserk extends Ability {
     private static final int DURATION_SECONDS = 10;
+    private static final int COOLDOWN_SECONDS = 120;
     private static final ResourceCost COST = ResourceCosts.BERSERK;
 
     public EliteVindicatorBerserk() {
-        super(UnitAction.BERSERK, DURATION_SECONDS * 20, 0, 0, false);
+        super(UnitAction.BERSERK, COOLDOWN_SECONDS * 20, 0, 0, false);
     }
 
     private boolean canAfford(String ownerName, boolean isClientSide) {
@@ -62,7 +63,9 @@ public class EliteVindicatorBerserk extends Ability {
                 hotkey,
                 eliteVindicatorUnit::isBerserkActive,
                 () -> false,
-                () -> !eliteVindicatorUnit.isBerserkActive() && canAfford(eliteVindicatorUnit.getOwnerName(), true),
+                () -> !eliteVindicatorUnit.isBerserkActive()
+                        && this.isOffCooldown(eliteVindicatorUnit)
+                        && canAfford(eliteVindicatorUnit.getOwnerName(), true),
                 () -> sendUnitCommand(UnitAction.BERSERK),
                 null,
                 List.of(
@@ -79,10 +82,22 @@ public class EliteVindicatorBerserk extends Ability {
 
     @Override
     public void use(Level level, Unit unitUsing, BlockPos targetBp) {
-        if (level.isClientSide() || !(unitUsing instanceof EliteVindicatorUnit eliteVindicatorUnit)) {
+        if (!(unitUsing instanceof EliteVindicatorUnit eliteVindicatorUnit)) {
+            return;
+        }
+        if (level.isClientSide()) {
+            // Keep UI/hotkey feedback instant; server still validates everything.
+            if (!eliteVindicatorUnit.isBerserkActive()
+                    && this.isOffCooldown(eliteVindicatorUnit)
+                    && canAfford(eliteVindicatorUnit.getOwnerName(), true)) {
+                setToMaxCooldown(eliteVindicatorUnit);
+            }
             return;
         }
         if (eliteVindicatorUnit.isBerserkActive()) {
+            return;
+        }
+        if (!this.isOffCooldown(eliteVindicatorUnit)) {
             return;
         }
         if (!canAfford(eliteVindicatorUnit.getOwnerName(), false)) {

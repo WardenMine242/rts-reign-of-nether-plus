@@ -41,8 +41,7 @@ public class TitleScreenMixin extends Screen {
             ResourceLocation.parse("textures/gui/title/minecraft.png");
     private static final ResourceLocation DISCORD_TEXTURE =
             ResourceLocation.parse( "textures/gui/title/discord.png");
-    private static final ResourceLocation LILYPAD_TEXTURE =
-            ResourceLocation.parse( "textures/gui/title/lilypad.png");
+
 
     @Shadow @Final private PanoramaRenderer panorama;
     @Shadow @Final private boolean fading;

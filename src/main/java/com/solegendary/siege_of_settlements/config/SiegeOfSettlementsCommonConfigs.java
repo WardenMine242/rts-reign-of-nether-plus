@@ -45,6 +45,7 @@ public class SiegeOfSettlementsCommonConfigs {
         UnitCosts.ROYAL_GUARD.define(BUILDER);
         UnitCosts.ENCHANTER.define(BUILDER);
         UnitCosts.AUROMACER.define(BUILDER);
+        UnitCosts.HORSE.define(BUILDER);
         //Piglins
         BUILDER.comment("Piglins");
         UnitCosts.GRUNT.define(BUILDER);
@@ -109,6 +110,7 @@ public class SiegeOfSettlementsCommonConfigs {
         BuildingCosts.CORNER_WALL.define(BUILDER);
         BuildingCosts.RESEARCH_CENTRE.define(BUILDER);
         BuildingCosts.MARKETPLACE.define(BUILDER);
+        BuildingCosts.STABLE.define(BUILDER);
         //Piglins
         BUILDER.comment("Piglins");
         BuildingCosts.CENTRAL_PORTAL.define(BUILDER);
@@ -234,6 +236,7 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry ROYAL_GUARD = ResourceCostConfigEntry.Unit(200,500,300,0,30, 5, ResourceCosts.ROYAL_GUARD, "Royal Guard Config");
         public static final ResourceCostConfigEntry ENCHANTER = ResourceCostConfigEntry.Unit(0,0,0,0,30, 5, ResourceCosts.ENCHANTER, "Enchanter Config");
         public static final ResourceCostConfigEntry AUROMACER = ResourceCostConfigEntry.Unit(0,0,0,1000,120, 1, ResourceCosts.AUROMANCER, "Auromancer Config");
+        public static final ResourceCostConfigEntry HORSE = ResourceCostConfigEntry.Unit(300,100,50,0,60, 1, ResourceCosts.HORSE, "Horse Config");
 
         // Piglins
         public static final ResourceCostConfigEntry GRUNT = ResourceCostConfigEntry.Unit(50,0,0,0,15,1, ResourceCosts.GRUNT, "Grunt Config");
@@ -297,7 +300,8 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry GATE = ResourceCostConfigEntry.Building(0,275,275,0, 0, ResourceCosts.GATE, "Gate Config");
         public static final ResourceCostConfigEntry CORNER_WALL = ResourceCostConfigEntry.Building(0,325,350,0, 0, ResourceCosts.CORNER_WALL, "Corner Wall Config");
         public static final ResourceCostConfigEntry RESEARCH_CENTRE = ResourceCostConfigEntry.Building(0,6000,3000,0, 0, ResourceCosts.RESEARCH_CENTRE, "Research Centre Config");
-        public static final ResourceCostConfigEntry MARKETPLACE = ResourceCostConfigEntry.Building(0,3000,2000,200, 0, ResourceCosts.MARKETPLACE, "Marketplace Config");
+        public static final ResourceCostConfigEntry MARKETPLACE = ResourceCostConfigEntry.Building(0,4000,2000,200, 0, ResourceCosts.MARKETPLACE, "Marketplace Config");
+        public static final ResourceCostConfigEntry STABLE = ResourceCostConfigEntry.Building(0,3000,2000,0, 0, ResourceCosts.STABLE, "Stable Config");
 
 
         // Piglins
