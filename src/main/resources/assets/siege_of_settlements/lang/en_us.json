@@ -1687,5 +1687,12 @@
     "effect.siege_of_settlements.bloodlust": "Bloodlust",
     "effect.siege_of_settlements.frost_damage": "Frost Damage",
     "effect.siege_of_settlements.enchantment_amplifier": "Enchantment Amplifier",
-    "effect.siege_of_settlements.disarm": "Disarm"
+    "effect.siege_of_settlements.disarm": "Disarm",
+
+    "hud.siege_of_settlements.villager_build_page.core": "Core Buildings",
+    "hud.siege_of_settlements.villager_build_page.defense": "Defense",
+    "hud.siege_of_settlements.villager_build_page.army": "Army",
+    "hud.siege_of_settlements.villager_build_page.production": "Production",
+    "hud.siege_of_settlements.villager_build_page.prev": "Previous page",
+    "hud.siege_of_settlements.villager_build_page.next": "Next page"
 }

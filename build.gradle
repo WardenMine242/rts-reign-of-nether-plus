@@ -19,7 +19,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
-version = '0.3.1'
+version = '0.3.3'
 group = 'com.solegendary.siege_of_settlements' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'siege_of_settlements'
 
@@ -202,3 +202,4 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
     options.compilerArgs += ["-Xmaxerrs", "500000"]
 }
+

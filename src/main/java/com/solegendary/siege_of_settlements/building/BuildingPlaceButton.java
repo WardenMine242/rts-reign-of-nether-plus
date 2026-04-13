@@ -2,6 +2,7 @@ package com.solegendary.siege_of_settlements.building;
 
 import com.solegendary.siege_of_settlements.hud.Button;
 import com.solegendary.siege_of_settlements.keybinds.Keybinding;
+import com.solegendary.siege_of_settlements.api.SiegeOfSettlementsRegistries;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
@@ -11,11 +12,15 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class BuildingPlaceButton extends Button {
+    public final String buildingKeyPath;
+
     public BuildingPlaceButton(String name, ResourceLocation rl, Keybinding hotkey, Supplier<Boolean> isSelected,
                                Supplier<Boolean> isHidden, Supplier<Boolean> isEnabled,
                                List<FormattedCharSequence> tooltipLines, Building building) {
 
         // generate x/y based on given position (starting at 0 which is bottom left 1 row above generic action buttons)
         super(name, Button.itemIconSize, rl, hotkey, isSelected, isHidden, isEnabled, () -> BuildingClientEvents.setBuildingToPlace(building), null, tooltipLines);
+        ResourceLocation key = SiegeOfSettlementsRegistries.BUILDING.getKey(building);
+        this.buildingKeyPath = key == null ? "" : key.getPath();
     }
 }

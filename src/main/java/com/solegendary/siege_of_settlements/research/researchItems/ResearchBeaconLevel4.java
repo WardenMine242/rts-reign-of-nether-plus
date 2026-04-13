@@ -42,7 +42,7 @@ public class ResearchBeaconLevel4 extends ProductionItem {
     public StartProductionButton getStartButton(ProductionPlacement prodBuilding, Keybinding hotkey) {
         return new StartProductionButton(
                 itemName,
-                ResourceLocation.fromNamespaceAndPath("minecraft", "textures/block/diamond_block.png"),
+                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/level_up.png"),
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
                 hotkey,
                 () -> itemIsBeingProducedAt(prodBuilding) ||
@@ -64,7 +64,7 @@ public class ResearchBeaconLevel4 extends ProductionItem {
     public StopProductionButton getCancelButton(ProductionPlacement prodBuilding, boolean first) {
         return new StopProductionButton(
                 itemName,
-                ResourceLocation.fromNamespaceAndPath("minecraft", "textures/block/diamond_block.png"),
+                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/level_up.png"),
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
                 prodBuilding,
                 this,
@@ -72,3 +72,4 @@ public class ResearchBeaconLevel4 extends ProductionItem {
         );
     }
 }
+

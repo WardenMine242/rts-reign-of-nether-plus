@@ -14,6 +14,10 @@ import com.solegendary.siege_of_settlements.building.buildings.placements.Produc
 import com.solegendary.siege_of_settlements.building.custombuilding.CustomBuilding;
 import com.solegendary.siege_of_settlements.building.custombuilding.CustomBuildingClientEvents;
 import com.solegendary.siege_of_settlements.building.production.ActiveProduction;
+import com.solegendary.siege_of_settlements.building.production.ProductionItem;
+import com.solegendary.siege_of_settlements.building.production.ProductionItems;
+import com.solegendary.siege_of_settlements.building.production.StartProductionButton;
+import com.solegendary.siege_of_settlements.building.production.StopProductionButton;
 import com.solegendary.siege_of_settlements.config.ConfigClientEvents;
 import com.solegendary.siege_of_settlements.gamemode.ClientGameModeHelper;
 import com.solegendary.siege_of_settlements.gamemode.GameMode;
@@ -56,6 +60,7 @@ import com.solegendary.siege_of_settlements.unit.units.villagers.MilitiaUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.RavagerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.VillagerUnit;
+import com.solegendary.siege_of_settlements.unit.units.villagers.VillagerUnitProfession;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
 import com.solegendary.siege_of_settlements.util.MyRenderer;
 import net.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeTrader;
@@ -108,6 +113,50 @@ public class HudClientEvents {
     private static final int TEMP_MSG_TICKS_FADE = 50; // ticks left when the msg starts to fade
     private static final int TEMP_MSG_TICKS_MAX = 150; // ticks to show the msg for
     private static final int MAX_BUTTONS_PER_ROW = 6;
+    private static final int VILLAGER_BUILD_PAGE_COUNT = 4;
+    private static final int SANDBOX_MIN_ROWS_PER_PAGE = 2;
+    private static final int SANDBOX_MAX_ROWS_PER_PAGE = 4;
+    private static final ResourceLocation BUILDING_LEVEL_UP_ICON = ResourceLocation.fromNamespaceAndPath(
+            SiegeOfSettlements.MOD_ID,
+            "textures/hud/level_up.png"
+    );
+    private static final Set<ProductionItem> BUILDING_LEVEL_UP_ITEMS = Set.of(
+            ProductionItems.DRILL_T2,
+            ProductionItems.DRILL_T3,
+            ProductionItems.RESEARCH_SUPERIOR_BLACKSMITH,
+            ProductionItems.RESEARCH_GRAND_LIBRARY,
+            ProductionItems.RESEARCH_CASTLE_FLAG,
+            ProductionItems.RESEARCH_LAB_LIGHTNING_ROD,
+            ProductionItems.RESEARCH_BEACON_LEVEL_1,
+            ProductionItems.RESEARCH_BEACON_LEVEL_2,
+            ProductionItems.RESEARCH_BEACON_LEVEL_3,
+            ProductionItems.RESEARCH_BEACON_LEVEL_4,
+            ProductionItems.RESEARCH_BEACON_LEVEL_5
+    );
+
+    private static final List<Keybinding> PAGED_MENU_HOTKEYS = List.of(
+            Keybindings.keyQ, Keybindings.keyW, Keybindings.keyE, Keybindings.keyR, Keybindings.keyT,
+            Keybindings.keyY, Keybindings.keyU, Keybindings.keyI, Keybindings.keyO, Keybindings.keyP,
+            Keybindings.keyF, Keybindings.keyL, Keybindings.keyC, Keybindings.keyD, Keybindings.keyJ, Keybindings.keyK
+    );
+
+    private static final List<String> VILLAGER_BUILD_PAGE_TITLE_KEYS = List.of(
+            "hud.siege_of_settlements.villager_build_page.core",
+            "hud.siege_of_settlements.villager_build_page.defense",
+            "hud.siege_of_settlements.villager_build_page.army",
+            "hud.siege_of_settlements.villager_build_page.production"
+    );
+
+    private static final List<List<String>> VILLAGER_BUILD_PAGE_KEYS = List.of(
+            List.of("town_centre", "villager_house", "oak_stockpile", "research_centre", "oak_bridge", "stable"),
+            List.of("watchtower", "villager_gate_closed", "villager_wall", "villager_corner_wall"),
+            List.of("arcane_tower", "barracks", "castle", "iron_golem_building", "library", "shrine_of_prosperity", "marketplace"),
+            List.of("wheat_farm", "blacksmith", "villager_drill")
+    );
+
+    private static int villagerBuildPage = 0;
+    private static int villagerBuildLayoutUnitId = -1;
+    private static final EnumMap<SandboxMenuType, Integer> sandboxMenuPages = new EnumMap<>(SandboxMenuType.class);
 
     public static final ArrayList<ControlGroup> controlGroups = new ArrayList<>(10);
     public static int lastSelCtrlGroupKey = -1;
@@ -139,6 +188,12 @@ public class HudClientEvents {
     private final static int frameBgColour = 0xA0000000;
 
     private static final ArrayList<RectZone> hudZones = new ArrayList<>();
+
+    static {
+        for (SandboxMenuType menuType : SandboxMenuType.values()) {
+            sandboxMenuPages.put(menuType, 0);
+        }
+    }
 
     public static void setLowestCdHudEntity() {
         if (UnitClientEvents.getSelectedUnits().isEmpty() || hudSelectedEntity == null) {
@@ -631,29 +686,65 @@ public class HudClientEvents {
                         List<Button> visibleProdButtons = selProdPlacement.productionButtons.stream()
                                 .filter(b -> !b.isHidden.get())
                                 .toList();
-                        if (visibleProdButtons.size() > MAX_BUTTONS_PER_ROW) {
-                            blitY -= Button.DEFAULT_ICON_FRAME_SIZE;
-                        }
-                        buildingProdRows += 1;
-
-                        int rowButtons = 0;
+                        ArrayList<Button> upgradeProdButtons = new ArrayList<>();
+                        ArrayList<Button> regularProdButtons = new ArrayList<>();
                         for (Button prodButton : visibleProdButtons) {
-                            rowButtons += 1;
-                            if (rowButtons > MAX_BUTTONS_PER_ROW) {
-                                rowButtons = 0;
-                                blitX = 0;
-                                blitY += Button.DEFAULT_ICON_FRAME_SIZE;
-                                buildingProdRows += 1;
+                            if (isBuildingLevelUpgradeButton(prodButton)) {
+                                prodButton.iconResource = BUILDING_LEVEL_UP_ICON;
+                                upgradeProdButtons.add(prodButton);
+                            } else {
+                                regularProdButtons.add(prodButton);
                             }
-                            prodButton.render(evt.getGuiGraphics(), blitX, blitY, mouseX, mouseY);
-                            productionButtons.add(prodButton);
-                            renderedButtons.add(prodButton);
-                            blitX += iconFrameSize;
+                        }
+
+                        int upgradeRows = upgradeProdButtons.isEmpty()
+                                ? 0
+                                : (int) Math.ceil((double) upgradeProdButtons.size() / (double) MAX_BUTTONS_PER_ROW);
+                        int regularRows = regularProdButtons.isEmpty()
+                                ? 0
+                                : (int) Math.ceil((double) regularProdButtons.size() / (double) MAX_BUTTONS_PER_ROW);
+
+                        buildingProdRows += upgradeRows + regularRows;
+
+                        if (regularRows > 0) {
+                            int regularX = 0;
+                            int regularY = screenHeight - (Button.DEFAULT_ICON_FRAME_SIZE * (regularRows + upgradeRows));
+                            int renderedRegularCount = 0;
+                            for (Button prodButton : regularProdButtons) {
+                                prodButton.render(evt.getGuiGraphics(), regularX, regularY, mouseX, mouseY);
+                                productionButtons.add(prodButton);
+                                renderedButtons.add(prodButton);
+
+                                renderedRegularCount += 1;
+                                regularX += iconFrameSize;
+                                if (renderedRegularCount % MAX_BUTTONS_PER_ROW == 0) {
+                                    regularX = 0;
+                                    regularY += Button.DEFAULT_ICON_FRAME_SIZE;
+                                }
+                            }
+                        }
+
+                        if (upgradeRows > 0) {
+                            int upgradeX = 0;
+                            int upgradeY = screenHeight - Button.DEFAULT_ICON_FRAME_SIZE;
+                            int renderedUpgradeCount = 0;
+                            for (Button prodButton : upgradeProdButtons) {
+                                prodButton.render(evt.getGuiGraphics(), upgradeX, upgradeY, mouseX, mouseY);
+                                productionButtons.add(prodButton);
+                                renderedButtons.add(prodButton);
+
+                                renderedUpgradeCount += 1;
+                                upgradeX += iconFrameSize;
+                                if (renderedUpgradeCount % MAX_BUTTONS_PER_ROW == 0) {
+                                    upgradeX = 0;
+                                    upgradeY += Button.DEFAULT_ICON_FRAME_SIZE;
+                                }
+                            }
                         }
                     }
                     if (abilityRows > 0) {
                         blitX = 0;
-                        blitY = screenHeight - (iconFrameSize * abilityRows);
+                        blitY = screenHeight - (iconFrameSize * (abilityRows + buildingProdRows));
                         int rowButtons = 0;
                         for (AbilityButton abilityButton : buildingAbilities) {
                             abilityButton.render(evt.getGuiGraphics(), blitX, blitY, mouseX, mouseY);
@@ -1017,45 +1108,116 @@ public class HudClientEvents {
                         .filter(b -> !(b instanceof AbilityButton ab) || !(ab.ability instanceof CallToArmsUnit))
                         .toList();
 
-                boolean villagerTraderCustomLayout = hudSelectedEntity instanceof VillagerUnit &&
-                        unitAbilities.stream().anyMatch(b ->
-                                b instanceof AbilityButton ab && ab.ability instanceof VillagerBecomeTrader
-                        );
+                boolean hasVillagerTraderAbility = unitAbilities.stream().anyMatch(b ->
+                        b instanceof AbilityButton ab && ab.ability instanceof VillagerBecomeTrader
+                );
 
-                if (villagerTraderCustomLayout) {
-                    ArrayList<Button> buildingAbilityButtons = new ArrayList<>();
+                boolean villagerPagedBuildLayout = hudSelectedEntity instanceof VillagerUnit villagerUnit &&
+                        villagerUnit.getUnitProfession() == VillagerUnitProfession.NONE &&
+                        hasVillagerTraderAbility;
+
+                if (villagerPagedBuildLayout) {
+                    ArrayList<BuildingPlaceButton> buildingAbilityButtons = new ArrayList<>();
                     ArrayList<Button> lowerAbilityButtons = new ArrayList<>();
 
                     for (Button button : unitAbilities) {
-                        if (button instanceof BuildingPlaceButton) {
-                            buildingAbilityButtons.add(button);
+                        if (button instanceof BuildingPlaceButton buildingPlaceButton) {
+                            buildingAbilityButtons.add(buildingPlaceButton);
                         } else {
                             lowerAbilityButtons.add(button);
                         }
                     }
 
-                    int rowsUp = (int) Math.floor((float) (buildingAbilityButtons.size() - 1) / MAX_BUTTONS_PER_ROW);
-                    rowsUp = Math.max(0, rowsUp);
+                    if (villagerBuildLayoutUnitId != hudSelectedEntity.getId()) {
+                        villagerBuildLayoutUnitId = hudSelectedEntity.getId();
+                        villagerBuildPage = 0;
+                    }
+                    villagerBuildPage = Math.floorMod(villagerBuildPage, VILLAGER_BUILD_PAGE_COUNT);
+
+                    List<BuildingPlaceButton> currentPageButtons =
+                            getVillagerBuildPageButtons(buildingAbilityButtons, villagerBuildPage).stream()
+                                    .filter(button -> !button.isHidden.get())
+                                    .toList();
+                    applyPagedHotkeys(currentPageButtons);
+
+                    int villagerRowsPerPage = getSandboxRowsPerPage(currentPageButtons.size());
+                    int rowsUp = Math.max(0, villagerRowsPerPage - 1);
                     if (!lowerAbilityButtons.isEmpty()) {
                         rowsUp += 1; // reserve one row below buildings for non-building villager abilities
                     }
                     if (SandboxClientEvents.isSandboxPlayer() && (hudSelectedEntity != null || hudSelectedPlacement != null)) {
                         rowsUp += 1;
                     }
+                    rowsUp += 1; // page header row
 
                     blitY -= iconFrameSize * rowsUp;
 
-                    int i = 0;
-                    for (Button button : buildingAbilityButtons) {
-                        if (!button.isHidden.get()) {
-                            i += 1;
-                            button.render(evt.getGuiGraphics(), blitX, blitY, mouseX, mouseY);
-                            renderedButtons.add(button);
-                            blitX += iconFrameSize;
-                            if (i % MAX_BUTTONS_PER_ROW == 0) {
-                                blitX = 0;
-                                blitY += iconFrameSize;
-                            }
+                    int headerY = blitY;
+                    int titleCenterX = (MAX_BUTTONS_PER_ROW * iconFrameSize) / 2;
+                    int leftArrowX = 0;
+                    int rightArrowX = (MAX_BUTTONS_PER_ROW - 1) * iconFrameSize;
+
+                    Button previousPageButton = new Button(
+                            "villager_build_page_prev",
+                            Button.itemIconSize,
+                            null,
+                            (Keybinding) null,
+                            () -> false,
+                            () -> false,
+                            () -> true,
+                            () -> villagerBuildPage = Math.floorMod(villagerBuildPage - 1, VILLAGER_BUILD_PAGE_COUNT),
+                            null,
+                            List.of(fcs(I18n.get("hud.siege_of_settlements.villager_build_page.prev")))
+                    );
+                    previousPageButton.frameResource = null;
+                    previousPageButton.render(evt.getGuiGraphics(), leftArrowX, headerY, mouseX, mouseY);
+                    renderedButtons.add(previousPageButton);
+                    renderVillagerBuildPageTriangle(evt.getGuiGraphics(), leftArrowX, headerY, true);
+
+                    Button nextPageButton = new Button(
+                            "villager_build_page_next",
+                            Button.itemIconSize,
+                            null,
+                            (Keybinding) null,
+                            () -> false,
+                            () -> false,
+                            () -> true,
+                            () -> villagerBuildPage = Math.floorMod(villagerBuildPage + 1, VILLAGER_BUILD_PAGE_COUNT),
+                            null,
+                            List.of(fcs(I18n.get("hud.siege_of_settlements.villager_build_page.next")))
+                    );
+                    nextPageButton.frameResource = null;
+                    nextPageButton.render(evt.getGuiGraphics(), rightArrowX, headerY, mouseX, mouseY);
+                    renderedButtons.add(nextPageButton);
+                    renderVillagerBuildPageTriangle(evt.getGuiGraphics(), rightArrowX, headerY, false);
+
+                    evt.getGuiGraphics().drawCenteredString(
+                            MC.font,
+                            I18n.get(VILLAGER_BUILD_PAGE_TITLE_KEYS.get(villagerBuildPage)),
+                            titleCenterX,
+                            headerY - 10,
+                            0xFFFFFF
+                    );
+
+                    evt.getGuiGraphics().drawCenteredString(
+                            MC.font,
+                            (villagerBuildPage + 1) + "/" + VILLAGER_BUILD_PAGE_COUNT,
+                            titleCenterX,
+                            headerY + 7,
+                            0xFFFFFF
+                    );
+
+                    int buildingX = 0;
+                    int buildingY = headerY + iconFrameSize;
+                    int renderedBuildingCount = 0;
+                    for (BuildingPlaceButton button : currentPageButtons) {
+                        renderedBuildingCount += 1;
+                        button.render(evt.getGuiGraphics(), buildingX, buildingY, mouseX, mouseY);
+                        renderedButtons.add(button);
+                        buildingX += iconFrameSize;
+                        if (renderedBuildingCount % MAX_BUTTONS_PER_ROW == 0) {
+                            buildingX = 0;
+                            buildingY += iconFrameSize;
                         }
                     }
 
@@ -1076,7 +1238,10 @@ public class HudClientEvents {
                     }
                 }
 
-                if (!villagerTraderCustomLayout) {
+                if (!villagerPagedBuildLayout) {
+                    villagerBuildLayoutUnitId = -1;
+                    villagerBuildPage = 0;
+
                     int rowsUp = (int) Math.floor((float) (unitAbilities.size() - 1) / MAX_BUTTONS_PER_ROW);
                     rowsUp = Math.max(0, rowsUp);
                     if (SandboxClientEvents.isSandboxPlayer() && (hudSelectedEntity != null || hudSelectedPlacement != null))
@@ -1158,24 +1323,91 @@ public class HudClientEvents {
                     .filter(b -> !b.isHidden.get() && !(b instanceof AbilityButton ab && ab.ability instanceof CallToArmsUnit))
                     .toList();
 
-            int rowsUp = (int) Math.floor((float) (shownAbilities.size() - 1) / MAX_BUTTONS_PER_ROW);
-            rowsUp = Math.max(0, rowsUp);
-            if (SandboxClientEvents.isSandboxPlayer() && (hudSelectedEntity != null || hudSelectedPlacement != null))
-                rowsUp += 1;
+            int sandboxRowsPerPage = getSandboxRowsPerPage(shownAbilities.size());
+            int sandboxPageSize = MAX_BUTTONS_PER_ROW * sandboxRowsPerPage;
+            int pageCount = Math.max(1, (int) Math.ceil((float) shownAbilities.size() / sandboxPageSize));
+            int sandboxPage = Math.max(0, getSandboxMenuPage(SandboxClientEvents.sandboxMenuType));
+            sandboxPage = Math.min(sandboxPage, pageCount - 1);
+            setSandboxMenuPage(SandboxClientEvents.sandboxMenuType, sandboxPage);
+
+            int rowsUp = Math.max(0, sandboxRowsPerPage - 1);
+            rowsUp += 1; // page header row
 
             blitY -= iconFrameSize * rowsUp;
 
-            int i = 0;
-            for (Button button : shownAbilities) {
-                if (!button.isHidden.get()) {
-                    i += 1;
-                    button.render(evt.getGuiGraphics(), blitX, blitY, mouseX, mouseY);
-                    renderedButtons.add(button);
-                    blitX += iconFrameSize;
-                    if (i % MAX_BUTTONS_PER_ROW == 0) {
-                        blitX = 0;
-                        blitY += iconFrameSize;
-                    }
+            int headerY = blitY;
+            int titleCenterX = (MAX_BUTTONS_PER_ROW * iconFrameSize) / 2;
+            int leftArrowX = 0;
+            int rightArrowX = (MAX_BUTTONS_PER_ROW - 1) * iconFrameSize;
+            final int pageCountFinal = pageCount;
+            final SandboxMenuType currentMenuType = SandboxClientEvents.sandboxMenuType;
+
+            Button previousPageButton = new Button(
+                    "sandbox_page_prev",
+                    Button.itemIconSize,
+                    null,
+                    (Keybinding) null,
+                    () -> false,
+                    () -> false,
+                    () -> true,
+                    () -> setSandboxMenuPage(currentMenuType, Math.floorMod(getSandboxMenuPage(currentMenuType) - 1, pageCountFinal)),
+                    null,
+                    List.of(fcs(I18n.get("hud.siege_of_settlements.villager_build_page.prev")))
+            );
+            previousPageButton.frameResource = null;
+            previousPageButton.render(evt.getGuiGraphics(), leftArrowX, headerY, mouseX, mouseY);
+            renderedButtons.add(previousPageButton);
+            renderVillagerBuildPageTriangle(evt.getGuiGraphics(), leftArrowX, headerY, true);
+
+            Button nextPageButton = new Button(
+                    "sandbox_page_next",
+                    Button.itemIconSize,
+                    null,
+                    (Keybinding) null,
+                    () -> false,
+                    () -> false,
+                    () -> true,
+                    () -> setSandboxMenuPage(currentMenuType, Math.floorMod(getSandboxMenuPage(currentMenuType) + 1, pageCountFinal)),
+                    null,
+                    List.of(fcs(I18n.get("hud.siege_of_settlements.villager_build_page.next")))
+            );
+            nextPageButton.frameResource = null;
+            nextPageButton.render(evt.getGuiGraphics(), rightArrowX, headerY, mouseX, mouseY);
+            renderedButtons.add(nextPageButton);
+            renderVillagerBuildPageTriangle(evt.getGuiGraphics(), rightArrowX, headerY, false);
+
+            evt.getGuiGraphics().drawCenteredString(
+                    MC.font,
+                    I18n.get(getSandboxMenuPageTitleKey(currentMenuType)),
+                    titleCenterX,
+                    headerY - 10,
+                    0xFFFFFF
+            );
+
+            evt.getGuiGraphics().drawCenteredString(
+                    MC.font,
+                    (sandboxPage + 1) + "/" + pageCount,
+                    titleCenterX,
+                    headerY + 7,
+                    0xFFFFFF
+            );
+
+            int startIndex = sandboxPage * sandboxPageSize;
+            int endIndex = Math.min(startIndex + sandboxPageSize, shownAbilities.size());
+            List<Button> currentPageButtons = shownAbilities.subList(startIndex, endIndex);
+            applyPagedHotkeys(currentPageButtons);
+
+            int abilityX = 0;
+            int abilityY = headerY + iconFrameSize;
+            int renderedCount = 0;
+            for (Button button : currentPageButtons) {
+                renderedCount += 1;
+                button.render(evt.getGuiGraphics(), abilityX, abilityY, mouseX, mouseY);
+                renderedButtons.add(button);
+                abilityX += iconFrameSize;
+                if (renderedCount % MAX_BUTTONS_PER_ROW == 0) {
+                    abilityX = 0;
+                    abilityY += iconFrameSize;
                 }
             }
         }
@@ -2033,6 +2265,102 @@ public class HudClientEvents {
         if (evt.getKeyCode() == Keybindings.tab.key) {
             cycleUnitSubgroups();
             cycleBuildingSubgroups();
+        }
+    }
+
+    private static List<BuildingPlaceButton> getVillagerBuildPageButtons(List<BuildingPlaceButton> allButtons, int page) {
+        List<String> orderedKeys = VILLAGER_BUILD_PAGE_KEYS.get(page);
+        ArrayList<BuildingPlaceButton> pagedButtons = new ArrayList<>();
+
+        for (String key : orderedKeys) {
+            for (BuildingPlaceButton button : allButtons) {
+                if (key.equals(button.buildingKeyPath)) {
+                    pagedButtons.add(button);
+                    break;
+                }
+            }
+        }
+
+        if (page == 0) {
+            for (BuildingPlaceButton button : allButtons) {
+                String key = button.buildingKeyPath;
+                if (key == null || key.isBlank() || !isVillagerPagedKey(key)) {
+                    pagedButtons.add(button);
+                }
+            }
+        }
+
+        return pagedButtons;
+    }
+
+    private static boolean isVillagerPagedKey(String key) {
+        if (key == null || key.isBlank()) {
+            return false;
+        }
+        for (List<String> keys : VILLAGER_BUILD_PAGE_KEYS) {
+            if (keys.contains(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static int getSandboxMenuPage(SandboxMenuType menuType) {
+        return sandboxMenuPages.getOrDefault(menuType, 0);
+    }
+
+    private static void setSandboxMenuPage(SandboxMenuType menuType, int page) {
+        sandboxMenuPages.put(menuType, Math.max(0, page));
+    }
+
+    private static int getSandboxRowsPerPage(int totalButtons) {
+        int rows = (int) Math.ceil((float) totalButtons / MAX_BUTTONS_PER_ROW);
+        rows = Math.max(SANDBOX_MIN_ROWS_PER_PAGE, rows);
+        rows = Math.min(SANDBOX_MAX_ROWS_PER_PAGE, rows);
+        return rows;
+    }
+
+    private static boolean isBuildingLevelUpgradeButton(Button button) {
+        ProductionItem productionItem = null;
+        if (button instanceof StartProductionButton startProductionButton) {
+            productionItem = startProductionButton.productionItem;
+        } else if (button instanceof StopProductionButton stopProductionButton) {
+            productionItem = stopProductionButton.productionItem;
+        }
+        return productionItem != null && BUILDING_LEVEL_UP_ITEMS.contains(productionItem);
+    }
+
+    private static void applyPagedHotkeys(List<? extends Button> pageButtons) {
+        for (int i = 0; i < pageButtons.size(); i++) {
+            Button button = pageButtons.get(i);
+            if (i < PAGED_MENU_HOTKEYS.size()) {
+                button.hotkey = PAGED_MENU_HOTKEYS.get(i);
+            } else {
+                button.hotkey = null;
+            }
+        }
+    }
+
+    private static String getSandboxMenuPageTitleKey(SandboxMenuType menuType) {
+        return switch (menuType) {
+            case UNITS -> "sandbox.siege_of_settlements.menu_type_button_units";
+            case BUILDINGS -> "sandbox.siege_of_settlements.menu_type_button_buildings";
+            case CUSTOM_BUILDINGS -> "sandbox.siege_of_settlements.menu_type_button_custom_buildings";
+        };
+    }
+
+    private static void renderVillagerBuildPageTriangle(net.minecraft.client.gui.GuiGraphics guiGraphics, int buttonX, int buttonY, boolean left) {
+        int triangleSize = 9;
+        int centerY = buttonY + (Button.DEFAULT_ICON_FRAME_SIZE / 2);
+        int startX = buttonX + (Button.DEFAULT_ICON_FRAME_SIZE - triangleSize) / 2;
+        int color = 0xFFFFFFFF;
+
+        for (int dx = 0; dx < triangleSize; dx++) {
+            int distToTip = left ? dx : (triangleSize - 1 - dx);
+            int y1 = centerY - distToTip;
+            int y2 = centerY + distToTip + 1;
+            int x = startX + dx;
+            guiGraphics.fill(x, y1, x + 1, y2, color);
         }
     }
 

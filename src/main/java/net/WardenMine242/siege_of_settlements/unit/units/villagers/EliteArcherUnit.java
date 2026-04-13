@@ -6,6 +6,7 @@ import com.solegendary.siege_of_settlements.resources.ResourceName;
 import com.solegendary.siege_of_settlements.resources.Resources;
 import com.solegendary.siege_of_settlements.resources.ResourcesClientboundPacket;
 import com.solegendary.siege_of_settlements.resources.ResourcesServerEvents;
+import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
 import net.minecraft.nbt.CompoundTag;
@@ -198,17 +199,23 @@ public class EliteArcherUnit extends PillagerUnit implements GeoEntity {
     }
 
     public boolean isMoveOrderActive() {
-        // Move goal target is assigned immediately when player gives a move command,
-        // so include it to drop attack-facing in the same tick.
-        return this.getAttackMoveTarget() != null
-                || this.getFollowTarget() != null
-                || this.getMoveGoal().getMoveTarget() != null
-                || !this.getNavigation().isDone();
+        // Explicit move/follow commands always cancel attack-facing.
+        if (this.getAttackMoveTarget() != null || this.getFollowTarget() != null) {
+            return true;
+        }
+
+        // A stale move target can remain while AI auto-acquires enemies.
+        // Keep attack-facing in that case, and only treat moveTarget as active order
+        // when we are not currently in combat.
+        boolean hasMoveTarget = this.getMoveGoal() != null && this.getMoveGoal().getMoveTarget() != null;
+        boolean hasCombatTarget = this.hasLivingTarget() || AttackerUnit.isAttackingBuilding(this);
+        return hasMoveTarget && !hasCombatTarget;
     }
 
     public boolean shouldUseAttackFacing() {
-        // Visual-only attack facing. Real entity yaw should not be forced during shooting.
-        return isInArcherAttackPose();
+        // During charge/attack use the red-arrow facing.
+        // As soon as a move/retreat order exists, switch back to normal front.
+        return isInArcherAttackPose() && !isMoveOrderActive();
     }
 
     public boolean shouldRenderArrow2() {

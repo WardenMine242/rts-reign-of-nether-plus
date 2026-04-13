@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ForgeGui.class)
 public class ForgeGuiMixin extends Gui {
+    private static final int RTS_CHAT_BOTTOM_OFFSET = 128;
 
     public ForgeGuiMixin(Minecraft pMinecraft, ItemRenderer pItemRenderer) {
         super(pMinecraft, pItemRenderer);
@@ -37,7 +38,13 @@ public class ForgeGuiMixin extends Gui {
 
         this.minecraft.getProfiler().push("chat");
         Window window = this.minecraft.getWindow();
-        CustomizeGuiOverlayEvent.Chat event = new CustomizeGuiOverlayEvent.Chat(window, guiGraphics, this.minecraft.getFrameTime(), 0, height - 40);
+        CustomizeGuiOverlayEvent.Chat event = new CustomizeGuiOverlayEvent.Chat(
+                window,
+                guiGraphics,
+                this.minecraft.getFrameTime(),
+                0,
+                height - RTS_CHAT_BOTTOM_OFFSET
+        );
         MinecraftForge.EVENT_BUS.post(event);
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate((double)event.getPosX(), (double)(event.getPosY() - height - 15) / this.chat.getScale(), 0.0);

@@ -47,6 +47,7 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
     private int windupTime = random.nextInt(0,6);
     private int eliteArcherChargeTicks = 0;
     private static final int ELITE_ARCHER_EXTRA_WINDUP = 4; // 25 + 4 = 29 ticks
+    private static final float ELITE_ARCHER_ATTACK_FACING_OFFSET = 45.0F;
 
     private static final int GARRISON_BONUS_RANGE_TO_GHASTS = 10;
 
@@ -224,20 +225,18 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
             // Vertical offset inside towers can otherwise block shots at valid targets.
             double firingDist = treatAsGarrison ? horizontalDistToTarget : distToTarget;
             boolean inFiringRange = firingDist <= attackRange + 0.25f;
-            alignHorseWithTarget(target, buildTarget, canSeeTarget, inFiringRange);
+            alignHorseWithTarget(target, buildTarget);
 
             // Elite Archer behaves like a bow user: he starts drawing only when actually attacking,
             // not pre-charging long before a shot.
             if (isEliteArcher()) {
-                if (canSeeTarget && inFiringRange) {
-                    this.tickChargeCrossbow();
-                } else if (this.crossbowState == CHARGING) {
-                    if (this.mob.isUsingItem()) {
-                        this.mob.stopUsingItem();
+                if (this.crossbowState == UNCHARGED) {
+                    if (canSeeTarget && inFiringRange) {
+                        this.tickChargeCrossbow();
                     }
-                    this.mob.setChargingCrossbow(false);
-                    this.crossbowState = UNCHARGED;
-                    this.eliteArcherChargeTicks = 0;
+                } else if (this.crossbowState == CHARGING) {
+                    // Keep charging once started, so short LOS/range flickers don't cancel the shot.
+                    this.tickChargeCrossbow();
                 }
             }
 
@@ -258,6 +257,8 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
                 this.mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
             else
                 this.mob.getLookControl().setLookAt(buildTarget.centrePos.getX(), buildTarget.centrePos.getY(), buildTarget.centrePos.getZ(), 30.0F, 30.0F);
+
+            alignEliteArcherAttackFacing(target, buildTarget);
 
             if (this.crossbowState == CHARGED && isEliteArcher() && canSeeTarget && inFiringRange) {
                 this.mob.performCrossbowAttack(this.mob, 1.6F);
@@ -287,11 +288,45 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
         return this.mob instanceof EliteArcherUnit;
     }
 
-    private void alignHorseWithTarget(LivingEntity target, BuildingPlacement buildTarget, boolean canSeeTarget, boolean inFiringRange) {
-        if (isEliteArcher()) {
+    private void alignEliteArcherAttackFacing(LivingEntity target, BuildingPlacement buildTarget) {
+        if (!(this.mob instanceof EliteArcherUnit eliteArcherUnit) || !eliteArcherUnit.shouldUseAttackFacing()) {
             return;
         }
-        if (!canSeeTarget || !inFiringRange || !(this.mob.getVehicle() instanceof HorseUnit horse)) {
+        if (this.mob.getVehicle() instanceof HorseUnit) {
+            return;
+        }
+
+        double targetX;
+        double targetZ;
+        if (target != null) {
+            targetX = target.getX();
+            targetZ = target.getZ();
+        } else if (buildTarget != null) {
+            targetX = buildTarget.centrePos.getX();
+            targetZ = buildTarget.centrePos.getZ();
+        } else {
+            return;
+        }
+
+        double dx = targetX - this.mob.getX();
+        double dz = targetZ - this.mob.getZ();
+        if (dx * dx + dz * dz < 1.0E-6D) {
+            return;
+        }
+
+        float yawToTarget = (float) (Math.atan2(dz, dx) * (180.0D / Math.PI)) - 90.0F;
+        float attackFacingYaw = yawToTarget - ELITE_ARCHER_ATTACK_FACING_OFFSET;
+
+        this.mob.setYRot(attackFacingYaw);
+        this.mob.yRotO = attackFacingYaw;
+        this.mob.setYBodyRot(attackFacingYaw);
+        this.mob.setYHeadRot(attackFacingYaw);
+        this.mob.yBodyRotO = attackFacingYaw;
+        this.mob.yHeadRotO = attackFacingYaw;
+    }
+
+    private void alignHorseWithTarget(LivingEntity target, BuildingPlacement buildTarget) {
+        if (!(this.mob.getVehicle() instanceof HorseUnit horse)) {
             return;
         }
 

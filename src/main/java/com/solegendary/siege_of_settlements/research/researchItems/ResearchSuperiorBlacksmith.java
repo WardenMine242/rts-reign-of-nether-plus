@@ -43,7 +43,7 @@ public class ResearchSuperiorBlacksmith extends ProductionItem {
     public StartProductionButton getStartButton(ProductionPlacement prodBuilding, Keybinding hotkey) {
         return new StartProductionButton(
                 itemName,
-                ResourceLocation.fromNamespaceAndPath("minecraft", "textures/block/blast_furnace_front.png"),
+                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/level_up.png"),
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
                 hotkey,
                 () -> ProductionItems.RESEARCH_SUPERIOR_BLACKSMITH.itemIsBeingProducedAt(prodBuilding) ||
@@ -64,7 +64,7 @@ public class ResearchSuperiorBlacksmith extends ProductionItem {
     public StopProductionButton getCancelButton(ProductionPlacement prodBuilding, boolean first) {
         return new StopProductionButton(
                 itemName,
-                ResourceLocation.fromNamespaceAndPath("minecraft", "textures/block/blast_furnace_front.png"),
+                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/level_up.png"),
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
                 prodBuilding,
                 this,

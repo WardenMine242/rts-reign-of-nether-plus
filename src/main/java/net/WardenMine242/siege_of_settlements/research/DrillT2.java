@@ -56,7 +56,7 @@ public class DrillT2 extends ProductionItem {
     public StartProductionButton getStartButton(ProductionPlacement prodBuilding, Keybinding hotkey) {
         return new StartProductionButton(
                 DrillT2.itemName,
-                ResourceLocation.fromNamespaceAndPath("minecraft", "textures/block/raw_iron_block.png"),
+                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/level_up.png"),
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
                 hotkey,
 
@@ -93,7 +93,7 @@ public class DrillT2 extends ProductionItem {
 
     public StopProductionButton getCancelButton(ProductionPlacement prodBuilding, boolean first) {
         return new StopProductionButton(DrillT2.itemName,
-                ResourceLocation.fromNamespaceAndPath("minecraft", "textures/block/raw_iron_block.png"),
+                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/level_up.png"),
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
                 prodBuilding,
                 this,
