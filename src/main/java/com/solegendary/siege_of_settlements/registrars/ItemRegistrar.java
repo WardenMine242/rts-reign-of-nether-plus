@@ -3,10 +3,10 @@ package com.solegendary.siege_of_settlements.registrars;
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.items.HeroExperienceBottleItem;
 import com.solegendary.siege_of_settlements.items.ThrowableTnt;
-import net.WardenMine242.siege_of_settlements.Items.IronAxe;
-import net.WardenMine242.siege_of_settlements.Items.IronHoe;
-import net.WardenMine242.siege_of_settlements.Items.IronPickaxe;
-import net.WardenMine242.siege_of_settlements.Items.IronSword;
+import com.WardenMine242.siege_of_settlements.Items.IronAxe;
+import com.WardenMine242.siege_of_settlements.Items.IronHoe;
+import com.WardenMine242.siege_of_settlements.Items.IronPickaxe;
+import com.WardenMine242.siege_of_settlements.Items.IronSword;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -77,6 +77,10 @@ public class ItemRegistrar {
     public static final RegistryObject<ForgeSpawnEggItem> PILLAGER_UNIT_SPAWN_EGG =
             ITEMS.register("pillager_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.PILLAGER_UNIT,
                     0x502C34, 0x757D78, new Item.Properties()));
+
+    public static final RegistryObject<ForgeSpawnEggItem> ARMORED_PILLAGER_UNIT_SPAWN_EGG =
+            ITEMS.register("armored_pillager_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.ARMORED_PILLAGER_UNIT,
+                    0x4C2A30, 0x4E5453, new Item.Properties()));
 
     public static final RegistryObject<ForgeSpawnEggItem> IRON_GOLEM_UNIT_SPAWN_EGG =
             ITEMS.register("iron_golem_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.IRON_GOLEM_UNIT,
@@ -188,6 +192,9 @@ public class ItemRegistrar {
 
     public static final RegistryObject<Item> IRON_AXE =
             ITEMS.register("iron_axe", () -> new IronAxe(new Item.Properties()));
+
+    public static final RegistryObject<Item> DOUBLE_AXE =
+            ITEMS.register("double_axe", () -> new IronAxe(new Item.Properties()));
 
     public static final RegistryObject<Item> IRON_HOE =
             ITEMS.register("iron_hoe", () -> new IronHoe(new Item.Properties()));

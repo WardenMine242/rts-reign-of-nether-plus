@@ -8,7 +8,7 @@ import com.solegendary.siege_of_settlements.mixin.DownloadPackSourceAccessor;
 import com.solegendary.siege_of_settlements.network.S2CReset;
 import com.solegendary.siege_of_settlements.registrars.*;
 import com.solegendary.siege_of_settlements.resources.ResourceCosts;
-import net.WardenMine242.siege_of_settlements.WorldSpawnHandler;
+import com.WardenMine242.siege_of_settlements.WorldSpawnHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
@@ -51,7 +51,7 @@ import java.util.function.Supplier;
 public class SiegeOfSettlements {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final String MOD_ID = "siege_of_settlements";
-    public static final String VERSION_STRING = "0.3.3";
+    public static final String VERSION_STRING = "0.4.0-playtest1";
 
     // Fields from ClientReset
     public static final Field handshakeField;

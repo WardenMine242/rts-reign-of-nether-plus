@@ -1,18 +1,13 @@
 package com.solegendary.siege_of_settlements.ability.heroAbilities.royalguard;
 
-//Winds up and then smashes the ground in front of the guard, dealing area damage and stunning enemy units for a few seconds
-//Higher levels incease the damage and stun duration
-
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
-import com.solegendary.siege_of_settlements.ability.HeroAbility;
+import com.solegendary.siege_of_settlements.ability.Ability;
 import com.solegendary.siege_of_settlements.cursor.CursorClientEvents;
 import com.solegendary.siege_of_settlements.hud.AbilityButton;
-import com.solegendary.siege_of_settlements.hud.Button;
 import com.solegendary.siege_of_settlements.keybinds.Keybinding;
 import com.solegendary.siege_of_settlements.resources.ResourceCost;
 import com.solegendary.siege_of_settlements.unit.UnitAction;
 import com.solegendary.siege_of_settlements.unit.goals.GenericTargetedSpellGoal;
-import com.solegendary.siege_of_settlements.unit.interfaces.HeroUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.RoyalGuardUnit;
 import net.minecraft.client.resources.language.I18n;
@@ -27,7 +22,7 @@ import java.util.List;
 import static com.solegendary.siege_of_settlements.util.MiscUtil.fcs;
 import static com.solegendary.siege_of_settlements.util.MiscUtil.fcsIcons;
 
-public class MaceSlam extends HeroAbility {
+public class MaceSlam extends Ability {
 
     public static final float RADIUS = 3.0f;
     public static final float RANGE = 3;
@@ -35,7 +30,7 @@ public class MaceSlam extends HeroAbility {
     public int stunDuration = 2 * ResourceCost.TICKS_PER_SECOND;
 
     public MaceSlam() {
-        super(3, 40, UnitAction.MACE_SLAM, 30 * ResourceCost.TICKS_PER_SECOND, RANGE, 0, true);
+        super(UnitAction.MACE_SLAM, 30 * ResourceCost.TICKS_PER_SECOND, RANGE, 0, true);
     }
 
     @Override
@@ -49,77 +44,31 @@ public class MaceSlam extends HeroAbility {
     }
 
     @Override
-    public boolean rankUp(HeroUnit hero) {
-        if (super.rankUp(hero)) {
-            updateStatsForRank(hero);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void updateStatsForRank(HeroUnit hero) {
-        if (getRank(hero) == 1) {
-            damage = 10;
-            stunDuration = 2 * ResourceCost.TICKS_PER_SECOND;
-        } else if (getRank(hero) == 2) {
-            damage = 15;
-            stunDuration = 3 * ResourceCost.TICKS_PER_SECOND;
-        } else if (getRank(hero) == 3) {
-            damage = 20;
-            stunDuration = 4 * ResourceCost.TICKS_PER_SECOND;
-        }
-    }
-
-    @Override
     public AbilityButton getButton(Keybinding hotkey, Unit unit) {
-        if (!(unit instanceof HeroUnit hero)) return null;
-        AbilityButton button = new AbilityButton("Mace Slam",
+        AbilityButton button = new AbilityButton(
+                "Mace Slam",
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/abilities/mace_slam.png"),
                 hotkey,
                 () -> CursorClientEvents.getLeftClickAction() == UnitAction.MACE_SLAM,
-                () -> getRank(hero) == 0,
+                () -> false,
                 () -> true,
                 () -> CursorClientEvents.setLeftClickAction(UnitAction.MACE_SLAM),
                 null,
-                getTooltipLines((HeroUnit) hero),
+                getTooltipLines(),
                 this,
-                hero
+                unit
         );
         button.stretchIconToBorders = true;
         return button;
     }
 
-    @Override
-    public Button getRankUpButton(HeroUnit hero) {
-        return super.getRankUpButtonProtected(
-                "Mace Slam",
-                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/abilities/mace_slam.png"),
-                hero
-        );
-    }
-
-    public List<FormattedCharSequence> getTooltipLines(HeroUnit hero) {
+    public List<FormattedCharSequence> getTooltipLines() {
         return List.of(
-                fcs(I18n.get("abilities.siege_of_settlements.mace_slam") + " " + rankString(hero), true),
-                fcsIcons(I18n.get("abilities.siege_of_settlements.mace_slam.stats", damage, cooldownMax / 20, manaCost)),
+                fcs(I18n.get("abilities.siege_of_settlements.mace_slam"), true),
+                fcsIcons(I18n.get("abilities.siege_of_settlements.mace_slam.stats", damage, cooldownMax / 20, 0)),
                 fcs(""),
                 fcs(I18n.get("abilities.siege_of_settlements.mace_slam.tooltip1")),
                 fcs(I18n.get("abilities.siege_of_settlements.mace_slam.tooltip2", stunDuration / 20))
-        );
-    }
-
-    public List<FormattedCharSequence> getRankUpTooltipLines(HeroUnit hero) {
-        return List.of(
-                fcs(I18n.get("abilities.siege_of_settlements.mace_slam"), true),
-                fcs(I18n.get("abilities.siege_of_settlements.level_req", getLevelRequirement(hero)), getLevelReqStyle(hero)),
-                fcs(""),
-                fcs(I18n.get("abilities.siege_of_settlements.mace_slam.tooltip1")),
-                fcs(I18n.get("abilities.siege_of_settlements.mace_slam.tooltip2", stunDuration / 20)),
-                fcs(""),
-                fcs(I18n.get("abilities.siege_of_settlements.mace_slam.rank1"), getRank(hero) == 0),
-                fcs(I18n.get("abilities.siege_of_settlements.mace_slam.rank2"), getRank(hero) == 1),
-                fcs(I18n.get("abilities.siege_of_settlements.mace_slam.rank3"), getRank(hero) == 2)
         );
     }
 
@@ -135,4 +84,3 @@ public class MaceSlam extends HeroAbility {
         ((RoyalGuardUnit) unitUsing).getCastMaceSlamGoal().setTarget(targetBp);
     }
 }
-

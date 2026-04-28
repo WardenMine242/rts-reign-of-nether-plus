@@ -2,12 +2,10 @@ package com.solegendary.siege_of_settlements.ability.abilities;
 
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.ability.Ability;
-import com.solegendary.siege_of_settlements.building.production.ProductionItems;
 import com.solegendary.siege_of_settlements.cursor.CursorClientEvents;
 import com.solegendary.siege_of_settlements.hud.AbilityButton;
 import com.solegendary.siege_of_settlements.hud.HudClientEvents;
 import com.solegendary.siege_of_settlements.keybinds.Keybinding;
-import com.solegendary.siege_of_settlements.research.ResearchClient;
 import com.solegendary.siege_of_settlements.unit.UnitAction;
 import com.solegendary.siege_of_settlements.unit.UnitClientEvents;
 import com.solegendary.siege_of_settlements.unit.goals.MountGoal;
@@ -40,7 +38,7 @@ public class MountRavager extends Ability {
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/ravager.png"),
             hotkey,
             () -> CursorClientEvents.getLeftClickAction() == UnitAction.MOUNT_RAVAGER,
-            () -> entity.isPassenger() || !ResearchClient.hasResearch(ProductionItems.RESEARCH_RAVAGER_CAVALRY),
+            () -> entity.isPassenger(),
             () -> true,
             () -> CursorClientEvents.setLeftClickAction(UnitAction.MOUNT_RAVAGER),
             () -> UnitClientEvents.sendUnitCommand(UnitAction.MOUNT_RAVAGER),

@@ -143,6 +143,7 @@ public class ProtectiveEnchantment extends AbstractEnchantment {
         return List.of(
                 EntityRegistrar.MILITIA_UNIT.get(),
                 EntityRegistrar.PILLAGER_UNIT.get(),
+                EntityRegistrar.ARMORED_PILLAGER_UNIT.get(),
                 EntityRegistrar.VINDICATOR_UNIT.get(),
                 EntityRegistrar.EVOKER_UNIT.get()
         );

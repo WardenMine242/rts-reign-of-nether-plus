@@ -35,6 +35,9 @@ public class GarrisonGoal extends MoveToTargetBlockGoal {
                 // teleport to garrison entry pos
                 if (!garr.isFull() && buildingTarget.isBuilt && garr.getEntryPosition() != null) {
                     BlockPos bp = garr.getEntryPosition();
+                    if (garr instanceof com.WardenMine242.siege_of_settlements.building.buildings.placements.CastlePlacement customCastlePlacement) {
+                        bp = customCastlePlacement.reserveEntryPositionFor(this.mob);
+                    }
                     this.mob.teleportTo(bp.getX() + 0.5f, bp.getY() + 0.5f, bp.getZ() + 0.5f);
                 }
                 this.stopGarrisoning();
@@ -93,6 +96,9 @@ public class GarrisonGoal extends MoveToTargetBlockGoal {
 
     // if we override stop() it for some reason is called after start() and we can never begin this goal...
     public void stopGarrisoning() {
+        if (this.buildingTarget instanceof com.WardenMine242.siege_of_settlements.building.buildings.placements.CastlePlacement customCastlePlacement) {
+            customCastlePlacement.releaseEntryReservation(this.mob);
+        }
         buildingTarget = null;
         super.stopMoving();
     }

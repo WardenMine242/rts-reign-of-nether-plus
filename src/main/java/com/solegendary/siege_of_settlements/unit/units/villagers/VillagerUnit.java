@@ -25,7 +25,7 @@ import com.solegendary.siege_of_settlements.unit.interfaces.*;
 import com.solegendary.siege_of_settlements.unit.packets.UnitConvertClientboundPacket;
 import com.solegendary.siege_of_settlements.unit.packets.UnitSyncClientboundPacket;
 import com.solegendary.siege_of_settlements.faction.Faction;
-import net.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeTrader;
+import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeTrader;
 import net.minecraft.client.resources.language.I18n;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraft.core.BlockPos;

@@ -3,6 +3,7 @@ package com.solegendary.siege_of_settlements.resources;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.building.BuildingPlacement;
 import com.solegendary.siege_of_settlements.building.BuildingServerEvents;
 import com.solegendary.siege_of_settlements.building.Buildings;
@@ -29,8 +30,14 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArrowItem;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -47,6 +54,7 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
 
@@ -288,15 +296,33 @@ public class ResourcesServerEvents {
             return;
         }
 
+        if (!isSurvivalPlayer(serverPlayer)) {
+            return;
+        }
+
         convertInventoryResources(serverPlayer);
     }
 
-    private static boolean isNonRtsPickupItem(ItemStack stack) {
-        return stack.is(net.minecraftforge.common.Tags.Items.SEEDS) ||
-               stack.is(net.minecraft.tags.ItemTags.SAPLINGS) ||
-               stack.is(net.minecraft.tags.ItemTags.WOOL) ||
-               stack.is(Items.APPLE) ||
-               stack.is(Items.STICK);
+    private static boolean isSurvivalPlayer(ServerPlayer player) {
+        return player.gameMode.getGameModeForPlayer() == GameType.SURVIVAL &&
+            !player.isCreative() &&
+            !player.isSpectator();
+    }
+
+    private static boolean isModTool(ItemStack stack) {
+        var itemKey = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        if (itemKey == null || !SiegeOfSettlements.MOD_ID.equals(itemKey.getNamespace())) {
+            return false;
+        }
+        return stack.getItem() instanceof DiggerItem || stack.getItem() instanceof SwordItem;
+    }
+
+    private static boolean isAllowedNonRtsItem(ItemStack stack) {
+        return isModTool(stack) ||
+            stack.getItem() instanceof BowItem ||
+            stack.getItem().isEdible() ||
+            stack.getItem() instanceof ArrowItem ||
+            stack.getItem() instanceof ArmorItem;
     }
 
     private static boolean shouldSkipAutoConvert(ItemStack stack) {
@@ -319,27 +345,29 @@ public class ResourcesServerEvents {
             if (stack.isEmpty()) {
                 continue;
             }
-            if (isNonRtsPickupItem(stack)) {
-                inv.setItem(i, ItemStack.EMPTY);
-                removedNonRts = true;
-                changed = true;
-                continue;
-            }
             if (shouldSkipAutoConvert(stack)) {
                 continue;
             }
             ResourceSource source = ResourceSources.getFromItem(stack.getItem());
-            if (source == null || source.resourceValue <= 0 || source.resourceName == ResourceName.NONE) {
+            if (source != null && source.resourceValue > 0 && source.resourceName != ResourceName.NONE) {
+                int total = source.resourceValue * stack.getCount();
+                switch (source.resourceName) {
+                    case FOOD -> food += total;
+                    case WOOD -> wood += total;
+                    case ORE -> ore += total;
+                    case EMERALDS -> emerald += total;
+                }
+                inv.setItem(i, ItemStack.EMPTY);
+                changed = true;
                 continue;
             }
-            int total = source.resourceValue * stack.getCount();
-            switch (source.resourceName) {
-                case FOOD -> food += total;
-                case WOOD -> wood += total;
-                case ORE -> ore += total;
-                case EMERALDS -> emerald += total;
+
+            if (isAllowedNonRtsItem(stack)) {
+                continue;
             }
+
             inv.setItem(i, ItemStack.EMPTY);
+            removedNonRts = true;
             changed = true;
         }
 
@@ -348,27 +376,29 @@ public class ResourcesServerEvents {
             if (stack.isEmpty()) {
                 continue;
             }
-            if (isNonRtsPickupItem(stack)) {
-                inv.offhand.set(i, ItemStack.EMPTY);
-                removedNonRts = true;
-                changed = true;
-                continue;
-            }
             if (shouldSkipAutoConvert(stack)) {
                 continue;
             }
             ResourceSource source = ResourceSources.getFromItem(stack.getItem());
-            if (source == null || source.resourceValue <= 0 || source.resourceName == ResourceName.NONE) {
+            if (source != null && source.resourceValue > 0 && source.resourceName != ResourceName.NONE) {
+                int total = source.resourceValue * stack.getCount();
+                switch (source.resourceName) {
+                    case FOOD -> food += total;
+                    case WOOD -> wood += total;
+                    case ORE -> ore += total;
+                    case EMERALDS -> emerald += total;
+                }
+                inv.offhand.set(i, ItemStack.EMPTY);
+                changed = true;
                 continue;
             }
-            int total = source.resourceValue * stack.getCount();
-            switch (source.resourceName) {
-                case FOOD -> food += total;
-                case WOOD -> wood += total;
-                case ORE -> ore += total;
-                case EMERALDS -> emerald += total;
+
+            if (isAllowedNonRtsItem(stack)) {
+                continue;
             }
+
             inv.offhand.set(i, ItemStack.EMPTY);
+            removedNonRts = true;
             changed = true;
         }
 
@@ -443,9 +473,6 @@ public class ResourcesServerEvents {
     // if a tree is touched, destroy any adjacent logs that are above the ground after some time to avoid leaving
     // tall trees behind
     public static void fellAdjacentLogs(BlockPos bp, ArrayList<BlockPos> bpsExcluded, Level level) {
-        if (SandboxServer.isAnyoneASandboxPlayer())
-            return;
-
         if (!level.getGameRules().getRule(GameRuleRegistrar.LOG_FALLING).get())
             return;
 
@@ -472,22 +499,33 @@ public class ResourcesServerEvents {
 
         for (BlockPos bpAdj : bpsAdj) {
             BlockState bsAdj = level.getBlockState(bpAdj);
-            if (isLogBlock(bsAdj) && !bpsExcluded.contains(bpAdj)) {
-                Block fallingLogBlock = FALLING_LOGS.get(bsAdj.getBlock());
-                if (fallingLogBlock != null && !BuildingUtils.isPosInsideAnyBuilding(level.isClientSide(), bpAdj)) {
-                    if (bsAdj.hasProperty(BlockStateProperties.AXIS)) {
-                        level.setBlockAndUpdate(bpAdj, fallingLogBlock.defaultBlockState()
-                                .setValue(BlockStateProperties.AXIS, bsAdj.getValue(BlockStateProperties.AXIS)));
-                    } else {
-                        level.setBlockAndUpdate(bpAdj, fallingLogBlock.defaultBlockState());
-                    }
-                    bpsExcluded.add(bpAdj);
-                    fellAdjacentLogs(bpAdj, bpsExcluded, level);
+            if (!isLogBlock(bsAdj) || bpsExcluded.contains(bpAdj))
+                continue;
+
+            bpsExcluded.add(bpAdj);
+
+            Block fallingLogBlock = getFallingLogFor(bsAdj);
+            if (fallingLogBlock != null && !BuildingUtils.isPosInsideAnyBuilding(level.isClientSide(), bpAdj)) {
+                if (bsAdj.hasProperty(BlockStateProperties.AXIS)) {
+                    level.setBlockAndUpdate(bpAdj, fallingLogBlock.defaultBlockState()
+                            .setValue(BlockStateProperties.AXIS, bsAdj.getValue(BlockStateProperties.AXIS)));
+                } else {
+                    level.setBlockAndUpdate(bpAdj, fallingLogBlock.defaultBlockState());
                 }
-                bpsExcluded.add(bpAdj);
-                fellAdjacentLogs(bpAdj, bpsExcluded, level);
             }
+            fellAdjacentLogs(bpAdj, bpsExcluded, level);
         }
+    }
+
+    private static Block getFallingLogFor(BlockState state) {
+        Block mapped = FALLING_LOGS.get(state.getBlock());
+        if (mapped != null)
+            return mapped;
+        // Fallback: if it's a regular log/wood that wasn't explicitly mapped (e.g. modded/new variants),
+        // still convert it so tree layers don't remain as normal logs.
+        if (isLogBlock(state))
+            return BlockRegistrar.FALLING_OAK_LOG.get();
+        return null;
     }
 
     @SubscribeEvent

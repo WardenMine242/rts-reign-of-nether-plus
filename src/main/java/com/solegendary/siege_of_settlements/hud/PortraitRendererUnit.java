@@ -1,5 +1,6 @@
 package com.solegendary.siege_of_settlements.hud;
 
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.IllusionerUnit;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -21,6 +22,7 @@ import com.solegendary.siege_of_settlements.resources.Resources;
 import com.solegendary.siege_of_settlements.unit.Relationship;
 import com.solegendary.siege_of_settlements.unit.UnitClientEvents;
 import com.solegendary.siege_of_settlements.unit.UnitStatType;
+import com.solegendary.siege_of_settlements.unit.goals.MeleeAttackBuildingGoal;
 import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.HeroUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
@@ -30,6 +32,7 @@ import com.solegendary.siege_of_settlements.unit.units.monsters.ZombieUnit;
 import com.solegendary.siege_of_settlements.unit.units.piglins.BruteUnit;
 import com.solegendary.siege_of_settlements.unit.units.piglins.HeadhunterUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.EvokerUnit;
+import com.solegendary.siege_of_settlements.unit.units.villagers.IronGolemUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.VindicatorUnit;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
@@ -384,29 +387,44 @@ public class PortraitRendererUnit<T extends LivingEntity, M extends EntityModel<
 
         if (unit instanceof AttackerUnit attackerUnit) {
             double auraAtkBonus = ((LivingEntity) unit).hasEffect(MobEffectRegistrar.AUROMANCER_AURA.get()) ? 3.0d : 0.0d;
-            double atkDmg = attackerUnit.getUnitAttackDamage() + AttackerUnit.getWeaponDamageModifier(attackerUnit) + auraAtkBonus;
-            if (unit instanceof CreeperUnit cUnit && cUnit.isPowered()) {
-                atkDmg *= CreeperUnit.CHARGED_DAMAGE_MULT;
-            }
-            if (unit instanceof WorkerUnit wUnit) {
-                atkDmg = (int) attackerUnit.getUnitAttackDamage() + auraAtkBonus;
-            }
-            double atkDmgRounded = Math.round(atkDmg);
             String atkStr;
-            if (Math.abs(atkDmgRounded - atkDmg) < 0.1d) {
-                atkStr = String.valueOf((int) atkDmgRounded); // attacks per second
+            int atkColour;
+
+            // Special-case Iron Golem HUD:
+            // - Always show "5" in white
+            // - Show "10" in green only while actively attacking a building
+            if (unit instanceof IronGolemUnit) {
+                boolean isAttackingBuilding = false;
+                if (attackerUnit.getAttackBuildingGoal() instanceof MeleeAttackBuildingGoal mabg) {
+                    isAttackingBuilding = mabg.isAttacking();
+                }
+                atkStr = isAttackingBuilding ? "10" : "5";
+                atkColour = isAttackingBuilding ? 0xFF2BFF2B : 0xFFFFFFFF;
             } else {
-                DecimalFormat df1 = new DecimalFormat("###.#");
-                atkStr = String.valueOf(df1.format(atkDmg)); // attacks per second
-            }
-            if (unit instanceof Mob mob && mob.isVehicle() && mob.getFirstPassenger() instanceof AttackerUnit passenger) {
-                atkStr += "+" + (int) passenger.getUnitAttackDamage();
+                double atkDmg = attackerUnit.getUnitAttackDamage() + AttackerUnit.getWeaponDamageModifier(attackerUnit) + auraAtkBonus;
+                if (unit instanceof CreeperUnit cUnit && cUnit.isPowered()) {
+                    atkDmg *= CreeperUnit.CHARGED_DAMAGE_MULT;
+                }
+                if (unit instanceof WorkerUnit wUnit) {
+                    atkDmg = (int) attackerUnit.getUnitAttackDamage() + auraAtkBonus;
+                }
+                double atkDmgRounded = Math.round(atkDmg);
+                if (Math.abs(atkDmgRounded - atkDmg) < 0.1d) {
+                    atkStr = String.valueOf((int) atkDmgRounded); // attacks per second
+                } else {
+                    DecimalFormat df1 = new DecimalFormat("###.#");
+                    atkStr = String.valueOf(df1.format(atkDmg)); // attacks per second
+                }
+                if (unit instanceof Mob mob && mob.isVehicle() && mob.getFirstPassenger() instanceof AttackerUnit passenger) {
+                    atkStr += "+" + (int) passenger.getUnitAttackDamage();
+                }
+                atkColour = (attackerUnit.hasBonusDamage() || auraAtkBonus > 0) ? 0xFF2BFF2B : 0xFFFFFFFF;
             }
             renderedStats.add(new RenderedStat(
                     ResourceLocation.fromNamespaceAndPath("siege_of_settlements", "textures/icons/items/sword.png"),
                     atkStr,
                     UnitStatType.ATTACK_DAMAGE,
-                    (attackerUnit.hasBonusDamage() || auraAtkBonus > 0) ? 0xFF2BFF2B : 0xFFFFFFFF,
+                    atkColour,
                     0
             ));
             DecimalFormat df2 = new DecimalFormat("###.##");
@@ -419,6 +437,9 @@ public class PortraitRendererUnit<T extends LivingEntity, M extends EntityModel<
                 atkSpdColour = 0xFF2BFF2B;
             } else if (attacksPerSecond < baseAttacksPerSecond) {
                 atkSpdColour = 0xFFFC3838;
+            }
+            if (unit instanceof IllusionerUnit) {
+                atkSpdColour = 0xFFFFFFFF;
             }
             renderedStats.add(new RenderedStat(
                     ResourceLocation.fromNamespaceAndPath("siege_of_settlements","textures/icons/items/sparkler.png"),
@@ -703,5 +724,4 @@ public class PortraitRendererUnit<T extends LivingEntity, M extends EntityModel<
         Lighting.setupFor3DItems();
     }
 }
-
 

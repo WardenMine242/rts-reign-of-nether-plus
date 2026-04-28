@@ -74,6 +74,7 @@ public class EquipLeatherChestplate extends EquipAbility {
                 EntityRegistrar.MILITIA_UNIT.get(),
                 EntityRegistrar.VINDICATOR_UNIT.get(),
                 EntityRegistrar.PILLAGER_UNIT.get(),
+                EntityRegistrar.ARMORED_PILLAGER_UNIT.get(),
                 EntityRegistrar.EVOKER_UNIT.get()
         ).contains(entity.getType());
     }

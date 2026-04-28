@@ -3,6 +3,7 @@ package com.solegendary.siege_of_settlements.building.buildings.placements;
 import com.solegendary.siege_of_settlements.building.Building;
 import com.solegendary.siege_of_settlements.building.BuildingBlock;
 import com.solegendary.siege_of_settlements.building.BuildingClientboundPacket;
+import com.WardenMine242.siege_of_settlements.building.buildings.placements.VillageDrillPlacement;
 import com.solegendary.siege_of_settlements.building.BuildingPlacement;
 import com.solegendary.siege_of_settlements.building.production.ActiveProduction;
 import com.solegendary.siege_of_settlements.building.production.ProductionBuilding;
@@ -306,10 +307,14 @@ public class ProductionPlacement extends BuildingPlacement {
                 if (!tickLevel.isClientSide()) {
                     active = null;
                     productionQueue.remove(0);
+                    int productionUpgradeLevelSync =
+                            (this instanceof VillageDrillPlacement || this instanceof BarracksPlacement)
+                                    ? this.getUpgradeLevel()
+                                    : -1;
                     if (productionQueue.isEmpty())
-                        BuildingClientboundPacket.clearQueue(this.originPos);
+                        BuildingClientboundPacket.clearQueue(this.originPos, productionUpgradeLevelSync);
                     else
-                        BuildingClientboundPacket.completeProduction(this.originPos);
+                        BuildingClientboundPacket.completeProduction(this.originPos, productionUpgradeLevelSync);
                 }
             }
         }

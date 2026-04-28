@@ -13,6 +13,7 @@ public class SiegeOfSettlementsCommonConfigs {
     static {
         BUILDER.push("Configuration File");
         BUILDER.pop();
+
         BUILDER.comment("Unit cost configurations");
         //*Units*
         //Monsters
@@ -38,9 +39,15 @@ public class SiegeOfSettlementsCommonConfigs {
         UnitCosts.MILITIA.define(BUILDER);
         UnitCosts.IRON_GOLEM.define(BUILDER);
         UnitCosts.PILLAGER.define(BUILDER);
+        UnitCosts.ARCHER.define(BUILDER);
+        UnitCosts.ARMORED_PILLAGER.define(BUILDER);
         UnitCosts.VINDICATOR.define(BUILDER);
+        UnitCosts.ELITE_VINDICATOR.define(BUILDER);
+        UnitCosts.ARMORED_VINDICATOR.define(BUILDER);
+        UnitCosts.ELITE_ARCHER.define(BUILDER);
         UnitCosts.WITCH.define(BUILDER);
         UnitCosts.EVOKER.define(BUILDER);
+        UnitCosts.ILLUSIONER.define(BUILDER);
         UnitCosts.RAVAGER.define(BUILDER);
         UnitCosts.ROYAL_GUARD.define(BUILDER);
         UnitCosts.ENCHANTER.define(BUILDER);
@@ -168,10 +175,13 @@ public class SiegeOfSettlementsCommonConfigs {
         ResearchCosts.RESEARCH_BEACON_LEVEL4.define(BUILDER);
         ResearchCosts.RESEARCH_BEACON_LEVEL5.define(BUILDER);
         ResearchCosts.TOGGLE_VILLAGER_GATE.define(BUILDER);
-        ResearchCosts.RESEARCH_DRILL_T2.define(BUILDER);
-        ResearchCosts.RESEARCH_DRILL_T3.define(BUILDER);
         ResearchCosts.DRILL_T2.define(BUILDER);
         ResearchCosts.DRILL_T3.define(BUILDER);
+        ResearchCosts.DRILL_T4.define(BUILDER);
+        ResearchCosts.DRILL_T5.define(BUILDER);
+        ResearchCosts.DRILL_T6.define(BUILDER);
+        ResearchCosts.BARRACKS_T2.define(BUILDER);
+        ResearchCosts.BARRACKS_T3.define(BUILDER);
         ResearchCosts.RESEARCH_CASTLE.define(BUILDER);
         ResearchCosts.RESEARCH_BLACKSMITH.define(BUILDER);
         ResearchCosts.RESEARCH_FIRE_WALLS.define(BUILDER);
@@ -181,6 +191,9 @@ public class SiegeOfSettlementsCommonConfigs {
         ResearchCosts.RESEARCH_BEACON.define(BUILDER);
         ResearchCosts.RESEARCH_TRADER.define(BUILDER);
         ResearchCosts.RESEARCH_MARKETPLACE.define(BUILDER);
+        ResearchCosts.RESEARCH_UPGRADED_BARRACKS.define(BUILDER);
+        ResearchCosts.RESEARCH_UPGRADED_DRILL.define(BUILDER);
+        ResearchCosts.RESEARCH_ADVANCED_DRILL.define(BUILDER);
 
         //*Abilities*
         BUILDER.comment("Ability Cost Configurations");
@@ -229,11 +242,17 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry MILITIA = ResourceCostConfigEntry.Unit(75,0,0,0,15,1, ResourceCosts.MILITIA, "Militia Config");
         public static final ResourceCostConfigEntry IRON_GOLEM = ResourceCostConfigEntry.Unit(0,50,350,0,45,4, ResourceCosts.IRON_GOLEM, "Iron Golem Config");
         public static final ResourceCostConfigEntry PILLAGER = ResourceCostConfigEntry.Unit(120,80,0,0,32,3, ResourceCosts.PILLAGER, "Pillager Config");
+        public static final ResourceCostConfigEntry ARCHER = ResourceCostConfigEntry.Unit(120,80,0,0,32,3, ResourceCosts.ARCHER, "Archer Config");
+        public static final ResourceCostConfigEntry ARMORED_PILLAGER = ResourceCostConfigEntry.Unit(400,120,700,300,36,3, ResourceCosts.ARMORED_PILLAGER, "Armored Pillager Config");
         public static final ResourceCostConfigEntry VINDICATOR = ResourceCostConfigEntry.Unit(170,0,0,0,32,3, ResourceCosts.VINDICATOR, "Vindicator Config");
+        public static final ResourceCostConfigEntry ELITE_VINDICATOR = ResourceCostConfigEntry.Unit(0,0,0,1000,120,1, ResourceCosts.ELITE_VINDICATOR, "Elite Vindicator Config");
+        public static final ResourceCostConfigEntry ARMORED_VINDICATOR = ResourceCostConfigEntry.Unit(430,50,800,400,36,3, ResourceCosts.ARMORED_VINDICATOR, "Armored Vindicator Config");
+        public static final ResourceCostConfigEntry ELITE_ARCHER = ResourceCostConfigEntry.Unit(0,0,0,1000,120,1, ResourceCosts.ELITE_ARCHER, "Elite Archer Config");
         public static final ResourceCostConfigEntry WITCH = ResourceCostConfigEntry.Unit(90,90,90,0,35,3, ResourceCosts.WITCH, "Witch Config");
         public static final ResourceCostConfigEntry EVOKER = ResourceCostConfigEntry.Unit(300,0,400,0,35,3, ResourceCosts.EVOKER, "Evoker Config");
+        public static final ResourceCostConfigEntry ILLUSIONER = ResourceCostConfigEntry.Unit(250,0,300,0,30,3, ResourceCosts.ILLUSIONER, "Illusioner Config");
         public static final ResourceCostConfigEntry RAVAGER = ResourceCostConfigEntry.Unit(600,200,250,0,60,7, ResourceCosts.RAVAGER, "Ravager Config");
-        public static final ResourceCostConfigEntry ROYAL_GUARD = ResourceCostConfigEntry.Unit(200,500,300,0,30, 5, ResourceCosts.ROYAL_GUARD, "Royal Guard Config");
+        public static final ResourceCostConfigEntry ROYAL_GUARD = ResourceCostConfigEntry.Unit(200,500,600,0,30, 5, ResourceCosts.ROYAL_GUARD, "Royal Guard Config");
         public static final ResourceCostConfigEntry ENCHANTER = ResourceCostConfigEntry.Unit(0,0,0,0,30, 5, ResourceCosts.ENCHANTER, "Enchanter Config");
         public static final ResourceCostConfigEntry AUROMACER = ResourceCostConfigEntry.Unit(0,0,0,1000,120, 1, ResourceCosts.AUROMANCER, "Auromancer Config");
         public static final ResourceCostConfigEntry HORSE = ResourceCostConfigEntry.Unit(300,100,50,0,60, 1, ResourceCosts.HORSE, "Horse Config");
@@ -361,10 +380,13 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry RESEARCH_BEACON_LEVEL5 = ResourceCostConfigEntry.Research(0, 0, 1500,0, 60, ResourceCosts.RESEARCH_BEACON_LEVEL5, "Beacon Level 5 Research Config");
 
         public static final ResourceCostConfigEntry TOGGLE_VILLAGER_GATE = ResourceCostConfigEntry.Research(0, 0, 0,0, 1, ResourceCosts.TOGGLE_VILLAGER_GATE, "Gate close/open Config");
-        public static final ResourceCostConfigEntry RESEARCH_DRILL_T2 = ResourceCostConfigEntry.Research(0, 2000, 1100,0, 120, ResourceCosts.RESEARCH_DRILL_T2, "Research Drill Tier 2 Config");
-        public static final ResourceCostConfigEntry RESEARCH_DRILL_T3 = ResourceCostConfigEntry.Research(0, 2500, 1600,0, 120, ResourceCosts.RESEARCH_DRILL_T3, "Research Drill Tier 3 Config");
         public static final ResourceCostConfigEntry DRILL_T2 = ResourceCostConfigEntry.Research(0, 900, 800,0, 120, ResourceCosts.DRILL_T2, "Drill Tier 2 Config");
         public static final ResourceCostConfigEntry DRILL_T3 = ResourceCostConfigEntry.Research(0, 1800, 1600,0, 120, ResourceCosts.DRILL_T3, "Drill Tier 3 Config");
+        public static final ResourceCostConfigEntry DRILL_T4 = ResourceCostConfigEntry.Research(0, 2700, 2400,0, 120, ResourceCosts.DRILL_T4, "Drill Tier 4 Config");
+        public static final ResourceCostConfigEntry DRILL_T5 = ResourceCostConfigEntry.Research(0, 3600, 3200,0, 120, ResourceCosts.DRILL_T5, "Drill Tier 5 Config");
+        public static final ResourceCostConfigEntry DRILL_T6 = ResourceCostConfigEntry.Research(0, 4500, 4000,0, 120, ResourceCosts.DRILL_T6, "Drill Tier 6 Config");
+        public static final ResourceCostConfigEntry BARRACKS_T2 = ResourceCostConfigEntry.Research(0, 1200, 900,0, 120, ResourceCosts.BARRACKS_T2, "Barracks Tier 2 Config");
+        public static final ResourceCostConfigEntry BARRACKS_T3 = ResourceCostConfigEntry.Research(0, 2200, 1800,0, 120, ResourceCosts.BARRACKS_T3, "Barracks Tier 3 Config");
         public static final ResourceCostConfigEntry RESEARCH_CASTLE = ResourceCostConfigEntry.Research(0, 3000, 2000,0, 120, ResourceCosts.RESEARCH_CASTLE, "Research Castle Config");
         public static final ResourceCostConfigEntry RESEARCH_BLACKSMITH = ResourceCostConfigEntry.Research(0, 5000, 7500,0, 120, ResourceCosts.RESEARCH_BLACKSMITH, "Research Blacksmith Config");
         public static final ResourceCostConfigEntry RESEARCH_FIRE_WALLS = ResourceCostConfigEntry.Research(0, 4500, 1200,0, 120, ResourceCosts.RESEARCH_FIRE_WALLS, "Research Fire Walls Config");
@@ -374,6 +396,9 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry RESEARCH_BEACON = ResourceCostConfigEntry.Research(0, 5000, 5000,0, 120, ResourceCosts.RESEARCH_BEACON, "Research Beacon Config");
         public static final ResourceCostConfigEntry RESEARCH_TRADER = ResourceCostConfigEntry.Research(0, 1500, 1000,0, 120, ResourceCosts.RESEARCH_TRADER, "Research Trader Config");
         public static final ResourceCostConfigEntry RESEARCH_MARKETPLACE = ResourceCostConfigEntry.Research(0, 5000, 3000,0, 120, ResourceCosts.RESEARCH_MARKETPLACE, "Research Marketplace Config");
+        public static final ResourceCostConfigEntry RESEARCH_UPGRADED_BARRACKS = ResourceCostConfigEntry.Research(0, 5000, 3000,0, 120, ResourceCosts.RESEARCH_UPGRADED_BARRACKS, "Research Upgraded Barracks Config");
+        public static final ResourceCostConfigEntry RESEARCH_UPGRADED_DRILL = ResourceCostConfigEntry.Research(0, 5000, 3000,0, 120, ResourceCosts.RESEARCH_UPGRADED_DRILL, "Research Upgraded Drill Config");
+        public static final ResourceCostConfigEntry RESEARCH_ADVANCED_DRILL = ResourceCostConfigEntry.Research(0, 10000, 7000,0, 120, ResourceCosts.RESEARCH_ADVANCED_DRILL, "Research Advanced Drill Config");
 
     }
     public static class AbilityCosts implements Costs {
@@ -398,3 +423,5 @@ public class SiegeOfSettlementsCommonConfigs {
     }
     public interface Costs {}
 }
+
+

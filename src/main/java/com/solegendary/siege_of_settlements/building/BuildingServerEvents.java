@@ -24,8 +24,9 @@ import com.solegendary.siege_of_settlements.unit.units.monsters.CreeperUnit;
 import com.solegendary.siege_of_settlements.unit.units.piglins.GhastUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
-import net.WardenMine242.siege_of_settlements.building.buildings.villagers.Marketplace;
-import net.WardenMine242.siege_of_settlements.building.buildings.villagers.VillagerDrill;
+import com.WardenMine242.siege_of_settlements.building.buildings.villagers.Marketplace;
+import com.WardenMine242.siege_of_settlements.building.buildings.placements.VillageDrillPlacement;
+import com.WardenMine242.siege_of_settlements.building.buildings.villagers.VillagerDrill;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
@@ -120,6 +121,10 @@ public class BuildingServerEvents {
             if (b instanceof PortalPlacement portal) {
                 portalType = portal.getPortalType();
             }
+            int drillTier = 0;
+            if (b instanceof VillageDrillPlacement vdp) {
+                drillTier = vdp.getDrillTier();
+            }
             buildingData.buildings.add(new BuildingSave(b.originPos,
                     level,
                     b.getBuilding(),
@@ -129,6 +134,7 @@ public class BuildingServerEvents {
                     b.isDiagonalBridge,
                     b.isBuilt,
                     b.getUpgradeLevel(),
+                    drillTier,
                     portalType,
                     b instanceof PortalPlacement portal && portal.hasDestination() ? portal.destination : new BlockPos(0,0,0)
             ));
@@ -180,6 +186,10 @@ public class BuildingServerEvents {
                         pb.setRallyPoint(b.rallyPoint);
                     }
 
+                    if (building instanceof VillageDrillPlacement drillInit) {
+                        drillInit.initFromDisk(b.drillTier, b.upgradeLevel);
+                    }
+
                     if (b.upgradeLevel > 0) {
                         if (building instanceof PortalPlacement portal) {
                             if (!(building.getBuilding() instanceof NeutralTransportPortal)) {
@@ -190,6 +200,14 @@ public class BuildingServerEvents {
                             }
                         } else if (building instanceof BeaconPlacement beacon) {
                             beacon.changeBeaconStructure(b.upgradeLevel);
+                        } else if (building instanceof VillageDrillPlacement) {
+                            int ul = building.getUpgradeLevel();
+                            if (ul > 0) {
+                                String upgradedStructureName = building.getBuilding().getUpgradedStructureName(ul);
+                                if (!upgradedStructureName.equals(building.getBuilding().structureName)) {
+                                    building.changeStructure(upgradedStructureName);
+                                }
+                            }
                         } else {
                             String upgradedStructureName = building.getBuilding().getUpgradedStructureName(b.upgradeLevel);
                             if (!upgradedStructureName.equals(building.getBuilding().structureName)) {
@@ -699,10 +717,9 @@ public class BuildingServerEvents {
                 if (!placement.isBuilt)
                     continue;
 
-                if (placement.getBuilding() instanceof VillagerDrill) {
+                if (placement.getBuilding() instanceof VillagerDrill && placement instanceof VillageDrillPlacement drill) {
 
-                    int level = placement.getUpgradeLevel();
-                    int amount = 100 * (1 << level);
+                    int amount = VillagerDrill.ORE_PER_MINUTE_PER_TIER * drill.getDrillTier();
 
                     ResourcesServerEvents.addSubtractResources(
                             new Resources(placement.ownerName, 0, 0, amount)

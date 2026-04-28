@@ -3,7 +3,7 @@ package com.solegendary.siege_of_settlements.unit.modelling.renderers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.unit.modelling.models.EliteArcherModel;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;

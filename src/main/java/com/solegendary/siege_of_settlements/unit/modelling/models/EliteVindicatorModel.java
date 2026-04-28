@@ -3,7 +3,7 @@ package com.solegendary.siege_of_settlements.unit.modelling.models;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorUnit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;

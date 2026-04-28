@@ -265,6 +265,7 @@ public class BuildingPlacement {
 
     protected void setBlocks(ArrayList<BuildingBlock> blocks) {
         this.blocks = blocks;
+        this.blockMap.clear();
         var index = 0;
         for (BuildingBlock block : this.blocks) {
             blockMap.put(block.getBlockPos(), block);

@@ -13,7 +13,7 @@ import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.RavagerUnit;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
 import com.solegendary.siege_of_settlements.util.MyMath;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import org.joml.Vector3d;

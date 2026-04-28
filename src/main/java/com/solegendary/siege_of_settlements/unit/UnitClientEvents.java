@@ -46,7 +46,7 @@ import com.solegendary.siege_of_settlements.util.ArrayUtil;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
 import com.solegendary.siege_of_settlements.util.MyMath;
 import com.solegendary.siege_of_settlements.util.MyRenderer;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.RenderType;

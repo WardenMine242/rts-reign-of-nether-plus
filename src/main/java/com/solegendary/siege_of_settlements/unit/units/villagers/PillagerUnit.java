@@ -22,7 +22,8 @@ import com.solegendary.siege_of_settlements.unit.interfaces.RangedAttackerUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.faction.Faction;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArcherUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -59,7 +60,7 @@ import java.util.Optional;
 
 // despite being a RangedAttackerUnit we don't implement performRangedAttack as we override the Pillager crossbow attack instead
 // we just implement this for fog reveal methods
-public class PillagerUnit extends Pillager implements Unit, AttackerUnit, RangedAttackerUnit {
+public class  PillagerUnit extends Pillager implements Unit, AttackerUnit, RangedAttackerUnit {
     private static final ResourceLocation LEGACY_RESEARCH_TOWER_DAMAGE_1 =
             ResourceLocation.fromNamespaceAndPath("reignofnether", "research_tower_damage1");
     private static final ResourceLocation LEGACY_RESEARCH_TOWER_DAMAGE_2 =
@@ -242,7 +243,7 @@ public class PillagerUnit extends Pillager implements Unit, AttackerUnit, Ranged
         PromoteIllager.checkAndApplyBuff(this);
         // Elite Archer controls draw timing inside UnitCrossbowAttackGoal tick(),
         // so he doesn't pre-charge shots like a crossbowman.
-        if (!(this instanceof EliteArcherUnit)) {
+        if (!(this instanceof EliteArcherUnit) && !(this instanceof ArcherUnit)) {
             this.attackGoal.tickChargeCrossbow();
         }
     }
@@ -273,9 +274,6 @@ public class PillagerUnit extends Pillager implements Unit, AttackerUnit, Ranged
     @Override
     public void resetBehaviours() {
         this.mountGoal.stop();
-        if (this.attackGoal != null) {
-            this.attackGoal.stop();
-        }
     }
 
     @Override

@@ -13,7 +13,7 @@ import com.solegendary.siege_of_settlements.unit.units.monsters.SkeletonUnit;
 import com.solegendary.siege_of_settlements.unit.units.monsters.StrayUnit;
 import com.solegendary.siege_of_settlements.unit.units.piglins.HeadhunterUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Style;

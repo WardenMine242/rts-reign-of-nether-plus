@@ -29,9 +29,15 @@ public class ResourceCosts {
     public static final ResourceCost MILITIA = new ResourceCost(ID, "MILITIA");
     public static final ResourceCost IRON_GOLEM = new ResourceCost(ID, "IRON_GOLEM");
     public static final ResourceCost PILLAGER = new ResourceCost(ID, "PILLAGER");
+    public static final ResourceCost ARCHER = new ResourceCost(ID, "ARCHER");
+    public static final ResourceCost ARMORED_PILLAGER = new ResourceCost(ID, "ARMORED_PILLAGER");
     public static final ResourceCost VINDICATOR = new ResourceCost(ID, "VINDICATOR");
+    public static final ResourceCost ELITE_VINDICATOR = new ResourceCost(ID, "ELITE_VINDICATOR");
+    public static final ResourceCost ARMORED_VINDICATOR = new ResourceCost(ID, "ARMORED_VINDICATOR");
+    public static final ResourceCost ELITE_ARCHER = new ResourceCost(ID, "ELITE_ARCHER");
     public static final ResourceCost WITCH = new ResourceCost(ID, "WITCH");
     public static final ResourceCost EVOKER = new ResourceCost(ID, "EVOKER");
+    public static final ResourceCost ILLUSIONER = new ResourceCost(ID, "ILLUSIONER");
     public static final ResourceCost RAVAGER = new ResourceCost(ID, "RAVAGER");
     public static final ResourceCost GRUNT = new ResourceCost(ID, "GRUNT");
     public static final ResourceCost BRUTE = new ResourceCost(ID, "BRUTE");
@@ -158,10 +164,13 @@ public class ResourceCosts {
     public static final ResourceCost RESEARCH_BEACON_LEVEL4 = new ResourceCost(ID, "RESEARCH_BEACON_LEVEL4");
     public static final ResourceCost RESEARCH_BEACON_LEVEL5 = new ResourceCost(ID, "RESEARCH_BEACON_LEVEL5");
     public static final ResourceCost TOGGLE_VILLAGER_GATE = new ResourceCost(ID, "TOGGLE_VILLAGER_GATE");
-    public static final ResourceCost RESEARCH_DRILL_T2 = new ResourceCost(ID, "RESEARCH_DRILL_T2");
-    public static final ResourceCost RESEARCH_DRILL_T3 = new ResourceCost(ID, "RESEARCH_DRILL_T3");
     public static final ResourceCost DRILL_T2 = new ResourceCost(ID, "DRILL_T2");
     public static final ResourceCost DRILL_T3 = new ResourceCost(ID, "DRILL_T3");
+    public static final ResourceCost DRILL_T4 = new ResourceCost(ID, "DRILL_T4");
+    public static final ResourceCost DRILL_T5 = new ResourceCost(ID, "DRILL_T5");
+    public static final ResourceCost DRILL_T6 = new ResourceCost(ID, "DRILL_T6");
+    public static final ResourceCost BARRACKS_T2 = new ResourceCost(ID, "BARRACKS_T2");
+    public static final ResourceCost BARRACKS_T3 = new ResourceCost(ID, "BARRACKS_T3");
     public static final ResourceCost RESEARCH_CASTLE = new ResourceCost(ID, "RESEARCH_CASTLE");
     public static final ResourceCost RESEARCH_BLACKSMITH = new ResourceCost(ID, "RESEARCH_BLACKSMITH");
     public static final ResourceCost RESEARCH_FIRE_WALLS = new ResourceCost(ID, "RESEARCH_FIRE_WALLS");
@@ -171,6 +180,9 @@ public class ResourceCosts {
     public static final ResourceCost RESEARCH_BEACON = new ResourceCost(ID, "RESEARCH_BEACON");
     public static final ResourceCost RESEARCH_TRADER = new ResourceCost(ID, "RESEARCH_TRADER");
     public static final ResourceCost RESEARCH_MARKETPLACE = new ResourceCost(ID, "RESEARCH_MARKETPLACE");
+    public static final ResourceCost RESEARCH_UPGRADED_BARRACKS = new ResourceCost(ID, "RESEARCH_UPGRADED_BARRACKS");
+    public static final ResourceCost RESEARCH_UPGRADED_DRILL = new ResourceCost(ID, "RESEARCH_UPGRADED_DRILL");
+    public static final ResourceCost RESEARCH_ADVANCED_DRILL = new ResourceCost(ID, "RESEARCH_ADVANCED_DRILL");
     // ABILITIES
 
     public static final ResourceCost ENCHANT_MAIMING = new ResourceCost(ID, "ENCHANT_MAIMING");
@@ -255,7 +267,12 @@ public class ResourceCosts {
         MILITIA.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.MILITIA);
         IRON_GOLEM.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.IRON_GOLEM);
         PILLAGER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.PILLAGER);
+        ARCHER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ARCHER);
+        ARMORED_PILLAGER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ARMORED_PILLAGER);
         VINDICATOR.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.VINDICATOR);
+        ELITE_VINDICATOR.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ELITE_VINDICATOR);
+        ARMORED_VINDICATOR.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ARMORED_VINDICATOR);
+        ELITE_ARCHER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ELITE_ARCHER);
         WITCH.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.WITCH);
         EVOKER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.EVOKER);
         RAVAGER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.RAVAGER);
@@ -372,6 +389,14 @@ public class ResourceCosts {
         RESEARCH_BEACON_LEVEL4.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_BEACON_LEVEL4);
         RESEARCH_BEACON_LEVEL5.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_BEACON_LEVEL5);
         RESEARCH_TRADER.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_TRADER);
+        RESEARCH_UPGRADED_BARRACKS.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_UPGRADED_BARRACKS);
+        DRILL_T2.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.DRILL_T2);
+        DRILL_T3.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.DRILL_T3);
+        DRILL_T4.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.DRILL_T4);
+        DRILL_T5.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.DRILL_T5);
+        DRILL_T6.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.DRILL_T6);
+        BARRACKS_T2.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.BARRACKS_T2);
+        BARRACKS_T3.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.BARRACKS_T3);
         // ******************* ABILITIES ******************* //
         ENCHANT_MAIMING.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.ENCHANT_MAIMING);
         ENCHANT_QUICK_CHARGE.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.ENCHANT_QUICK_CHARGE);

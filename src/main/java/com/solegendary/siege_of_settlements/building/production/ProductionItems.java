@@ -1,18 +1,29 @@
 package com.solegendary.siege_of_settlements.building.production;
 
+import com.WardenMine242.siege_of_settlements.building.buildings.villagers.VillagerDrill;
+import com.WardenMine242.siege_of_settlements.upgrades.BarracksTierUpgrade;
+import com.WardenMine242.siege_of_settlements.upgrades.CastleT2;
+import com.WardenMine242.siege_of_settlements.upgrades.DrillTierUpgrade;
+import com.WardenMine242.siege_of_settlements.upgrades.DrillTierUpgrade.DrillResearchRequirement;
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
+import com.solegendary.siege_of_settlements.building.buildings.placements.BarracksPlacement;
+import com.solegendary.siege_of_settlements.resources.ResourceCosts;
 import com.solegendary.siege_of_settlements.api.SiegeOfSettlementsRegistries;
 import com.solegendary.siege_of_settlements.research.researchItems.*;
 import com.solegendary.siege_of_settlements.unit.units.monsters.*;
 import com.solegendary.siege_of_settlements.unit.units.neutral.*;
 import com.solegendary.siege_of_settlements.unit.units.piglins.*;
 import com.solegendary.siege_of_settlements.unit.units.villagers.*;
-import net.WardenMine242.siege_of_settlements.building.production.ToggleGateProduction;
-import net.WardenMine242.siege_of_settlements.research.*;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerProd;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherProd;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorProd;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseProd;
+import com.WardenMine242.siege_of_settlements.building.production.ToggleGateProduction;
+import com.WardenMine242.siege_of_settlements.research.*;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredPillagerProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredVindicatorProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArcherProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.IllusionerProd;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
@@ -28,8 +39,12 @@ public class ProductionItems {
     public static final VillagerProd VILLAGER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "villager"), new VillagerProd());
     public static final AuromancerProd AUROMANCER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "auromancer"), new AuromancerProd());
     public static final EliteVindicatorProd ELITE_VINDICATOR = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "elite_vindicator"), new EliteVindicatorProd());
+    public static final ArmoredVindicatorProd ARMORED_VINDICATOR = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "armored_vindicator"), new ArmoredVindicatorProd());
+    public static final ArmoredPillagerProd ARMORED_PILLAGER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "armored_pillager"), new ArmoredPillagerProd());
     public static final EliteArcherProd ELITE_ARCHER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "elite_archer"), new EliteArcherProd());
+    public static final ArcherProd ARCHER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "archer"), new ArcherProd());
     public static final HorseProd HORSE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "horse"), new HorseProd());
+    public static final IllusionerProd ILLUSIONER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "illusioner"), new IllusionerProd());
     public static final ZombieVillagerProd ZOMBIE_VILLAGER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "zombie_villager"), new ZombieVillagerProd());
     public static final VindicatorProd VINDICATOR = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "vindicator"), new VindicatorProd());
     public static final PillagerProd PILLAGER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "pillager"), new PillagerProd());
@@ -50,7 +65,6 @@ public class ProductionItems {
     public static final MagmaCubeProd MAGMA_CUBE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "magma_cube"), new MagmaCubeProd());
     public static final GhastProd GHAST = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "ghast"), new GhastProd());
     public static final RoyalGuardProd ROYAL_GUARD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "royal_guard"), new RoyalGuardProd());
-    public static final RoyalGuardReviveProd ROYAL_GUARD_REVIVE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "royal_guard_revive"), new RoyalGuardReviveProd());
     public static final EnchanterProd ENCHANTER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "enchanter"), new EnchanterProd());
     public static final EnchanterReviveProd ENCHANTER_REVIVE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "enchanter_revive"), new EnchanterReviveProd());
     public static final NecromancerProd NECROMANCER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "necromancer"), new NecromancerProd());
@@ -88,7 +102,7 @@ public class ProductionItems {
     public static final ResearchGolemSmithing RESEARCH_GOLEM_SMITHING = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "golem_smithing"), new ResearchGolemSmithing());
     public static final ResearchSilverfish RESEARCH_SILVERFISH = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "silverfish"), new ResearchSilverfish());
     public static final ResearchSculkAmplifiers RESEARCH_SCULK_AMPLIFIERS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "sculk_amplifiers"), new ResearchSculkAmplifiers());
-    public static final ResearchCastleFlag RESEARCH_CASTLE_FLAG = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "castle_flag"), new ResearchCastleFlag());
+    public static final CastleT2 RESEARCH_CASTLE_FLAG = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "castle_flag"), new CastleT2());
     public static final ResearchRavagerCavalry RESEARCH_RAVAGER_CAVALRY = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "ravager_cavalry"), new ResearchRavagerCavalry());
     public static final ResearchBruteShields RESEARCH_BRUTE_SHIELDS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "brute_shields"), new ResearchBruteShields());
     public static final ResearchHoglinCavalry RESEARCH_HOGLIN_CAVALRY = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "hoglin_cavalry"), new ResearchHoglinCavalry());
@@ -106,10 +120,126 @@ public class ProductionItems {
     public static final ResearchSoulFireballs RESEARCH_SOUL_FIREBALLS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "soul_fireballs"), new ResearchSoulFireballs());
 
     public static final ProductionItem TOGGLE_GATE_PRODUCTION = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "toggle_gate_production"), new ToggleGateProduction());
-    public static final ResearchDrillT2 RESEARCH_DRILL_T2 = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_drill_tier_2"), new ResearchDrillT2());
-    public static final ResearchDrillT3 RESEARCH_DRILL_T3 = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_drill_tier_3"), new ResearchDrillT3());
-    public static final DrillT2 DRILL_T2 = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "drill_tier_2"), new DrillT2());
-    public static final DrillT3 DRILL_T3 = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "drill_tier_3"), new DrillT3());
+
+    public static final DrillTierUpgrade DRILL_T2;
+    public static final DrillTierUpgrade DRILL_T3;
+    public static final DrillTierUpgrade DRILL_T4;
+    public static final DrillTierUpgrade DRILL_T5;
+    public static final DrillTierUpgrade DRILL_T6;
+    public static final BarracksTierUpgrade BARRACKS_T2;
+    public static final BarracksTierUpgrade BARRACKS_T3;
+
+    static {
+        DrillTierUpgrade[] t2 = new DrillTierUpgrade[1];
+        t2[0] = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "drill_tier_2"),
+                new DrillTierUpgrade(
+                        "Drill Tier 2",
+                        ResourceCosts.DRILL_T2,
+                        0,
+                        DrillResearchRequirement.UPGRADED_DRILL,
+                        p -> t2[0].itemIsBeingProducedAt(p)
+                                || !(p.getBuilding() instanceof VillagerDrill)
+                                || p.getUpgradeLevel() != 0,
+                        "research.siege_of_settlements.upgrade.t2",
+                        "research.siege_of_settlements.upgrade.drill_tier_2.tooltip1",
+                        "research.siege_of_settlements.upgrade.drill_tier_2.tooltip2"
+                ));
+        DRILL_T2 = t2[0];
+
+        DrillTierUpgrade[] t3 = new DrillTierUpgrade[1];
+        t3[0] = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "drill_tier_3"),
+                new DrillTierUpgrade(
+                        "Drill Tier 3",
+                        ResourceCosts.DRILL_T3,
+                        1,
+                        DrillResearchRequirement.UPGRADED_DRILL,
+                        p -> t3[0].itemIsBeingProducedAt(p)
+                                || !(p.getBuilding() instanceof VillagerDrill)
+                                || p.getUpgradeLevel() != 1,
+                        "research.siege_of_settlements.upgrade.t3",
+                        "research.siege_of_settlements.upgrade.drill_tier_3.tooltip1",
+                        "research.siege_of_settlements.upgrade.drill_tier_3.tooltip2"
+                ));
+        DRILL_T3 = t3[0];
+
+        DrillTierUpgrade[] t4 = new DrillTierUpgrade[1];
+        t4[0] = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "drill_tier_4"),
+                new DrillTierUpgrade(
+                        "Drill Tier 4",
+                        ResourceCosts.DRILL_T4,
+                        2,
+                        DrillResearchRequirement.ADVANCED_DRILL,
+                        p -> t4[0].itemIsBeingProducedAt(p)
+                                || !(p.getBuilding() instanceof VillagerDrill)
+                                || p.getUpgradeLevel() != 2,
+                        "research.siege_of_settlements.upgrade.t4",
+                        "research.siege_of_settlements.upgrade.drill_tier_4.tooltip1",
+                        "research.siege_of_settlements.upgrade.drill_tier_4.tooltip2"
+                ));
+        DRILL_T4 = t4[0];
+
+        DrillTierUpgrade[] t5 = new DrillTierUpgrade[1];
+        t5[0] = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "drill_tier_5"),
+                new DrillTierUpgrade(
+                        "Drill Tier 5",
+                        ResourceCosts.DRILL_T5,
+                        3,
+                        DrillResearchRequirement.ADVANCED_DRILL,
+                        p -> t5[0].itemIsBeingProducedAt(p)
+                                || !(p.getBuilding() instanceof VillagerDrill)
+                                || p.getUpgradeLevel() != 3,
+                        "research.siege_of_settlements.upgrade.t5",
+                        "research.siege_of_settlements.upgrade.drill_tier_5.tooltip1",
+                        "research.siege_of_settlements.upgrade.drill_tier_5.tooltip2"
+                ));
+        DRILL_T5 = t5[0];
+
+        DrillTierUpgrade[] t6 = new DrillTierUpgrade[1];
+        t6[0] = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "drill_tier_6"),
+                new DrillTierUpgrade(
+                        "Drill Tier 6",
+                        ResourceCosts.DRILL_T6,
+                        4,
+                        DrillResearchRequirement.ADVANCED_DRILL,
+                        p -> t6[0].itemIsBeingProducedAt(p)
+                                || !(p.getBuilding() instanceof VillagerDrill)
+                                || p.getUpgradeLevel() != 4,
+                        "research.siege_of_settlements.upgrade.t6",
+                        "research.siege_of_settlements.upgrade.drill_tier_6.tooltip1",
+                        "research.siege_of_settlements.upgrade.drill_tier_6.tooltip2"
+                ));
+        DRILL_T6 = t6[0];
+
+        BarracksTierUpgrade[] barracksT2 = new BarracksTierUpgrade[1];
+        barracksT2[0] = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "barracks_tier_2"),
+                new BarracksTierUpgrade(
+                        "Barracks Tier 2",
+                        ResourceCosts.BARRACKS_T2,
+                        0,
+                        p -> barracksT2[0].itemIsBeingProducedAt(p)
+                                || !(p instanceof BarracksPlacement)
+                                || p.getUpgradeLevel() != 0,
+                        "research.siege_of_settlements.upgrade.t2",
+                        "research.siege_of_settlements.upgrade.barracks_tier_2.tooltip1",
+                        "research.siege_of_settlements.upgrade.barracks_tier_2.tooltip2"
+                ));
+        BARRACKS_T2 = barracksT2[0];
+
+        BarracksTierUpgrade[] barracksT3 = new BarracksTierUpgrade[1];
+        barracksT3[0] = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "barracks_tier_3"),
+                new BarracksTierUpgrade(
+                        "Barracks Tier 3",
+                        ResourceCosts.BARRACKS_T3,
+                        1,
+                        p -> barracksT3[0].itemIsBeingProducedAt(p)
+                                || !(p instanceof BarracksPlacement)
+                                || p.getUpgradeLevel() != 1,
+                        "research.siege_of_settlements.upgrade.t3",
+                        "research.siege_of_settlements.upgrade.barracks_tier_3.tooltip1",
+                        "research.siege_of_settlements.upgrade.barracks_tier_3.tooltip2"
+                ));
+        BARRACKS_T3 = barracksT3[0];
+    }
     public static final ResearchCastle RESEARCH_CASTLE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_castle"), new ResearchCastle());
     public static final ResearchBlacksmith RESEARCH_BLACKSMITH = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_blacksmith"), new ResearchBlacksmith());
     public static final ResearchFireWalls RESEARCH_FIRE_WALLS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_fire_walls"), new ResearchFireWalls());
@@ -119,6 +249,9 @@ public class ProductionItems {
     public static final ResearchBeacon RESEARCH_BEACON = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_beacon"), new ResearchBeacon());
     public static final ResearchTrader RESEARCH_TRADER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_trader"), new ResearchTrader());
     public static final ResearchMarketplace RESEARCH_MARKETPLACE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_marketplace"), new ResearchMarketplace());
+    public static final ResearchUpgradedBarracks RESEARCH_UPGRADED_BARRACKS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_upgraded_barracks"), new ResearchUpgradedBarracks());
+    public static final ResearchUpgradedDrill RESEARCH_UPGRADED_DRILL = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_upgraded_drill"), new ResearchUpgradedDrill());
+    public static final ResearchAdvancedDrill RESEARCH_ADVANCED_DRILL = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_advanced_drill"), new ResearchAdvancedDrill());
 
 
     public static final ResearchPortalForCivilian RESEARCH_PORTAL_FOR_CIVILIAN = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "portal_for_civilian"), new ResearchPortalForCivilian());

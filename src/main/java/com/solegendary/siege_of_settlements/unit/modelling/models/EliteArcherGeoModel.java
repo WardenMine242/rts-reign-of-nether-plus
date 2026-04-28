@@ -1,7 +1,7 @@
 package com.solegendary.siege_of_settlements.unit.modelling.models;
 
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.GeoModel;
 

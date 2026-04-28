@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 @OnlyIn(Dist.CLIENT)
 public class RoyalGuardRenderer extends MobRenderer<RoyalGuardUnit, RoyalGuardModel<RoyalGuardUnit>> {
 
-    public static final float SCALE_MULT = 1.25f;
+    public static final float SCALE_MULT = 1.0f;
 
     private static final ResourceLocation TEXTURE_LOCATION = ResourceLocation.fromNamespaceAndPath("siege_of_settlements", "textures/entities/royal_guard_unit.png");
 

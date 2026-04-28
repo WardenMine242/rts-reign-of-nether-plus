@@ -826,6 +826,7 @@ public class MiscUtil {
                 EntityRegistrar.EVOKER_UNIT.get(),
                 EntityRegistrar.MILITIA_UNIT.get(),
                 EntityRegistrar.PILLAGER_UNIT.get(),
+                EntityRegistrar.ARMORED_PILLAGER_UNIT.get(),
                 EntityRegistrar.ZOMBIE_VILLAGER_UNIT.get(),
                 EntityRegistrar.ZOMBIE_UNIT.get(),
                 EntityRegistrar.HUSK_UNIT.get(),

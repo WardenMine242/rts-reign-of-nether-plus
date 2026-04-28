@@ -18,7 +18,7 @@ import com.solegendary.siege_of_settlements.sandbox.SandboxClientEvents;
 import com.solegendary.siege_of_settlements.sandbox.SandboxServer;
 import com.solegendary.siege_of_settlements.unit.goals.*;
 import com.solegendary.siege_of_settlements.unit.interfaces.*;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
 import com.solegendary.siege_of_settlements.util.LanguageUtil;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
 import net.minecraft.core.BlockPos;

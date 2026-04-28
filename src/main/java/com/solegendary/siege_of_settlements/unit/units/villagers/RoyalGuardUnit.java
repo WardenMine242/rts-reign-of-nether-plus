@@ -2,7 +2,6 @@ package com.solegendary.siege_of_settlements.unit.units.villagers;
 
 import com.solegendary.siege_of_settlements.ability.Abilities;
 import com.solegendary.siege_of_settlements.ability.Ability;
-import com.solegendary.siege_of_settlements.ability.HeroAbility;
 import com.solegendary.siege_of_settlements.ability.abilities.PromoteIllager;
 import com.solegendary.siege_of_settlements.ability.heroAbilities.royalguard.Avatar;
 import com.solegendary.siege_of_settlements.ability.heroAbilities.royalguard.BattleRagePassive;
@@ -10,8 +9,6 @@ import com.solegendary.siege_of_settlements.ability.heroAbilities.royalguard.Mac
 import com.solegendary.siege_of_settlements.ability.heroAbilities.royalguard.TauntingCry;
 import com.solegendary.siege_of_settlements.building.BuildingPlacement;
 import com.solegendary.siege_of_settlements.building.BuildingUtils;
-import com.solegendary.siege_of_settlements.hero.HeroClientboundPacket;
-import com.solegendary.siege_of_settlements.keybinds.Keybindings;
 import com.solegendary.siege_of_settlements.registrars.MobEffectRegistrar;
 import com.solegendary.siege_of_settlements.resources.ResourceCost;
 import com.solegendary.siege_of_settlements.resources.ResourceCosts;
@@ -23,7 +20,6 @@ import com.solegendary.siege_of_settlements.unit.UnitAnimationAction;
 import com.solegendary.siege_of_settlements.unit.UnitServerEvents;
 import com.solegendary.siege_of_settlements.unit.goals.*;
 import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
-import com.solegendary.siege_of_settlements.unit.interfaces.HeroUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.KeyframeAnimated;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.modelling.animations.RoyalGuardAnimations;
@@ -55,7 +51,6 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import oshi.util.tuples.Pair;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -63,20 +58,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit, KeyframeAnimated {
-    public final Abilities ABILITIES = new Abilities(
-        List.of(
-            new Pair<>(new MaceSlam(), Keybindings.keyQ),
-            new Pair<>(new TauntingCry(), Keybindings.keyW),
-            new Pair<>(new BattleRagePassive(), Keybindings.keyE),
-            new Pair<>(new Avatar(), Keybindings.keyR)
-        )
-    );
-
-    @Override
-    public Object2ObjectArrayMap<HeroAbility, Integer> getHeroAbilityRanks() {
-        return heroAbilityRanks;
-    }
+public class RoyalGuardUnit extends Vindicator implements Unit, AttackerUnit, KeyframeAnimated {
+    public final Abilities ABILITIES = new Abilities();
 
     //region
     @Override
@@ -89,8 +72,6 @@ public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit
     @Override public boolean hasAutocast(Ability ability) { return autocast == ability; }
     @Override public void setAutocast(Ability autocast) { this.autocast = autocast; }
     @Override public Object2ObjectArrayMap<Ability, Integer> getCharges() { return charges; }
-    Object2ObjectArrayMap<HeroAbility, Integer> heroAbilityRanks = new Object2ObjectArrayMap<>();
-
     Ability autocast;
 
 
@@ -167,8 +148,8 @@ public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit
     public boolean getAggressiveWhenIdle() {return aggressiveWhenIdle && !isVehicle();}
     public float getAttackRange() {return attackRange;}
     public float getMovementSpeed() {return movementSpeed;}
-    public float getUnitAttackDamage() {return attackDamage + (attackBonusPerLevel * getHeroLevel());}
-    public float getUnitMaxHealth() {return maxHealth + (maxHealthBonusPerLevel * getHeroLevel());}
+    public float getUnitAttackDamage() {return attackDamage;}
+    public float getUnitMaxHealth() {return maxHealth;}
 
     @Nullable
     public ResourceCost getCost() {return ResourceCosts.ROYAL_GUARD;}
@@ -179,44 +160,9 @@ public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit
 
     // endregion
 
-    private int skillPoints = 1;
-    private int experience = 0;
-    private boolean rankUpMenuOpen = false;
-    @Override public int getSkillPoints() { return skillPoints; }
-    @Override public void setSkillPoints(int points) { skillPoints = points; }
-    @Override public boolean isRankUpMenuOpen() { return rankUpMenuOpen; }
-    @Override public void showRankUpMenu(boolean show) { rankUpMenuOpen = show; }
-    @Override public int getExperience() { return experience; }
-    @Override public void setExperience(int amount) {
-        experience = amount;
-        setStatsForLevel();
-    }
-    private float baseMaxMana = 100;
-    private float maxMana = baseMaxMana;
-    private float mana = maxMana;
-    private float manaRegenPerSecond = 0.5f;
-    private float manaBonusPerLevel = 6;
-    @Override public float getBaseMaxMana() { return baseMaxMana; }
-    @Override public float getMaxMana() { return maxMana; }
-    @Override public void setMaxMana(float amount) {
-        this.maxMana = amount;
-        if (!level().isClientSide())
-            HeroClientboundPacket.setMaxMana(getId(), amount);
-    }
-    @Override public float getMana() { return mana; }
-    @Override public void setMana(float amount) {
-        this.mana = Math.min(maxMana, amount);
-        if (!level().isClientSide())
-            HeroClientboundPacket.setMana(getId(), this.mana);
-    }
-    @Override public float getManaRegenPerSecond() { return manaRegenPerSecond; }
-    @Override public float getManaBonusPerLevel() { return manaBonusPerLevel; }
-
     final static public float attackDamage = 6.0f;
-    final static public float attackBonusPerLevel = 0.6f;
     final static public float attacksPerSecond = 0.5f;
     final static public float maxHealth = 125.0f;
-    final static public float maxHealthBonusPerLevel = 15.0f;
     final static public float armorValue = 0.0f;
     final static public float movementSpeed = 0.28f;
     final static public float attackRange = 2; // only used by ranged units or melee building attackers
@@ -224,11 +170,6 @@ public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit
     final static public boolean willRetaliate = true; // will attack when hurt by an enemy
     final static public boolean aggressiveWhenIdle = true;
     public int maxResources = 100;
-
-    @Override public float getHealthBonusPerLevel() { return maxHealthBonusPerLevel; };
-    @Override public float getAttackBonusPerLevel() { return attackBonusPerLevel; };
-    @Override public float getBaseHealth() { return maxHealth; };
-    @Override public float getBaseAttack() { return attackDamage; };
 
     private Abilities abilities = ABILITIES.clone();
     private final List<ItemStack> items = new ArrayList<>();
@@ -305,7 +246,7 @@ public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit
         super(entityType, level);
 
         updateAbilityButtons();
-        setStatsForLevel();
+        setStatsForUnit(false);
     }
 
     @Override
@@ -316,18 +257,16 @@ public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit
         return pDamage;
     }
 
-    @Override
-    public void setStatsForLevel(boolean heal) {
+    public void setStatsForUnit(boolean heal) {
         AttributeInstance aiMaxHealth = this.getAttribute(Attributes.MAX_HEALTH);
-        float newHealth = getBaseHealth() + ((getHeroLevel() - 1) * getHealthBonusPerLevel());
+        float newHealth = maxHealth;
         if (avatarTicksLeft > 0)
             newHealth += Avatar.BONUS_HEALTH;
         if (aiMaxHealth != null)
             aiMaxHealth.setBaseValue(newHealth);
         AttributeInstance aiAttackDamage = this.getAttribute(Attributes.ATTACK_DAMAGE);
         if (aiAttackDamage != null)
-            aiAttackDamage.setBaseValue(getBaseAttack() + ((getHeroLevel() - 1) * getAttackBonusPerLevel()));
-        this.setMaxMana(getBaseMaxMana() + ((getHeroLevel() - 1) * getManaBonusPerLevel()));
+            aiAttackDamage.setBaseValue(attackDamage);
         if (heal)
             this.setHealth(this.getMaxHealth());
         if (getHealth() > getMaxHealth())
@@ -350,13 +289,6 @@ public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit
             pAmount *= TauntingCry.DAMAGE_MULT;
 
         boolean result = super.hurt(pSource, pAmount);
-        BattleRagePassive battleRage = getBattleRage();
-        if (result && battleRage.getRank(this) > 0 &&
-            pSource.getEntity() instanceof Unit unit &&
-            !List.of(Relationship.OWNED, Relationship.FRIENDLY)
-                    .contains(UnitServerEvents.getUnitToEntityRelationship(unit, this))) {
-            setMana(mana + pAmount * battleRage.manaPerDmgTaken);
-        }
         return result;
     }
 
@@ -408,7 +340,6 @@ public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit
         super.tick();
         Unit.tick(this);
         AttackerUnit.tick(this);
-        HeroUnit.tick(this);
         PromoteIllager.checkAndApplyBuff(this);
 
         if (level().isClientSide() && animateTicks > 0) {
@@ -559,7 +490,7 @@ public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit
         if (level().isClientSide())
             return;
         MaceSlam maceSlam = getMaceSlam();
-        if (maceSlam != null && maceSlam.getRank(this) > 0) {
+        if (maceSlam != null) {
             level().explode(null, null, null, blockPos.getX(), blockPos.getY(), blockPos.getZ(),
                     2.0f, false, Level.ExplosionInteraction.NONE);
 
@@ -602,7 +533,7 @@ public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit
         if (level().isClientSide())
             return;
         TauntingCry tauntingCry = getTauntingCry();
-        if (tauntingCry != null && tauntingCry.getRank(this) > 0) {
+        if (tauntingCry != null) {
             for (Mob e : MiscUtil.getEntitiesWithinRange(position(), TauntingCry.RANGE, Mob.class, level())) {
                 if (!(e instanceof AttackerUnit attackerUnit) ||
                     List.of(Relationship.OWNED, Relationship.FRIENDLY)
@@ -632,7 +563,7 @@ public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit
         if (tickCount % 20 != 0)
             return;
         BattleRagePassive battleRage = getBattleRage();
-        if (battleRage != null && battleRage.getRank(this) > 0) {
+        if (battleRage != null) {
             float percentRage = 1 - (getHealth() / getMaxHealth());
             heal(percentRage * battleRage.maxHpRegen);
             updateAbilityButtons();
@@ -649,7 +580,7 @@ public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit
             removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
             if (avatarTicksLeft <= 0) {
                 disableAvatar();
-                setStatsForLevel();
+                setStatsForUnit(false);
             }
         }
         if (avatarScalingStarted && avatarScaleTicks < AVATAR_SCALE_TICKS_MAX) {
@@ -668,46 +599,20 @@ public class RoyalGuardUnit extends Vindicator implements AttackerUnit, HeroUnit
 
     public void disableAvatar() {
         avatarScalingStarted = false;
-        if (!level().isClientSide()) {
-            HeroClientboundPacket.deactivateAbilityClientside(getId(), 3);
-        }
     }
 
     public void enableAvatar() {
         avatarTicksLeft = Avatar.DURATION;
         addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, avatarTicksLeft, 0));
         updateKnockbackResistance();
-        setStatsForLevel();
+        setStatsForUnit(false);
         heal(Avatar.BONUS_HEALTH);
-        if (!level().isClientSide()) {
-            HeroClientboundPacket.activateAbilityClientside(getId(), 4);
-        }
     }
 
     @Override
     public void makeStuckInBlock(BlockState pState, Vec3 pMotionMultiplier) {
         if (avatarTicksLeft <= 0)
             super.makeStuckInBlock(pState, pMotionMultiplier);
-    }
-
-    @Override
-    public void activateAbilityClientside(int abilityIndex) {
-        if (level().isClientSide()) {
-            if (abilityIndex == 3) {
-                avatarScalingStarted = true;
-            } else if (abilityIndex == 4) {
-                enableAvatar();
-            }
-        }
-    }
-
-    @Override
-    public void deactivateAbilityClientside(int abilityIndex) {
-        if (level().isClientSide()) {
-            if (abilityIndex == 3) {
-                avatarScalingStarted = false;
-            }
-        }
     }
 
     @Override

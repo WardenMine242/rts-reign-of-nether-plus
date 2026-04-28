@@ -12,7 +12,7 @@ import com.solegendary.siege_of_settlements.unit.interfaces.WorkerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.EvokerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.MilitiaUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;

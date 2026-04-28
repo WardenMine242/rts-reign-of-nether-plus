@@ -8,8 +8,9 @@ import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.piglins.GhastUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArcherUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -89,7 +90,7 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
     public void stop() {
         super.stop();
         this.mob.setAggressive(false);
-        if (!isEliteArcher()) {
+        if (!isEliteStyleArcher()) {
             this.mob.setTarget(null);
         }
         if (this.mob.isUsingItem()) {
@@ -99,7 +100,7 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
         this.crossbowState = UNCHARGED;
         this.seeTime = 0;
         this.attackCooldown = attackCooldownMax;
-        windupTime = isEliteArcher() ? ELITE_ARCHER_EXTRA_WINDUP : random.nextInt(0,6);
+        windupTime = isEliteStyleArcher() ? ELITE_ARCHER_EXTRA_WINDUP : random.nextInt(0,6);
         this.eliteArcherChargeTicks = 0;
     }
 
@@ -118,10 +119,10 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
     public void tickChargeCrossbow() {
         ItemStack itemstack = this.mob.getItemBySlot(EquipmentSlot.MAINHAND);
         if (this.crossbowState == UNCHARGED) {
-            windupTime = isEliteArcher() ? ELITE_ARCHER_EXTRA_WINDUP : random.nextInt(0,6);
+            windupTime = isEliteStyleArcher() ? ELITE_ARCHER_EXTRA_WINDUP : random.nextInt(0,6);
             int ticks = CrossbowItem.getChargeDuration(itemstack);
             // Elite archer should not be slowed while moving under player order.
-            if (!isEliteArcher() || this.mob.getNavigation().isDone()) {
+            if (!isEliteStyleArcher() || this.mob.getNavigation().isDone()) {
                 this.mob.addEffect(new MobEffectInstance(MobEffectRegistrar.MINOR_MOVEMENT_SLOWDOWN.get(), ticks, 3, true, false));
             }
             this.mob.startUsingItem(ProjectileUtil.getWeaponHoldingHand(this.mob, item -> item instanceof CrossbowItem));
@@ -130,13 +131,13 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
             this.eliteArcherChargeTicks = 0;
         }
         else if (this.crossbowState == CHARGING) {
-            if (isEliteArcher() && !this.mob.getNavigation().isDone()) {
+            if (isEliteStyleArcher() && !this.mob.getNavigation().isDone()) {
                 this.mob.removeEffect(MobEffectRegistrar.MINOR_MOVEMENT_SLOWDOWN.get());
             }
             int requiredChargeTicks = CrossbowItem.getChargeDuration(itemstack) + windupTime;
 
             int i;
-            if (isEliteArcher()) {
+            if (isEliteStyleArcher()) {
                 if (!this.mob.isUsingItem()) {
                     this.mob.startUsingItem(ProjectileUtil.getWeaponHoldingHand(this.mob, item -> item instanceof CrossbowItem));
                 }
@@ -149,9 +150,9 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
             if (i >= requiredChargeTicks) {
                 this.mob.releaseUsingItem();
                 this.crossbowState = CHARGED;
-                this.attackCooldown = isEliteArcher() ? 0 : attackCooldownMax;
+                this.attackCooldown = isEliteStyleArcher() ? 0 : attackCooldownMax;
                 this.mob.setChargingCrossbow(false);
-                windupTime = isEliteArcher() ? ELITE_ARCHER_EXTRA_WINDUP : random.nextInt(0,6);
+                windupTime = isEliteStyleArcher() ? ELITE_ARCHER_EXTRA_WINDUP : random.nextInt(0,6);
                 this.eliteArcherChargeTicks = 0;
             }
         }
@@ -229,7 +230,7 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
 
             // Elite Archer behaves like a bow user: he starts drawing only when actually attacking,
             // not pre-charging long before a shot.
-            if (isEliteArcher()) {
+            if (isEliteStyleArcher()) {
                 if (this.crossbowState == UNCHARGED) {
                     if (canSeeTarget && inFiringRange) {
                         this.tickChargeCrossbow();
@@ -260,7 +261,7 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
 
             alignEliteArcherAttackFacing(target, buildTarget);
 
-            if (this.crossbowState == CHARGED && isEliteArcher() && canSeeTarget && inFiringRange) {
+            if (this.crossbowState == CHARGED && isEliteStyleArcher() && canSeeTarget && inFiringRange) {
                 this.mob.performCrossbowAttack(this.mob, 1.6F);
                 ItemStack itemstack1 = this.mob.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this.mob, item -> item instanceof CrossbowItem));
                 CrossbowItem.setCharged(itemstack1, false);
@@ -284,12 +285,18 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
         return this.crossbowState == UNCHARGED;
     }
 
-    private boolean isEliteArcher() {
-        return this.mob instanceof EliteArcherUnit;
+    private boolean isEliteStyleArcher() {
+        return this.mob instanceof EliteArcherUnit || this.mob instanceof ArcherUnit;
     }
 
     private void alignEliteArcherAttackFacing(LivingEntity target, BuildingPlacement buildTarget) {
-        if (!(this.mob instanceof EliteArcherUnit eliteArcherUnit) || !eliteArcherUnit.shouldUseAttackFacing()) {
+        boolean useFacing = false;
+        if (this.mob instanceof EliteArcherUnit eliteArcherUnit) {
+            useFacing = eliteArcherUnit.shouldUseAttackFacing();
+        } else if (this.mob instanceof ArcherUnit archerUnit) {
+            useFacing = archerUnit.shouldUseAttackFacing();
+        }
+        if (!useFacing) {
             return;
         }
         if (this.mob.getVehicle() instanceof HorseUnit) {

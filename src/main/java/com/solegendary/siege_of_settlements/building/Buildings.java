@@ -6,7 +6,7 @@ import com.solegendary.siege_of_settlements.building.buildings.monsters.*;
 import com.solegendary.siege_of_settlements.building.buildings.neutral.*;
 import com.solegendary.siege_of_settlements.building.buildings.piglins.*;
 import com.solegendary.siege_of_settlements.building.buildings.villagers.*;
-import net.WardenMine242.siege_of_settlements.building.buildings.villagers.*;
+import com.WardenMine242.siege_of_settlements.building.buildings.villagers.*;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
@@ -42,11 +42,17 @@ public class Buildings {
     public static final VillagerHouse VILLAGER_HOUSE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "villager_house"), new VillagerHouse());
     public static final WheatFarm WHEAT_FARM = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "wheat_farm"), new WheatFarm());
     public static final Watchtower WATCHTOWER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "watchtower"), new Watchtower());
-    public static final Barracks BARRACKS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "barracks"), new Barracks());
+    public static final Barracks BARRACKS = register(
+            ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "barracks"),
+            new Barracks()
+    );
     public static final Blacksmith BLACKSMITH = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "blacksmith"), new Blacksmith());
     public static final ArcaneTower ARCANE_TOWER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "arcane_tower"), new ArcaneTower());
     public static final Library LIBRARY = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "library"), new Library());
-    public static final Castle CASTLE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "castle"), new Castle());
+    public static final com.WardenMine242.siege_of_settlements.building.buildings.villagers.Castle CASTLE = register(
+            ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "castle"),
+            new com.WardenMine242.siege_of_settlements.building.buildings.villagers.Castle()
+    );
     public static final IronGolemBuilding IRON_GOLEM_BUILDING = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "iron_golem_building"), new IronGolemBuilding());
     public static final OakBridge OAK_BRIDGE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "oak_bridge"), new OakBridge());
     public static final Beacon BEACON = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "beacon"), new Beacon());

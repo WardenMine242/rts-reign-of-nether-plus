@@ -34,7 +34,7 @@ import com.solegendary.siege_of_settlements.unit.units.piglins.*;
 import com.solegendary.siege_of_settlements.unit.units.villagers.*;
 import com.solegendary.siege_of_settlements.util.EnchantmentUtil;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;

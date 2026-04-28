@@ -63,11 +63,12 @@ import com.solegendary.siege_of_settlements.unit.units.villagers.VillagerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.VillagerUnitProfession;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
 import com.solegendary.siege_of_settlements.util.MyRenderer;
-import net.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeTrader;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerUnit;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorUnit;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
+import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeTrader;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArcherUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.model.Model;
@@ -121,8 +122,13 @@ public class HudClientEvents {
             "textures/hud/level_up.png"
     );
     private static final Set<ProductionItem> BUILDING_LEVEL_UP_ITEMS = Set.of(
+            ProductionItems.BARRACKS_T2,
+            ProductionItems.BARRACKS_T3,
             ProductionItems.DRILL_T2,
             ProductionItems.DRILL_T3,
+            ProductionItems.DRILL_T4,
+            ProductionItems.DRILL_T5,
+            ProductionItems.DRILL_T6,
             ProductionItems.RESEARCH_SUPERIOR_BLACKSMITH,
             ProductionItems.RESEARCH_GRAND_LIBRARY,
             ProductionItems.RESEARCH_CASTLE_FLAG,
@@ -341,6 +347,7 @@ public class HudClientEvents {
                 continue;
             }
             if (entity instanceof EliteArcherUnit
+                    || entity instanceof ArcherUnit
                     || entity instanceof EliteVindicatorUnit
                     || entity instanceof AuromancerUnit) {
                 count += 1;
@@ -2628,5 +2635,4 @@ public class HudClientEvents {
         }
     }
 }
-
 

@@ -35,8 +35,9 @@ import com.solegendary.siege_of_settlements.faction.Faction;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
 import com.solegendary.siege_of_settlements.util.MyRenderer;
 
-import net.WardenMine242.siege_of_settlements.building.buildings.villagers.Marketplace;
-import net.WardenMine242.siege_of_settlements.building.buildings.villagers.VillagerDrill;
+import com.WardenMine242.siege_of_settlements.building.buildings.placements.VillageDrillPlacement;
+import com.WardenMine242.siege_of_settlements.building.buildings.villagers.Marketplace;
+import com.WardenMine242.siege_of_settlements.building.buildings.villagers.VillagerDrill;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.BeaconScreen;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
@@ -1099,6 +1100,10 @@ public class BuildingClientEvents {
 
             if (isBuilt && forPlayerLoggingIn) {
                 newBuilding.highestBlockCountReached = newBuilding.getBlocksTotal();
+            }
+
+            if (newBuilding instanceof VillageDrillPlacement drillSync) {
+                drillSync.syncDrillTierFromNetwork(upgradeLevel);
             }
 
             if (upgradeLevel > 0) {

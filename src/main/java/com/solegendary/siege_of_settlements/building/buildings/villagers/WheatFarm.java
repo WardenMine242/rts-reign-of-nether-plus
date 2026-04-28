@@ -14,7 +14,7 @@ import com.solegendary.siege_of_settlements.tutorial.TutorialClientEvents;
 import com.solegendary.siege_of_settlements.tutorial.TutorialStage;
 import com.solegendary.siege_of_settlements.faction.Faction;
 import com.solegendary.siege_of_settlements.util.MyRenderer;
-import net.WardenMine242.siege_of_settlements.ability.abilities.GiveSteakFromFarm;
+import com.WardenMine242.siege_of_settlements.ability.abilities.GiveSteakFromFarm;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;

@@ -2,6 +2,7 @@ package com.solegendary.siege_of_settlements.unit.units.villagers;
 
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.building.BuildingServerboundPacket;
+import com.solegendary.siege_of_settlements.building.buildings.placements.BarracksPlacement;
 import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
 import com.solegendary.siege_of_settlements.building.production.ProductionItem;
 import com.solegendary.siege_of_settlements.building.production.ProductionItems;
@@ -69,8 +70,10 @@ public class PillagerProd extends ProductionItem {
             PillagerProd.itemName,
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/pillager.png"),
             hotkey,
-            () -> false,
-            () -> true,
+            () -> prodBuilding instanceof BarracksPlacement
+                    && prodBuilding.getUpgradeLevel() < 1,
+            () -> !(prodBuilding instanceof BarracksPlacement)
+                    || prodBuilding.getUpgradeLevel() >= 1,
             tooltipLines,
             this
         );

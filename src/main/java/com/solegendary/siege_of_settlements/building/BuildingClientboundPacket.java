@@ -1,8 +1,10 @@
 package com.solegendary.siege_of_settlements.building;
 
 import com.solegendary.siege_of_settlements.api.SiegeOfSettlementsRegistries;
+import com.solegendary.siege_of_settlements.building.buildings.placements.BarracksPlacement;
 import com.solegendary.siege_of_settlements.building.buildings.placements.PortalPlacement;
 import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
+import com.WardenMine242.siege_of_settlements.building.buildings.placements.VillageDrillPlacement;
 import com.solegendary.siege_of_settlements.building.custombuilding.CustomBuilding;
 import com.solegendary.siege_of_settlements.building.custombuilding.CustomBuildingClientEvents;
 import com.solegendary.siege_of_settlements.building.production.ActiveProduction;
@@ -154,7 +156,13 @@ public class BuildingClientboundPacket {
         );
     }
 
-    public static void clearQueue(BlockPos buildingPos) {
+    /**
+     * @param productionUpgradeLevelSync production-building upgrade level after production completes
+     *                                   ({@link VillageDrillPlacement#getUpgradeLevel()},
+     *                                   {@link BarracksPlacement#getUpgradeLevel()},
+     *                                   or {@code -1} when not applicable)
+     */
+    public static void clearQueue(BlockPos buildingPos, int productionUpgradeLevelSync) {
         PacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(),
                 new BuildingClientboundPacket(BuildingAction.CLEAR_PRODUCTION,
                         EMPTY,
@@ -165,7 +173,7 @@ public class BuildingClientboundPacket {
                         0,
                         0,
                         false,
-                        0,
+                        productionUpgradeLevelSync,
                         false,
                         PortalPlacement.PortalType.BASIC,
                         new BlockPos(0,0,0),
@@ -174,7 +182,13 @@ public class BuildingClientboundPacket {
         );
     }
 
-    public static void completeProduction(BlockPos buildingPos) {
+    /**
+     * @param productionUpgradeLevelSync production-building upgrade level after production completes
+     *                                   ({@link VillageDrillPlacement#getUpgradeLevel()},
+     *                                   {@link BarracksPlacement#getUpgradeLevel()},
+     *                                   or {@code -1} when not applicable)
+     */
+    public static void completeProduction(BlockPos buildingPos, int productionUpgradeLevelSync) {
         PacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(),
                 new BuildingClientboundPacket(BuildingAction.COMPLETE_PRODUCTION,
                         EMPTY,
@@ -185,7 +199,7 @@ public class BuildingClientboundPacket {
                         0,
                         0,
                         false,
-                        0,
+                        productionUpgradeLevelSync,
                         false,
                         PortalPlacement.PortalType.BASIC,
                         new BlockPos(0,0,0),
@@ -360,6 +374,7 @@ public class BuildingClientboundPacket {
                                 }
                                 pBuilding.productionQueue.clear();
                             }
+                            syncProductionUpgradeClientIfNeeded(pBuilding, this.upgradeLevel);
                         }
                     }
                     case COMPLETE_PRODUCTION -> {
@@ -372,6 +387,7 @@ public class BuildingClientboundPacket {
                                 }
                                 pBuilding.productionQueue.remove(pItem);
                             }
+                            syncProductionUpgradeClientIfNeeded(pBuilding, this.upgradeLevel);
                         }
                     }
                     case REMOVE -> {
@@ -383,5 +399,21 @@ public class BuildingClientboundPacket {
         });
         ctx.get().setPacketHandled(true);
         return success.get();
+    }
+
+    /** Server sends production upgrade level after upgrade production finishes ({@code >= 0}); {@code -1} means skip. */
+    private static void syncProductionUpgradeClientIfNeeded(ProductionPlacement pBuilding, int upgradeLevelSync) {
+        if (upgradeLevelSync < 0) {
+            return;
+        }
+        if (pBuilding instanceof VillageDrillPlacement drill) {
+            drill.syncDrillTierFromNetwork(upgradeLevelSync);
+            drill.applyStructureForCurrentTier();
+            return;
+        }
+        if (pBuilding instanceof BarracksPlacement barracks) {
+            barracks.syncTierFromNetwork(upgradeLevelSync);
+            barracks.applyStructureForCurrentTier();
+        }
     }
 }

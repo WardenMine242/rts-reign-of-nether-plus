@@ -40,6 +40,12 @@ public class PromoteIllager extends Ability {
     private static final int RANGE = 20;
     private static final int BUFF_RANGE = 10;
 
+    private static boolean hasActiveCaptain(CastlePlacement castle) {
+        return castle.promotedIllager != null
+                && castle.promotedIllager.isAlive()
+                && castle.promotedIllager.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof BannerItem;
+    }
+
     public PromoteIllager() {
         super(UnitAction.PROMOTE_ILLAGER, CD_MAX, RANGE, 0, true, true);
         this.defaultHotkey = Keybindings.keyW;
@@ -71,12 +77,7 @@ public class PromoteIllager extends Ability {
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/items/ominous_banner.png"),
             hotkey,
             () -> false,
-            () -> {
-                if (placement instanceof CastlePlacement castle) {
-                    return castle.getUpgradeLevel() == 0;
-                }
-                return true;
-            },
+            () -> placement instanceof CastlePlacement castle && hasActiveCaptain(castle),
             () -> true,
             () -> CursorClientEvents.setLeftClickAction(UnitAction.PROMOTE_ILLAGER),
             null,
@@ -101,6 +102,14 @@ public class PromoteIllager extends Ability {
             this,
             placement
         );
+    }
+
+    @Override
+    public float getCooldown(BuildingPlacement placement) {
+        if (placement instanceof CastlePlacement castle && !hasActiveCaptain(castle)) {
+            return 0;
+        }
+        return super.getCooldown(placement);
     }
 
     @Override

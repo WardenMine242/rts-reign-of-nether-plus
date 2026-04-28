@@ -9,7 +9,7 @@ import com.solegendary.siege_of_settlements.building.buildings.placements.Portal
 import com.solegendary.siege_of_settlements.building.buildings.villagers.*;
 import com.solegendary.siege_of_settlements.building.custombuilding.CustomBuilding;
 import com.solegendary.siege_of_settlements.building.custombuilding.CustomBuildingServerEvents;
-import net.WardenMine242.siege_of_settlements.building.buildings.villagers.*;
+import com.WardenMine242.siege_of_settlements.building.buildings.villagers.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -70,6 +70,7 @@ public class BuildingSaveData extends SavedData {
                 boolean isDiagonalBridge = btag.getBoolean("isDiagonalBridge");
                 boolean isBuilt = btag.getBoolean("isBuilt");
                 int upgradeLevel = btag.getInt("upgradeLevel");
+                int drillTier = btag.contains("drillTier") ? btag.getInt("drillTier") : 0;
                 PortalPlacement.PortalType portalType = PortalPlacement.PortalType.valueOf(btag.getString("portalType"));
                 BlockPos portalDestination = new BlockPos(btag.getInt("xp"), btag.getInt("yp"), btag.getInt("zp"));
 
@@ -83,6 +84,7 @@ public class BuildingSaveData extends SavedData {
                             isDiagonalBridge,
                             isBuilt,
                             upgradeLevel,
+                            drillTier,
                             portalType,
                             portalDestination
                     ));
@@ -117,6 +119,7 @@ public class BuildingSaveData extends SavedData {
             cTag.putBoolean("isDiagonalBridge", b.isDiagonalBridge);
             cTag.putBoolean("isBuilt", b.isBuilt);
             cTag.putInt("upgradeLevel", b.upgradeLevel);
+            cTag.putInt("drillTier", b.drillTier);
             cTag.putString("portalType", b.portalType != null ? b.portalType.name() : PortalPlacement.PortalType.BASIC.name());
             cTag.putInt("xp", b.portalDestination != null ? b.portalDestination.getX() : 0);
             cTag.putInt("yp", b.portalDestination != null ? b.portalDestination.getY() : 0);
@@ -167,7 +170,7 @@ public class BuildingSaveData extends SavedData {
             case Dungeon.buildingName -> building = Buildings.DUNGEON;
             case Watchtower.buildingName -> building = Buildings.WATCHTOWER;
             case DarkWatchtower.buildingName -> building = Buildings.DARK_WATCHTOWER;
-            case Castle.buildingName -> building = Buildings.CASTLE;
+            case com.WardenMine242.siege_of_settlements.building.buildings.villagers.Castle.buildingName -> building = Buildings.CASTLE;
             case Stronghold.buildingName -> building = Buildings.STRONGHOLD;
             case CentralPortal.buildingName -> building = Buildings.CENTRAL_PORTAL;
             case PortalBasic.buildingName -> building = Buildings.PORTAL_BASIC;

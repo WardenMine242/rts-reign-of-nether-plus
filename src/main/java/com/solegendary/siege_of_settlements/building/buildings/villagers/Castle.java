@@ -53,6 +53,7 @@ public class Castle extends ProductionBuilding {
         this.productions.add(ProductionItems.RAVAGER, Keybindings.keyQ);
         this.productions.add(ProductionItems.RESEARCH_RAVAGER_CAVALRY, Keybindings.keyW);
         this.productions.add(ProductionItems.RESEARCH_CASTLE_FLAG, Keybindings.keyE);
+        this.productions.add(ProductionItems.ILLUSIONER, Keybindings.keyR);
     }
 
     public Faction getFaction() {

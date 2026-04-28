@@ -8,15 +8,22 @@ import com.solegendary.siege_of_settlements.unit.units.monsters.*;
 import com.solegendary.siege_of_settlements.unit.units.neutral.*;
 import com.solegendary.siege_of_settlements.unit.units.piglins.*;
 import com.solegendary.siege_of_settlements.unit.units.villagers.*;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerProd;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerUnit;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherProd;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorProd;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorUnit;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseProd;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
-import net.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredPillagerProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredPillagerUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredVindicatorProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredVindicatorUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArcherProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArcherUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.IllusionerUnit;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -124,11 +131,23 @@ public class EntityRegistrar {
                     .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
                     .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "elite_vindicator_unit").toString()));
 
+    public static final RegistryObject<EntityType<ArmoredVindicatorUnit>> ARMORED_VINDICATOR_UNIT = ENTITIES.register("armored_vindicator_unit",
+            () -> EntityType.Builder.of(ArmoredVindicatorUnit::new, MobCategory.CREATURE)
+                    .sized(EntityType.VINDICATOR.getWidth(), EntityType.VINDICATOR.getHeight())
+                    .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
+                    .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "armored_vindicator_unit").toString()));
+
     public static final RegistryObject<EntityType<EliteArcherUnit>> ELITE_ARCHER_UNIT = ENTITIES.register("elite_archer_unit",
             () -> EntityType.Builder.of(EliteArcherUnit::new, MobCategory.CREATURE)
                     .sized(EntityType.PILLAGER.getWidth(), EntityType.PILLAGER.getHeight())
                     .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
                     .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "elite_archer_unit").toString()));
+
+    public static final RegistryObject<EntityType<ArcherUnit>> ARCHER_UNIT = ENTITIES.register("archer_unit",
+            () -> EntityType.Builder.of(ArcherUnit::new, MobCategory.CREATURE)
+                    .sized(EntityType.PILLAGER.getWidth(), EntityType.PILLAGER.getHeight())
+                    .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
+                    .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "archer_unit").toString()));
 
     public static final RegistryObject<EntityType<HorseUnit>> HORSE_UNIT = ENTITIES.register("horse_unit",
             () -> EntityType.Builder.of(HorseUnit::new, MobCategory.CREATURE)
@@ -154,6 +173,12 @@ public class EntityRegistrar {
                     .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
                     .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "pillager_unit").toString()));
 
+    public static final RegistryObject<EntityType<ArmoredPillagerUnit>> ARMORED_PILLAGER_UNIT = ENTITIES.register("armored_pillager_unit",
+            () -> EntityType.Builder.of(ArmoredPillagerUnit::new, MobCategory.CREATURE)
+                    .sized(EntityType.PILLAGER.getWidth(), EntityType.PILLAGER.getHeight())
+                    .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
+                    .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "armored_pillager_unit").toString()));
+
     public static final RegistryObject<EntityType<IronGolemUnit>> IRON_GOLEM_UNIT = ENTITIES.register("iron_golem_unit",
             () -> EntityType.Builder.of(IronGolemUnit::new, MobCategory.CREATURE)
                     .sized(EntityType.IRON_GOLEM.getWidth(), EntityType.IRON_GOLEM.getHeight())
@@ -171,6 +196,12 @@ public class EntityRegistrar {
                     .sized(EntityType.EVOKER.getWidth(), EntityType.EVOKER.getHeight())
                     .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
                     .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "evoker_unit").toString()));
+
+    public static final RegistryObject<EntityType<IllusionerUnit>> ILLUSIONER_UNIT = ENTITIES.register("illusioner_unit",
+            () -> EntityType.Builder.of(IllusionerUnit::new, MobCategory.CREATURE)
+                    .sized(EntityType.ILLUSIONER.getWidth(), EntityType.ILLUSIONER.getHeight())
+                    .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
+                    .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "illusioner_unit").toString()));
 
     public static final RegistryObject<EntityType<EndermanUnit>> ENDERMAN_UNIT = ENTITIES.register("enderman_unit",
             () -> EntityType.Builder.of(EndermanUnit::new, MobCategory.CREATURE)
@@ -406,11 +437,14 @@ public class EntityRegistrar {
             case VillagerProd.itemName -> EntityRegistrar.VILLAGER_UNIT.get();
             case AuromancerProd.itemName -> EntityRegistrar.AUROMANCER_UNIT.get();
             case EliteVindicatorProd.itemName -> EntityRegistrar.ELITE_VINDICATOR_UNIT.get();
+            case ArmoredVindicatorProd.itemName -> EntityRegistrar.ARMORED_VINDICATOR_UNIT.get();
             case EliteArcherProd.itemName -> EntityRegistrar.ELITE_ARCHER_UNIT.get();
+            case ArcherProd.itemName -> EntityRegistrar.ARCHER_UNIT.get();
             case HorseProd.itemName -> EntityRegistrar.HORSE_UNIT.get();
             case ZombieVillagerProd.itemName -> EntityRegistrar.ZOMBIE_VILLAGER_UNIT.get();
             case VindicatorProd.itemName -> EntityRegistrar.VINDICATOR_UNIT.get();
             case PillagerProd.itemName -> EntityRegistrar.PILLAGER_UNIT.get();
+            case ArmoredPillagerProd.itemName -> EntityRegistrar.ARMORED_PILLAGER_UNIT.get();
             case IronGolemProd.itemName -> EntityRegistrar.IRON_GOLEM_UNIT.get();
             case WitchProd.itemName -> EntityRegistrar.WITCH_UNIT.get();
             case EvokerProd.itemName -> EntityRegistrar.EVOKER_UNIT.get();
