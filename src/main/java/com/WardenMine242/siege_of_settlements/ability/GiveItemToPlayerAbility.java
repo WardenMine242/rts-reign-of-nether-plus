@@ -21,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public abstract class GiveItemToPlayerAbility extends Ability {
@@ -33,7 +34,12 @@ public abstract class GiveItemToPlayerAbility extends Ability {
         this.itemSupplier = itemSupplier;
     }
 
+    protected ResourceCost getCost(BuildingPlacement buildingUsing) {
+        return cost;
+    }
+
     protected boolean canAfford(BuildingPlacement buildingUsing) {
+        ResourceCost currentCost = getCost(buildingUsing);
         Resources res = null;
         if (buildingUsing.getLevel().isClientSide()) {
             res = ResourcesClientEvents.getOwnResources();
@@ -43,9 +49,10 @@ public abstract class GiveItemToPlayerAbility extends Ability {
                     res = resources;
         }
         if (res != null)
-            return (res.food >= cost.food &&
-                    res.wood >= cost.wood &&
-                    res.ore >= cost.ore);
+            return (res.food >= currentCost.food &&
+                    res.wood >= currentCost.wood &&
+                    res.ore >= currentCost.ore &&
+                    res.emerald >= currentCost.emerald);
         return false;
     }
 
@@ -53,15 +60,54 @@ public abstract class GiveItemToPlayerAbility extends Ability {
         giveItemStack(player, new ItemStack(itemSupplier.get()));
     }
 
+    protected void giveItem(ServerPlayer player, BuildingPlacement buildingUsing) {
+        giveItem(player);
+    }
+
     protected void giveItemStack(ServerPlayer player, ItemStack stack) {
         if (!player.getInventory().add(stack)) {
             player.drop(stack, false);
         } else {
-            player.getInventory().setChanged();
-            player.inventoryMenu.broadcastChanges();
-            if (player.containerMenu != player.inventoryMenu) {
-                player.containerMenu.broadcastChanges();
+            syncInventory(player);
+        }
+    }
+
+    protected void giveItemStackReplacingExisting(ServerPlayer player, ItemStack stack, @Nullable Item oldItemToReplace) {
+        if (oldItemToReplace != null && replaceFirstInventoryItem(player, oldItemToReplace, stack)) {
+            return;
+        }
+        giveItemStack(player, stack);
+    }
+
+    protected boolean replaceFirstInventoryItem(ServerPlayer player, Item oldItem, ItemStack replacement) {
+        var inventory = player.getInventory();
+
+        for (int i = 0; i < inventory.items.size(); i++) {
+            ItemStack slot = inventory.items.get(i);
+            if (!slot.isEmpty() && slot.getItem() == oldItem) {
+                inventory.setItem(i, replacement.copy());
+                syncInventory(player);
+                return true;
             }
+        }
+
+        for (int i = 0; i < inventory.offhand.size(); i++) {
+            ItemStack slot = inventory.offhand.get(i);
+            if (!slot.isEmpty() && slot.getItem() == oldItem) {
+                inventory.offhand.set(i, replacement.copy());
+                syncInventory(player);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected void syncInventory(ServerPlayer player) {
+        player.getInventory().setChanged();
+        player.inventoryMenu.broadcastChanges();
+        if (player.containerMenu != player.inventoryMenu) {
+            player.containerMenu.broadcastChanges();
         }
     }
 
@@ -79,13 +125,20 @@ public abstract class GiveItemToPlayerAbility extends Ability {
         BlockPos centreBottom = new BlockPos(buildingUsing.centrePos.getX(), buildingUsing.minCorner.getY(), buildingUsing.centrePos.getZ());
 
         if (!level.isClientSide()) {
+            ResourceCost currentCost = getCost(buildingUsing);
             if (targetEntity instanceof ServerPlayer player &&
                 player.getName().getString().equals(buildingUsing.ownerName) &&
                 canAfford(buildingUsing) &&
                 targetEntity.distanceToSqr(Vec3.atCenterOf(centreBottom)) < range * range) {
 
-                giveItem(player);
-                ResourcesServerEvents.addSubtractResources(new Resources(buildingUsing.ownerName, -cost.food, -cost.wood, -cost.ore));
+                giveItem(player, buildingUsing);
+                ResourcesServerEvents.addSubtractResources(new Resources(
+                        buildingUsing.ownerName,
+                        -currentCost.food,
+                        -currentCost.wood,
+                        -currentCost.ore,
+                        -currentCost.emerald
+                ));
                 setToMaxCooldown(buildingUsing);
                 playSound(level, targetEntity);
             }

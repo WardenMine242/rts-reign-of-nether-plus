@@ -25,6 +25,7 @@ import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.monsters.PhantomSummon;
 import com.solegendary.siege_of_settlements.unit.units.piglins.GhastUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneMineUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.VillagerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.VillagerUnitProfession;
 import net.minecraft.client.Minecraft;
@@ -339,6 +340,10 @@ public class MiscUtil {
 
     // does not cover explicit attack commands
     private static boolean isIdleOrMoveAttackable(Mob unitMob, LivingEntity targetEntity, boolean neutralAggro) {
+        if (targetEntity instanceof RedstoneMineUnit) {
+            return false;
+        }
+
         Relationship rs = Relationship.NEUTRAL;
         if (unitMob instanceof Unit) {
             rs = UnitServerEvents.getUnitToEntityRelationship((Unit) unitMob, targetEntity);

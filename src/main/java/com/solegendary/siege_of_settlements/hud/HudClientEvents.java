@@ -129,6 +129,11 @@ public class HudClientEvents {
             ProductionItems.DRILL_T4,
             ProductionItems.DRILL_T5,
             ProductionItems.DRILL_T6,
+            ProductionItems.RESEARCH_VILLAGER_HOUSE_T2,
+            ProductionItems.ARCANE_TOWER_T2,
+            ProductionItems.ARCANE_TOWER_T3,
+            ProductionItems.BLACKSMITH_T2,
+            ProductionItems.BLACKSMITH_T3,
             ProductionItems.RESEARCH_SUPERIOR_BLACKSMITH,
             ProductionItems.RESEARCH_GRAND_LIBRARY,
             ProductionItems.RESEARCH_CASTLE_FLAG,
@@ -704,9 +709,7 @@ public class HudClientEvents {
                             }
                         }
 
-                        int upgradeRows = upgradeProdButtons.isEmpty()
-                                ? 0
-                                : (int) Math.ceil((double) upgradeProdButtons.size() / (double) MAX_BUTTONS_PER_ROW);
+                        int upgradeRows = upgradeProdButtons.isEmpty() ? 0 : 1;
                         int regularRows = regularProdButtons.isEmpty()
                                 ? 0
                                 : (int) Math.ceil((double) regularProdButtons.size() / (double) MAX_BUTTONS_PER_ROW);
@@ -734,18 +737,12 @@ public class HudClientEvents {
                         if (upgradeRows > 0) {
                             int upgradeX = 0;
                             int upgradeY = screenHeight - Button.DEFAULT_ICON_FRAME_SIZE;
-                            int renderedUpgradeCount = 0;
                             for (Button prodButton : upgradeProdButtons) {
                                 prodButton.render(evt.getGuiGraphics(), upgradeX, upgradeY, mouseX, mouseY);
                                 productionButtons.add(prodButton);
                                 renderedButtons.add(prodButton);
 
-                                renderedUpgradeCount += 1;
                                 upgradeX += iconFrameSize;
-                                if (renderedUpgradeCount % MAX_BUTTONS_PER_ROW == 0) {
-                                    upgradeX = 0;
-                                    upgradeY += Button.DEFAULT_ICON_FRAME_SIZE;
-                                }
                             }
                         }
                     }
@@ -2635,4 +2632,3 @@ public class HudClientEvents {
         }
     }
 }
-

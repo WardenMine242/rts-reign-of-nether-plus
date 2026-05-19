@@ -7,6 +7,7 @@ import com.solegendary.siege_of_settlements.cursor.CursorClientEvents;
 import com.solegendary.siege_of_settlements.hud.AbilityButton;
 import com.solegendary.siege_of_settlements.keybinds.Keybinding;
 import com.solegendary.siege_of_settlements.keybinds.Keybindings;
+import com.solegendary.siege_of_settlements.registrars.EntityRegistrar;
 import com.solegendary.siege_of_settlements.resources.ResourceCosts;
 import com.solegendary.siege_of_settlements.unit.UnitAction;
 import net.minecraft.client.resources.language.I18n;
@@ -48,7 +49,7 @@ public class EquipIronChestplate extends EquipAbility {
                         fcs("", Style.EMPTY),
                         fcs(I18n.get("ability.siege_of_settlements.equip.iron_chestplate.tooltip1"), Style.EMPTY),
                         fcs("", Style.EMPTY),
-                        fcs(I18n.get("ability.siege_of_settlements.equip.only.player"), Style.EMPTY)
+                        fcs(I18n.get("ability.siege_of_settlements.equip.only.player_or_unit"), Style.EMPTY)
                 ),
                 this,
                 placement
@@ -57,6 +58,15 @@ public class EquipIronChestplate extends EquipAbility {
 
     @Override
     public boolean isCorrectUnit(LivingEntity entity) {
-        return entity instanceof Player;
+        if (entity instanceof Player) {
+            return true;
+        }
+        return List.of(
+                EntityRegistrar.MILITIA_UNIT.get(),
+                EntityRegistrar.VINDICATOR_UNIT.get(),
+                EntityRegistrar.PILLAGER_UNIT.get(),
+                EntityRegistrar.ARMORED_PILLAGER_UNIT.get(),
+                EntityRegistrar.EVOKER_UNIT.get()
+        ).contains(entity.getType());
     }
 }

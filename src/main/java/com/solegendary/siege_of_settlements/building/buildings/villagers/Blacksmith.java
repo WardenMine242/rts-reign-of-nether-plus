@@ -18,6 +18,7 @@ import com.solegendary.siege_of_settlements.tutorial.TutorialStage;
 import com.WardenMine242.siege_of_settlements.ability.abilities.EquipIronAxe;
 import com.WardenMine242.siege_of_settlements.ability.abilities.EquipArrows;
 import com.WardenMine242.siege_of_settlements.ability.abilities.EquipBow;
+import com.WardenMine242.siege_of_settlements.ability.abilities.EquipDiamondChestplate;
 import com.WardenMine242.siege_of_settlements.ability.abilities.EquipIronChestplate;
 import com.WardenMine242.siege_of_settlements.ability.abilities.EquipIronHoe;
 import com.WardenMine242.siege_of_settlements.ability.abilities.EquipIronPickaxe;
@@ -27,6 +28,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
@@ -39,7 +41,10 @@ public class Blacksmith extends ProductionBuilding {
 
     public final static String buildingName = "Blacksmith";
     public final static String structureName = "blacksmith";
-    public final static String upgradedStructureName = "blacksmith_superior";
+    public static final String structureNameT2 = "blacksmith_t2";
+    public static final String structureNameT3 = "blacksmith_t3";
+    public static final String legacyUpgradedStructureName = "blacksmith_superior";
+    public final static String upgradedStructureName = structureNameT2;
     public final static ResourceCost cost = ResourceCosts.BLACKSMITH;
 
     public Blacksmith() {
@@ -56,6 +61,7 @@ public class Blacksmith extends ProductionBuilding {
         this.abilities.add(new EquipLeatherChestplate(), Keybindings.keyT);
         this.abilities.add(new EquipChainmailChestplate(), Keybindings.keyY);
         this.abilities.add(new EquipIronChestplate(), Keybindings.keyL);
+        this.abilities.add(new EquipDiamondChestplate(), Keybindings.keyG);
         this.abilities.add(new EquipIronSword(), Keybindings.keyU);
         this.abilities.add(new EquipIronPickaxe(), Keybindings.keyI);
         this.abilities.add(new EquipIronAxe(), Keybindings.keyO);
@@ -64,9 +70,11 @@ public class Blacksmith extends ProductionBuilding {
         this.abilities.add(new EquipArrows(), Keybindings.keyK);
 
         this.productions.add(ProductionItems.IRON_GOLEM, Keybindings.keyQ);
+        this.productions.add(ProductionItems.REDSTONE_GOLEM, Keybindings.keyF);
         this.productions.add(ProductionItems.RESEARCH_GOLEM_SMITHING, Keybindings.keyW);
         this.productions.add(ProductionItems.RESEARCH_MILITIA_BOWS, Keybindings.keyE);
-        this.productions.add(ProductionItems.RESEARCH_SUPERIOR_BLACKSMITH, Keybindings.keyR);
+        this.productions.add(ProductionItems.BLACKSMITH_T2, Keybindings.keyR);
+        this.productions.add(ProductionItems.BLACKSMITH_T3, Keybindings.keyR);
     }
 
     public Faction getFaction() {return Faction.VILLAGERS;}
@@ -101,15 +109,32 @@ public class Blacksmith extends ProductionBuilding {
 
     @Override
     public int getUpgradeLevel(BuildingPlacement placement) {
-        for (BuildingBlock block : placement.getBlocks())
-            if (block.getBlockState().getBlock() == Blocks.BLAST_FURNACE) {
-                return 1;
-            }
+        if (placement instanceof BlacksmithPlacement blacksmith) {
+            return blacksmith.getUpgradeLevel();
+        }
         return 0;
+    }
+
+    public static String getStructureNameForTier(int tier) {
+        return switch (Mth.clamp(tier, BlacksmithPlacement.MIN_BLACKSMITH_TIER, BlacksmithPlacement.MAX_BLACKSMITH_TIER)) {
+            case 2 -> structureNameT2;
+            case 3 -> structureNameT3;
+            default -> structureName;
+        };
+    }
+
+    public static int getTierForStructureName(String structureNameIn) {
+        if (structureNameT3.equals(structureNameIn)) {
+            return 3;
+        }
+        if (structureNameT2.equals(structureNameIn) || legacyUpgradedStructureName.equals(structureNameIn)) {
+            return 2;
+        }
+        return 1;
     }
 
     @Override
     public String getUpgradedStructureName(int upgradeLevel) {
-        return upgradeLevel > 0 ? upgradedStructureName : structureName;
+        return getStructureNameForTier(upgradeLevel + 1);
     }
 }

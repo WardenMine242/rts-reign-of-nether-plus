@@ -3,6 +3,10 @@ package com.solegendary.siege_of_settlements.registrars;
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.items.HeroExperienceBottleItem;
 import com.solegendary.siege_of_settlements.items.ThrowableTnt;
+import com.WardenMine242.siege_of_settlements.Items.DiamondAxe;
+import com.WardenMine242.siege_of_settlements.Items.DiamondHoe;
+import com.WardenMine242.siege_of_settlements.Items.DiamondPickaxe;
+import com.WardenMine242.siege_of_settlements.Items.DiamondSword;
 import com.WardenMine242.siege_of_settlements.Items.IronAxe;
 import com.WardenMine242.siege_of_settlements.Items.IronHoe;
 import com.WardenMine242.siege_of_settlements.Items.IronPickaxe;
@@ -77,10 +81,6 @@ public class ItemRegistrar {
     public static final RegistryObject<ForgeSpawnEggItem> PILLAGER_UNIT_SPAWN_EGG =
             ITEMS.register("pillager_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.PILLAGER_UNIT,
                     0x502C34, 0x757D78, new Item.Properties()));
-
-    public static final RegistryObject<ForgeSpawnEggItem> ARMORED_PILLAGER_UNIT_SPAWN_EGG =
-            ITEMS.register("armored_pillager_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.ARMORED_PILLAGER_UNIT,
-                    0x4C2A30, 0x4E5453, new Item.Properties()));
 
     public static final RegistryObject<ForgeSpawnEggItem> IRON_GOLEM_UNIT_SPAWN_EGG =
             ITEMS.register("iron_golem_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.IRON_GOLEM_UNIT,
@@ -198,6 +198,18 @@ public class ItemRegistrar {
 
     public static final RegistryObject<Item> IRON_HOE =
             ITEMS.register("iron_hoe", () -> new IronHoe(new Item.Properties()));
+
+    public static final RegistryObject<Item> DIAMOND_SWORD =
+            ITEMS.register("diamond_sword", () -> new DiamondSword(new Item.Properties()));
+
+    public static final RegistryObject<Item> DIAMOND_PICKAXE =
+            ITEMS.register("diamond_pickaxe", () -> new DiamondPickaxe(new Item.Properties()));
+
+    public static final RegistryObject<Item> DIAMOND_AXE =
+            ITEMS.register("diamond_axe", () -> new DiamondAxe(new Item.Properties()));
+
+    public static final RegistryObject<Item> DIAMOND_HOE =
+            ITEMS.register("diamond_hoe", () -> new DiamondHoe(new Item.Properties()));
 
     public static void init(FMLJavaModLoadingContext context) {
         ITEMS.register(context.getModEventBus());

@@ -17,6 +17,10 @@ public class ParticleRegistrar {
             PARTICLES.register("big_enchant",
                     () -> new SimpleParticleType(false));
 
+    public static final RegistryObject<SimpleParticleType> ARCANE_PARTICLE =
+            PARTICLES.register("arcane_particle",
+                    () -> new SimpleParticleType(false));
+
     public static void init(FMLJavaModLoadingContext context) {
         PARTICLES.register(context.getModEventBus());
     }

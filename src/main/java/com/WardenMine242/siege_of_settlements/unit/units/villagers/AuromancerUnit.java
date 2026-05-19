@@ -4,15 +4,10 @@ import com.solegendary.siege_of_settlements.alliance.AlliancesServerEvents;
 import com.solegendary.siege_of_settlements.registrars.MobEffectRegistrar;
 import com.solegendary.siege_of_settlements.resources.ResourceCost;
 import com.solegendary.siege_of_settlements.resources.ResourceCosts;
-import com.solegendary.siege_of_settlements.resources.ResourceName;
-import com.solegendary.siege_of_settlements.resources.Resources;
-import com.solegendary.siege_of_settlements.resources.ResourcesClientboundPacket;
-import com.solegendary.siege_of_settlements.resources.ResourcesServerEvents;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.EvokerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.VindicatorUnit;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -45,12 +40,6 @@ public class AuromancerUnit extends VindicatorUnit {
     private static final double AURA_PARTICLE_CLUSTER_SPREAD = 0.22D;
     private static final double AURA_PARTICLE_SPEED = 0.035D;
     private static final float AURA_RADIUS_SQR = AURA_RADIUS * AURA_RADIUS;
-
-    private static final int EMERALD_DRAIN_AMOUNT = 300;
-    private static final int EMERALD_DRAIN_INTERVAL_TICKS = 20 * 60 * 10; // 10 minutes
-    private static final String TAG_EMERALD_DRAIN_PROGRESS = "ronPlusAuromancerEmeraldDrainProgress";
-
-    private int emeraldDrainProgress = 0;
 
     public AuromancerUnit(EntityType<? extends Vindicator> entityType, Level level) {
         super(entityType, level);
@@ -116,7 +105,6 @@ public class AuromancerUnit extends VindicatorUnit {
     public void tick() {
         super.tick();
         tickAura();
-        tickEmeraldDrain();
     }
 
     private void tickAura() {
@@ -215,55 +203,5 @@ public class AuromancerUnit extends VindicatorUnit {
                 ));
             }
         }
-    }
-
-    private void tickEmeraldDrain() {
-        if (this.level().isClientSide()) {
-            return;
-        }
-
-        String ownerName = getOwnerName();
-        if (ownerName == null || ownerName.isEmpty()) {
-            return;
-        }
-
-        emeraldDrainProgress += 1;
-        // First charge happens only after 10 minutes from spawn.
-        if (emeraldDrainProgress < EMERALD_DRAIN_INTERVAL_TICKS) {
-            return;
-        }
-        emeraldDrainProgress = 0;
-
-        if (!tryDrainOwnerEmeraldsInstantly(ownerName, EMERALD_DRAIN_AMOUNT)) {
-            this.discard();
-        }
-    }
-
-    private static boolean tryDrainOwnerEmeraldsInstantly(String ownerName, int amount) {
-        if (!ResourcesServerEvents.canAfford(ownerName, ResourceName.EMERALDS, amount)) {
-            return false;
-        }
-
-        for (Resources resources : ResourcesServerEvents.resourcesList) {
-            if (resources.ownerName.equals(ownerName)) {
-                resources.changeInstantly(0, 0, 0, -amount);
-                ResourcesClientboundPacket.addSubtractResourcesInstantly(new Resources(ownerName, 0, 0, 0, -amount));
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag compound) {
-        super.addAdditionalSaveData(compound);
-        compound.putInt(TAG_EMERALD_DRAIN_PROGRESS, emeraldDrainProgress);
-    }
-
-    @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag compound) {
-        super.readAdditionalSaveData(compound);
-        emeraldDrainProgress = Math.max(0, compound.getInt(TAG_EMERALD_DRAIN_PROGRESS));
     }
 }

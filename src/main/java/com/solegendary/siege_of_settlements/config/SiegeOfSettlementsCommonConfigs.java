@@ -38,6 +38,8 @@ public class SiegeOfSettlementsCommonConfigs {
         UnitCosts.VILLAGER.define(BUILDER);
         UnitCosts.MILITIA.define(BUILDER);
         UnitCosts.IRON_GOLEM.define(BUILDER);
+        UnitCosts.REDSTONE_GOLEM.define(BUILDER);
+        UnitCosts.REDSTONE_MINE.define(BUILDER);
         UnitCosts.PILLAGER.define(BUILDER);
         UnitCosts.ARCHER.define(BUILDER);
         UnitCosts.ARMORED_PILLAGER.define(BUILDER);
@@ -51,7 +53,7 @@ public class SiegeOfSettlementsCommonConfigs {
         UnitCosts.RAVAGER.define(BUILDER);
         UnitCosts.ROYAL_GUARD.define(BUILDER);
         UnitCosts.ENCHANTER.define(BUILDER);
-        UnitCosts.AUROMACER.define(BUILDER);
+        UnitCosts.AUROMANCER.define(BUILDER);
         UnitCosts.HORSE.define(BUILDER);
         //Piglins
         BUILDER.comment("Piglins");
@@ -76,6 +78,9 @@ public class SiegeOfSettlementsCommonConfigs {
 
         UnitCosts.HERO_BASE_REVIVE_COST.define(BUILDER);
         UnitCosts.HERO_EXTRA_REVIVE_COST_PER_LEVEL.define(BUILDER);
+
+        BUILDER.comment("Redstone Golem stat configuration");
+        RedstoneGolemStats.define(BUILDER);
 
         //*Buildings*
         BUILDER.comment("Building Cost Configurations");
@@ -152,6 +157,11 @@ public class SiegeOfSettlementsCommonConfigs {
         ResearchCosts.RESEARCH_EVOKER_VEXES.define(BUILDER);
         ResearchCosts.RESEARCH_CASTLE_FLAG.define(BUILDER);
         ResearchCosts.RESEARCH_GRAND_LIBRARY.define(BUILDER);
+        ResearchCosts.RESEARCH_VILLAGER_HOUSE_T2.define(BUILDER);
+        ResearchCosts.ARCANE_TOWER_T2.define(BUILDER);
+        ResearchCosts.ARCANE_TOWER_T3.define(BUILDER);
+        ResearchCosts.BLACKSMITH_T2.define(BUILDER);
+        ResearchCosts.BLACKSMITH_T3.define(BUILDER);
         ResearchCosts.RESEARCH_SILVERFISH.define(BUILDER);
         ResearchCosts.RESEARCH_SCULK_AMPLIFIERS.define(BUILDER);
         ResearchCosts.RESEARCH_RAVAGER_ARTILLERY.define(BUILDER);
@@ -194,6 +204,9 @@ public class SiegeOfSettlementsCommonConfigs {
         ResearchCosts.RESEARCH_UPGRADED_BARRACKS.define(BUILDER);
         ResearchCosts.RESEARCH_UPGRADED_DRILL.define(BUILDER);
         ResearchCosts.RESEARCH_ADVANCED_DRILL.define(BUILDER);
+        ResearchCosts.RESEARCH_ADVANCED_BLACKSMITH.define(BUILDER);
+        ResearchCosts.RESEARCH_BIG_HOUSE.define(BUILDER);
+        ResearchCosts.RESEARCH_POWERFUL_ARCANE_TOWER.define(BUILDER);
 
         //*Abilities*
         BUILDER.comment("Ability Cost Configurations");
@@ -209,6 +222,11 @@ public class SiegeOfSettlementsCommonConfigs {
         AbilityCosts.EQUIP_IRON_PICKAXE.define(BUILDER);
         AbilityCosts.EQUIP_IRON_AXE.define(BUILDER);
         AbilityCosts.EQUIP_IRON_HOE.define(BUILDER);
+        AbilityCosts.EQUIP_DIAMOND_ARMOR.define(BUILDER);
+        AbilityCosts.EQUIP_DIAMOND_SWORD.define(BUILDER);
+        AbilityCosts.EQUIP_DIAMOND_PICKAXE.define(BUILDER);
+        AbilityCosts.EQUIP_DIAMOND_AXE.define(BUILDER);
+        AbilityCosts.EQUIP_DIAMOND_HOE.define(BUILDER);
         AbilityCosts.STEAK.define(BUILDER);
         AbilityCosts.EQUIP_BOW.define(BUILDER);
         AbilityCosts.EQUIP_ARROWS.define(BUILDER);
@@ -241,6 +259,8 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry VILLAGER = ResourceCostConfigEntry.Unit(75,0,0,0,15,1, ResourceCosts.VILLAGER, "Villager Config");
         public static final ResourceCostConfigEntry MILITIA = ResourceCostConfigEntry.Unit(75,0,0,0,15,1, ResourceCosts.MILITIA, "Militia Config");
         public static final ResourceCostConfigEntry IRON_GOLEM = ResourceCostConfigEntry.Unit(0,50,350,0,45,4, ResourceCosts.IRON_GOLEM, "Iron Golem Config");
+        public static final ResourceCostConfigEntry REDSTONE_GOLEM = ResourceCostConfigEntry.Unit(700,50,7000,500,45,8, ResourceCosts.REDSTONE_GOLEM, "Redstone Golem Config");
+        public static final ResourceCostConfigEntry REDSTONE_MINE = ResourceCostConfigEntry.Unit(0,0,25,0,8,1, ResourceCosts.REDSTONE_MINE, "Redstone Mine Config");
         public static final ResourceCostConfigEntry PILLAGER = ResourceCostConfigEntry.Unit(120,80,0,0,32,3, ResourceCosts.PILLAGER, "Pillager Config");
         public static final ResourceCostConfigEntry ARCHER = ResourceCostConfigEntry.Unit(120,80,0,0,32,3, ResourceCosts.ARCHER, "Archer Config");
         public static final ResourceCostConfigEntry ARMORED_PILLAGER = ResourceCostConfigEntry.Unit(400,120,700,300,36,3, ResourceCosts.ARMORED_PILLAGER, "Armored Pillager Config");
@@ -250,11 +270,11 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry ELITE_ARCHER = ResourceCostConfigEntry.Unit(0,0,0,1000,120,1, ResourceCosts.ELITE_ARCHER, "Elite Archer Config");
         public static final ResourceCostConfigEntry WITCH = ResourceCostConfigEntry.Unit(90,90,90,0,35,3, ResourceCosts.WITCH, "Witch Config");
         public static final ResourceCostConfigEntry EVOKER = ResourceCostConfigEntry.Unit(300,0,400,0,35,3, ResourceCosts.EVOKER, "Evoker Config");
-        public static final ResourceCostConfigEntry ILLUSIONER = ResourceCostConfigEntry.Unit(250,0,300,0,30,3, ResourceCosts.ILLUSIONER, "Illusioner Config");
+        public static final ResourceCostConfigEntry ILLUSIONER = ResourceCostConfigEntry.Unit(1000,1500,300,0,30,3, ResourceCosts.ILLUSIONER, "Illusioner Config");
         public static final ResourceCostConfigEntry RAVAGER = ResourceCostConfigEntry.Unit(600,200,250,0,60,7, ResourceCosts.RAVAGER, "Ravager Config");
         public static final ResourceCostConfigEntry ROYAL_GUARD = ResourceCostConfigEntry.Unit(200,500,600,0,30, 5, ResourceCosts.ROYAL_GUARD, "Royal Guard Config");
         public static final ResourceCostConfigEntry ENCHANTER = ResourceCostConfigEntry.Unit(0,0,0,0,30, 5, ResourceCosts.ENCHANTER, "Enchanter Config");
-        public static final ResourceCostConfigEntry AUROMACER = ResourceCostConfigEntry.Unit(0,0,0,1000,120, 1, ResourceCosts.AUROMANCER, "Auromancer Config");
+        public static final ResourceCostConfigEntry AUROMANCER = ResourceCostConfigEntry.Unit(400,600,700,80,120, 1, ResourceCosts.AUROMANCER, "Auromancer Config");
         public static final ResourceCostConfigEntry HORSE = ResourceCostConfigEntry.Unit(300,100,50,0,60, 1, ResourceCosts.HORSE, "Horse Config");
 
         // Piglins
@@ -280,6 +300,47 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry HERO_BASE_REVIVE_COST = ResourceCostConfigEntry.Unit(400,300,200,0,30, 5, ResourceCosts.HERO_BASE_REVIVE_COST, "Hero Base Revive Cost Config");
         public static final ResourceCostConfigEntry HERO_EXTRA_REVIVE_COST_PER_LEVEL = ResourceCostConfigEntry.Unit(50,30,50,0,5, 0, ResourceCosts.HERO_EXTRA_REVIVE_COST_PER_LEVEL, "Hero Extra Revive Cost Per Level Config");
     }
+
+    public static class RedstoneGolemStats {
+        public static ForgeConfigSpec.DoubleValue ATTACK_DAMAGE;
+        public static ForgeConfigSpec.DoubleValue MAX_HEALTH;
+        public static ForgeConfigSpec.DoubleValue ARMOR;
+        public static ForgeConfigSpec.DoubleValue MOVEMENT_SPEED;
+        public static ForgeConfigSpec.DoubleValue ATTACKS_PER_SECOND;
+        public static ForgeConfigSpec.DoubleValue ATTACK_RANGE;
+        public static ForgeConfigSpec.DoubleValue AGGRO_RANGE;
+        public static ForgeConfigSpec.DoubleValue KNOCKBACK_RESISTANCE;
+
+        public static void define(ForgeConfigSpec.Builder builder) {
+            builder.push("RedstoneGolemStats");
+            ATTACK_DAMAGE = builder
+                    .comment("Base melee damage of the Redstone Golem.")
+                    .defineInRange("attack_damage", 40.0D, 0.0D, 2048.0D);
+            MAX_HEALTH = builder
+                    .comment("Base maximum health of the Redstone Golem.")
+                    .defineInRange("max_health", 440.0D, 1.0D, 4096.0D);
+            ARMOR = builder
+                    .comment("Base armor value of the Redstone Golem.")
+                    .defineInRange("armor", 0.0D, 0.0D, 200.0D);
+            MOVEMENT_SPEED = builder
+                    .comment("Movement speed of the Redstone Golem. HUD speed is this value multiplied by 100.")
+                    .defineInRange("movement_speed", 0.25D, 0.0D, 4.0D);
+            ATTACKS_PER_SECOND = builder
+                    .comment("Attack speed of the Redstone Golem in attacks per second.")
+                    .defineInRange("attacks_per_second", 0.6D, 0.01D, 20.0D);
+            ATTACK_RANGE = builder
+                    .comment("Melee attack range used by unit logic.")
+                    .defineInRange("attack_range", 3.0D, 0.0D, 64.0D);
+            AGGRO_RANGE = builder
+                    .comment("Aggro range used when idle/retaliating.")
+                    .defineInRange("aggro_range", 10.0D, 0.0D, 128.0D);
+            KNOCKBACK_RESISTANCE = builder
+                    .comment("Knockback resistance of the Redstone Golem.")
+                    .defineInRange("knockback_resistance", 1.0D, 0.0D, 1.0D);
+            builder.pop();
+        }
+    }
+
     public static class BuildingCosts implements Costs {
         public static final ResourceCostConfigEntry BEACON = ResourceCostConfigEntry.Building(0,4000,5000,0, 0, ResourceCosts.BEACON, "Beacon Config");
 
@@ -355,6 +416,11 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry RESEARCH_EVOKER_VEXES = ResourceCostConfigEntry.Research(500,0,300,0, 120, ResourceCosts.RESEARCH_EVOKER_VEXES, "Evoker Vex Research Config");
         public static final ResourceCostConfigEntry RESEARCH_CASTLE_FLAG = ResourceCostConfigEntry.Research(200,150,150,0, 90, ResourceCosts.RESEARCH_CASTLE_FLAG, "Captain Banner Research Config");
         public static final ResourceCostConfigEntry RESEARCH_GRAND_LIBRARY = ResourceCostConfigEntry.Research(0,500,300,0, 140, ResourceCosts.RESEARCH_GRAND_LIBRARY, "Grand Library Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_VILLAGER_HOUSE_T2 = ResourceCostConfigEntry.Research(0,600,400,0, 100, ResourceCosts.RESEARCH_VILLAGER_HOUSE_T2, "Villager House Tier 2 Research Config");
+        public static final ResourceCostConfigEntry ARCANE_TOWER_T2 = ResourceCostConfigEntry.Research(0,1200,900,0, 120, ResourceCosts.ARCANE_TOWER_T2, "Arcane Tower Tier 2 Config");
+        public static final ResourceCostConfigEntry ARCANE_TOWER_T3 = ResourceCostConfigEntry.Research(0,2200,1800,0, 120, ResourceCosts.ARCANE_TOWER_T3, "Arcane Tower Tier 3 Config");
+        public static final ResourceCostConfigEntry BLACKSMITH_T2 = ResourceCostConfigEntry.Research(0,1200,900,0, 120, ResourceCosts.BLACKSMITH_T2, "Blacksmith Tier 2 Config");
+        public static final ResourceCostConfigEntry BLACKSMITH_T3 = ResourceCostConfigEntry.Research(0,2200,1800,0, 120, ResourceCosts.BLACKSMITH_T3, "Blacksmith Tier 3 Config");
         public static final ResourceCostConfigEntry RESEARCH_SILVERFISH = ResourceCostConfigEntry.Research(0,300,300,0, 120, ResourceCosts.RESEARCH_SILVERFISH, "Silverfish Research Config");
         public static final ResourceCostConfigEntry RESEARCH_SCULK_AMPLIFIERS = ResourceCostConfigEntry.Research(0,200,400,0, 150, ResourceCosts.RESEARCH_SCULK_AMPLIFIERS, "Sculk Amplifier Research Config");
         public static final ResourceCostConfigEntry RESEARCH_RAVAGER_ARTILLERY = ResourceCostConfigEntry.Research(400,0,350,0, 140, ResourceCosts.RESEARCH_RAVAGER_ARTILLERY, "Ravager Artillery Research Config");
@@ -399,6 +465,9 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry RESEARCH_UPGRADED_BARRACKS = ResourceCostConfigEntry.Research(0, 5000, 3000,0, 120, ResourceCosts.RESEARCH_UPGRADED_BARRACKS, "Research Upgraded Barracks Config");
         public static final ResourceCostConfigEntry RESEARCH_UPGRADED_DRILL = ResourceCostConfigEntry.Research(0, 5000, 3000,0, 120, ResourceCosts.RESEARCH_UPGRADED_DRILL, "Research Upgraded Drill Config");
         public static final ResourceCostConfigEntry RESEARCH_ADVANCED_DRILL = ResourceCostConfigEntry.Research(0, 10000, 7000,0, 120, ResourceCosts.RESEARCH_ADVANCED_DRILL, "Research Advanced Drill Config");
+        public static final ResourceCostConfigEntry RESEARCH_ADVANCED_BLACKSMITH = ResourceCostConfigEntry.Research(0, 5000, 3000,0, 120, ResourceCosts.RESEARCH_ADVANCED_BLACKSMITH, "Research Advanced Blacksmith Config");
+        public static final ResourceCostConfigEntry RESEARCH_BIG_HOUSE = ResourceCostConfigEntry.Research(0, 3000, 2000,50, 100, ResourceCosts.RESEARCH_BIG_HOUSE, "Research Big House Config");
+        public static final ResourceCostConfigEntry RESEARCH_POWERFUL_ARCANE_TOWER = ResourceCostConfigEntry.Research(0, 5000, 6000,0, 120, ResourceCosts.RESEARCH_POWERFUL_ARCANE_TOWER, "Research Powerful Arcane Tower Config");
 
     }
     public static class AbilityCosts implements Costs {
@@ -414,6 +483,11 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry EQUIP_IRON_PICKAXE = ResourceCostConfigEntry.Ability(0,30, 195,0, ResourceCosts.EQUIP_IRON_PICKAXE, "Equip Iron Pickaxe Config");
         public static final ResourceCostConfigEntry EQUIP_IRON_AXE = ResourceCostConfigEntry.Ability(0,30, 195,0, ResourceCosts.EQUIP_IRON_AXE, "Equip Iron Axe Config");
         public static final ResourceCostConfigEntry EQUIP_IRON_HOE = ResourceCostConfigEntry.Ability(0,30, 130,0, ResourceCosts.EQUIP_IRON_HOE, "Equip Iron Hoe Config");
+        public static final ResourceCostConfigEntry EQUIP_DIAMOND_ARMOR = ResourceCostConfigEntry.Ability(0,0, 1000,0, ResourceCosts.EQUIP_DIAMOND_ARMOR, "Equip Diamond Armor Config");
+        public static final ResourceCostConfigEntry EQUIP_DIAMOND_SWORD = ResourceCostConfigEntry.Ability(0,15, 300,0, ResourceCosts.EQUIP_DIAMOND_SWORD, "Equip Diamond Sword Config");
+        public static final ResourceCostConfigEntry EQUIP_DIAMOND_PICKAXE = ResourceCostConfigEntry.Ability(0,30, 900,0, ResourceCosts.EQUIP_DIAMOND_PICKAXE, "Equip Diamond Pickaxe Config");
+        public static final ResourceCostConfigEntry EQUIP_DIAMOND_AXE = ResourceCostConfigEntry.Ability(0,30, 400,0, ResourceCosts.EQUIP_DIAMOND_AXE, "Equip Diamond Axe Config");
+        public static final ResourceCostConfigEntry EQUIP_DIAMOND_HOE = ResourceCostConfigEntry.Ability(0,30, 250,0, ResourceCosts.EQUIP_DIAMOND_HOE, "Equip Diamond Hoe Config");
         public static final ResourceCostConfigEntry STEAK = ResourceCostConfigEntry.Ability(200,0, 0,0, ResourceCosts.STEAK, "Steak Config");
         public static final ResourceCostConfigEntry EQUIP_BOW = ResourceCostConfigEntry.Ability(0,300, 200,0, ResourceCosts.EQUIP_BOW, "Bow Config");
         public static final ResourceCostConfigEntry EQUIP_ARROWS = ResourceCostConfigEntry.Ability(0,100, 50,0, ResourceCosts.EQUIP_ARROWS, "Arrows Config");
@@ -423,5 +497,3 @@ public class SiegeOfSettlementsCommonConfigs {
     }
     public interface Costs {}
 }
-
-

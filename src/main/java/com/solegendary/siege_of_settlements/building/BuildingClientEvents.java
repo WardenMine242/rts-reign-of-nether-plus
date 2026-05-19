@@ -84,7 +84,7 @@ public class BuildingClientEvents {
         int totalPopulationSupply = 0;
         for (BuildingPlacement building : buildings)
             if (building.ownerName.equals(playerName) && building.isBuilt) {
-                totalPopulationSupply += building.getBuilding().cost.population;
+                totalPopulationSupply += building.getBuilding().getPopulationSupply(building);
             }
 
         return Math.min(GameruleClient.maxPopulation, totalPopulationSupply);

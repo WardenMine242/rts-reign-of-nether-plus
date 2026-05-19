@@ -8,6 +8,7 @@ import com.solegendary.siege_of_settlements.entities.models.NecromancerProjectil
 import com.solegendary.siege_of_settlements.entities.renderers.ThrowableTntRenderer;
 import com.solegendary.siege_of_settlements.entities.renderers.NecromancerProjectileRenderer;
 import com.solegendary.siege_of_settlements.guiscreen.TopdownGui;
+import com.solegendary.siege_of_settlements.particles.ArcaneHoverParticle;
 import com.solegendary.siege_of_settlements.particles.BigEnchantParticle;
 import com.solegendary.siege_of_settlements.registrars.*;
 import com.solegendary.siege_of_settlements.unit.modelling.models.*;
@@ -23,8 +24,10 @@ import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArcherUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
-import com.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.IllusionerUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneGolemUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneMineUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
 import com.WardenMine242.siege_of_settlements.unit.modelling.renderers.IllusionerUnitRenderer;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.*;
@@ -105,6 +108,8 @@ public class CommonModEvents {
         evt.registerEntityRenderer(EntityRegistrar.ARMORED_PILLAGER_UNIT.get(), ArmoredPillagerRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.VINDICATOR_UNIT.get(), VindicatorUnitRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.IRON_GOLEM_UNIT.get(), IronGolemRenderer::new);
+        evt.registerEntityRenderer(EntityRegistrar.REDSTONE_GOLEM_UNIT.get(), RedstoneGolemGeoRenderer::new);
+        evt.registerEntityRenderer(EntityRegistrar.REDSTONE_MINE_UNIT.get(), RedstoneMineRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.WITCH_UNIT.get(), WitchRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.EVOKER_UNIT.get(), EvokerUnitRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.ILLUSIONER_UNIT.get(), IllusionerUnitRenderer::new);
@@ -144,6 +149,7 @@ public class CommonModEvents {
         evt.registerEntityRenderer(EntityRegistrar.THROWABLE_TNT_PROJECTILE.get(), ThrowableTntRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.THROWN_HERO_EXPERIENCE_BOTTLE.get(), ThrownItemRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.NECROMANCER_PROJECTILE.get(), NecromancerProjectileRenderer::new);
+        evt.registerEntityRenderer(EntityRegistrar.ARCANE_CHARGE_PROJECTILE.get(), NoopRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.WRAITH_SNOWBALL.get(), ThrownItemRenderer::new);
     }
 
@@ -179,6 +185,8 @@ public class CommonModEvents {
         evt.put(EntityRegistrar.ARMORED_PILLAGER_UNIT.get(), ArmoredPillagerUnit.createAttributes().build());
         evt.put(EntityRegistrar.VINDICATOR_UNIT.get(), VindicatorUnit.createAttributes().build());
         evt.put(EntityRegistrar.IRON_GOLEM_UNIT.get(), IronGolemUnit.createAttributes().build());
+        evt.put(EntityRegistrar.REDSTONE_GOLEM_UNIT.get(), RedstoneGolemUnit.createAttributes().build());
+        evt.put(EntityRegistrar.REDSTONE_MINE_UNIT.get(), RedstoneMineUnit.createAttributes().build());
         evt.put(EntityRegistrar.WITCH_UNIT.get(), WitchUnit.createAttributes().build());
         evt.put(EntityRegistrar.EVOKER_UNIT.get(), EvokerUnit.createAttributes().build());
         evt.put(EntityRegistrar.ILLUSIONER_UNIT.get(), IllusionerUnit.createAttributes().build());
@@ -233,6 +241,7 @@ public class CommonModEvents {
         event.registerLayerDefinition(ArmoredVindicatorModel.LAYER_LOCATION, ArmoredVindicatorModel::createBodyLayer);
         event.registerLayerDefinition(ArmoredPillagerModel.LAYER_LOCATION, ArmoredPillagerModel::createBodyLayer);
         event.registerLayerDefinition(EliteArcherModel.LAYER_LOCATION, EliteArcherModel::createBodyLayer);
+        event.registerLayerDefinition(RedstoneMineModel.LAYER_LOCATION, RedstoneMineModel::createBodyLayer);
         event.registerLayerDefinition(WretchedWraithModel.LAYER_LOCATION, WretchedWraithModel::createBodyLayer);
         event.registerLayerDefinition(WildfireModel.LAYER_LOCATION, WildfireModel::createBodyLayer);
         event.registerLayerDefinition(AbstractVillagerUnitRenderer.VILLAGER_ARMOR_OUTER_LAYER, IllagerArmorModel::createOuterArmorLayer);
@@ -267,7 +276,6 @@ public class CommonModEvents {
             event.accept(ItemRegistrar.ZOMBIE_VILLAGER_UNIT_SPAWN_EGG);
             event.accept(ItemRegistrar.VINDICATOR_UNIT_SPAWN_EGG);
             event.accept(ItemRegistrar.PILLAGER_UNIT_SPAWN_EGG);
-            event.accept(ItemRegistrar.ARMORED_PILLAGER_UNIT_SPAWN_EGG);
             event.accept(ItemRegistrar.IRON_GOLEM_UNIT_SPAWN_EGG);
             event.accept(ItemRegistrar.WITCH_UNIT_SPAWN_EGG);
             event.accept(ItemRegistrar.EVOKER_UNIT_SPAWN_EGG);
@@ -312,10 +320,28 @@ public class CommonModEvents {
                         ItemRegistrar.IRON_HOE.get().getDefaultInstance(),
                         CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
                 );
+                event.getEntries().putAfter(
+                        ItemRegistrar.IRON_HOE.get().getDefaultInstance(),
+                        ItemRegistrar.DIAMOND_PICKAXE.get().getDefaultInstance(),
+                        CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+                );
+                event.getEntries().putAfter(
+                        ItemRegistrar.DIAMOND_PICKAXE.get().getDefaultInstance(),
+                        ItemRegistrar.DIAMOND_AXE.get().getDefaultInstance(),
+                        CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+                );
+                event.getEntries().putAfter(
+                        ItemRegistrar.DIAMOND_AXE.get().getDefaultInstance(),
+                        ItemRegistrar.DIAMOND_HOE.get().getDefaultInstance(),
+                        CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+                );
             } else {
                 event.accept(ItemRegistrar.IRON_PICKAXE);
                 event.accept(ItemRegistrar.IRON_AXE);
                 event.accept(ItemRegistrar.IRON_HOE);
+                event.accept(ItemRegistrar.DIAMOND_PICKAXE);
+                event.accept(ItemRegistrar.DIAMOND_AXE);
+                event.accept(ItemRegistrar.DIAMOND_HOE);
             }
         }
         if(BuiltInRegistries.CREATIVE_MODE_TAB.getKey(event.getTab())==CreativeModeTabs.COMBAT.location()){
@@ -325,8 +351,14 @@ public class CommonModEvents {
                         ItemRegistrar.IRON_SWORD.get().getDefaultInstance(),
                         CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
                 );
+                event.getEntries().putAfter(
+                        ItemRegistrar.IRON_SWORD.get().getDefaultInstance(),
+                        ItemRegistrar.DIAMOND_SWORD.get().getDefaultInstance(),
+                        CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+                );
             } else {
                 event.accept(ItemRegistrar.IRON_SWORD);
+                event.accept(ItemRegistrar.DIAMOND_SWORD);
             }
         }
     }
@@ -337,6 +369,10 @@ public class CommonModEvents {
         evt.registerSpriteSet(
                 ParticleRegistrar.BIG_ENCHANT.get(),
                 BigEnchantParticle.Provider::new
+        );
+        evt.registerSpriteSet(
+                ParticleRegistrar.ARCANE_PARTICLE.get(),
+                ArcaneHoverParticle.Provider::new
         );
     }
 }

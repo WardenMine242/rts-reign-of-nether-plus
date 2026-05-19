@@ -19,6 +19,7 @@ import com.solegendary.siege_of_settlements.sandbox.SandboxServer;
 import com.solegendary.siege_of_settlements.unit.goals.*;
 import com.solegendary.siege_of_settlements.unit.interfaces.*;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneMineUnit;
 import com.solegendary.siege_of_settlements.util.LanguageUtil;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
 import net.minecraft.core.BlockPos;
@@ -167,6 +168,10 @@ public class UnitActionItem {
 
         actionableUnitsLoop:
         for (Unit unit : actionableUnits) {
+            if (unit instanceof RedstoneMineUnit) {
+                // Mines are static traps and should ignore all direct unit commands.
+                continue;
+            }
 
             if (((LivingEntity) unit).getEffect(MobEffectRegistrar.STUN.get()) != null ||
                 ((LivingEntity) unit).getEffect(MobEffectRegistrar.FREEZE.get()) != null) {
@@ -293,6 +298,10 @@ public class UnitActionItem {
                 }
                 case ATTACK -> {
                     LivingEntity attackTarget = (LivingEntity) level.getEntity(unitId);
+                    if (attackTarget instanceof RedstoneMineUnit) {
+                        // Redstone mines are not valid attack targets.
+                        continue;
+                    }
                     // if the unit can't actually attack just treat this as a follow action
                     if (unit instanceof AttackerUnit attackerUnit) {
                         if (attackTarget == null || !isFriendlyUnitTarget(unit, attackTarget, level.isClientSide())) {

@@ -3,6 +3,8 @@ package com.solegendary.siege_of_settlements.hud;
 import com.mojang.datafixers.util.Pair;
 import com.solegendary.siege_of_settlements.orthoview.OrthoviewClientEvents;
 import com.solegendary.siege_of_settlements.unit.UnitClientEvents;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneGolemUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneMineUnit;
 import com.solegendary.siege_of_settlements.unit.units.monsters.NecromancerUnit;
 import com.solegendary.siege_of_settlements.unit.units.monsters.WretchedWraithUnit;
 import com.solegendary.siege_of_settlements.unit.units.piglins.*;
@@ -35,6 +37,12 @@ public class PortraitRendererModifiers {
             scale = -15;
         } else if (entity instanceof Pig) {
             yOffset = 10;
+        } else if (entity instanceof RedstoneGolemUnit) {
+            yOffset = -50;
+            scale = -23;
+        } else if (entity instanceof RedstoneMineUnit) {
+            yOffset = 24;
+            scale = 8;
         } else if (entity instanceof IronGolem) {
             yOffset = -54;
             scale = -17;

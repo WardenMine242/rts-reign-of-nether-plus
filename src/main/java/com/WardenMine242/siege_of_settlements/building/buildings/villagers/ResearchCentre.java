@@ -49,6 +49,9 @@ public class ResearchCentre extends ProductionBuilding {
         this.productions.add(ProductionItems.RESEARCH_TOWER_DAMAGE_1, Keybindings.keyR);
         this.productions.add(ProductionItems.RESEARCH_TOWER_DAMAGE_2, Keybindings.keyR);
         this.productions.add(ProductionItems.RESEARCH_UPGRADED_BARRACKS, Keybindings.keyT);
+        this.productions.add(ProductionItems.RESEARCH_ADVANCED_BLACKSMITH, Keybindings.keyY);
+        this.productions.add(ProductionItems.RESEARCH_BIG_HOUSE, Keybindings.keyU);
+        this.productions.add(ProductionItems.RESEARCH_POWERFUL_ARCANE_TOWER, Keybindings.keyI);
 
 
         this.productions.add(ProductionItems.RESEARCH_BEACON, Keybindings.keyZ);

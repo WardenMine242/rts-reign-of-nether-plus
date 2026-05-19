@@ -65,7 +65,7 @@ public class ResearchBloodlust extends ProductionItem {
 
     public StopProductionButton getCancelButton(ProductionPlacement prodBuilding, boolean first) {
         return new StopProductionButton(ResearchBloodlust.itemName,
-            ResourceLocation.fromNamespaceAndPath("minecraft", "textures/block/redstone_block.png"),
+            ResourceLocation.fromNamespaceAndPath("minecraft", "textures/block/redstone_mine.png"),
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
             prodBuilding,
             this,

@@ -28,6 +28,8 @@ public class ResourceCosts {
     public static final ResourceCost VILLAGER = new ResourceCost(ID, "VILLAGER");
     public static final ResourceCost MILITIA = new ResourceCost(ID, "MILITIA");
     public static final ResourceCost IRON_GOLEM = new ResourceCost(ID, "IRON_GOLEM");
+    public static final ResourceCost REDSTONE_GOLEM = new ResourceCost(ID, "REDSTONE_GOLEM");
+    public static final ResourceCost REDSTONE_MINE = new ResourceCost(ID, "REDSTONE_MINE");
     public static final ResourceCost PILLAGER = new ResourceCost(ID, "PILLAGER");
     public static final ResourceCost ARCHER = new ResourceCost(ID, "ARCHER");
     public static final ResourceCost ARMORED_PILLAGER = new ResourceCost(ID, "ARMORED_PILLAGER");
@@ -141,6 +143,11 @@ public class ResourceCosts {
     public static final ResourceCost RESEARCH_EVOKER_VEXES = new ResourceCost(ID, "RESEARCH_EVOKER_VEXES");
     public static final ResourceCost RESEARCH_CASTLE_FLAG = new ResourceCost(ID, "RESEARCH_CASTLE_FLAG");
     public static final ResourceCost RESEARCH_GRAND_LIBRARY = new ResourceCost(ID, "RESEARCH_GRAND_LIBRARY");
+    public static final ResourceCost RESEARCH_VILLAGER_HOUSE_T2 = new ResourceCost(ID, "RESEARCH_VILLAGER_HOUSE_T2");
+    public static final ResourceCost ARCANE_TOWER_T2 = new ResourceCost(ID, "ARCANE_TOWER_T2");
+    public static final ResourceCost ARCANE_TOWER_T3 = new ResourceCost(ID, "ARCANE_TOWER_T3");
+    public static final ResourceCost BLACKSMITH_T2 = new ResourceCost(ID, "BLACKSMITH_T2");
+    public static final ResourceCost BLACKSMITH_T3 = new ResourceCost(ID, "BLACKSMITH_T3");
     public static final ResourceCost RESEARCH_SILVERFISH = new ResourceCost(ID, "RESEARCH_SILVERFISH");
     public static final ResourceCost RESEARCH_SCULK_AMPLIFIERS = new ResourceCost(ID, "RESEARCH_SCULK_AMPLIFIERS");
     public static final ResourceCost RESEARCH_RAVAGER_ARTILLERY = new ResourceCost(ID, "RESEARCH_RAVAGER_ARTILLERY");
@@ -183,6 +190,9 @@ public class ResourceCosts {
     public static final ResourceCost RESEARCH_UPGRADED_BARRACKS = new ResourceCost(ID, "RESEARCH_UPGRADED_BARRACKS");
     public static final ResourceCost RESEARCH_UPGRADED_DRILL = new ResourceCost(ID, "RESEARCH_UPGRADED_DRILL");
     public static final ResourceCost RESEARCH_ADVANCED_DRILL = new ResourceCost(ID, "RESEARCH_ADVANCED_DRILL");
+    public static final ResourceCost RESEARCH_ADVANCED_BLACKSMITH = new ResourceCost(ID, "RESEARCH_ADVANCED_BLACKSMITH");
+    public static final ResourceCost RESEARCH_BIG_HOUSE = new ResourceCost(ID, "RESEARCH_BIG_HOUSE");
+    public static final ResourceCost RESEARCH_POWERFUL_ARCANE_TOWER = new ResourceCost(ID, "RESEARCH_POWERFUL_ARCANE_TOWER");
     // ABILITIES
 
     public static final ResourceCost ENCHANT_MAIMING = new ResourceCost(ID, "ENCHANT_MAIMING");
@@ -197,6 +207,11 @@ public class ResourceCosts {
     public static final ResourceCost EQUIP_IRON_PICKAXE = new ResourceCost(ID, "EQUIP_IRON_PICKAXE");
     public static final ResourceCost EQUIP_IRON_AXE = new ResourceCost(ID, "EQUIP_IRON_AXE");
     public static final ResourceCost EQUIP_IRON_HOE = new ResourceCost(ID, "EQUIP_IRON_HOE");
+    public static final ResourceCost EQUIP_DIAMOND_ARMOR = new ResourceCost(ID, "EQUIP_DIAMOND_ARMOR");
+    public static final ResourceCost EQUIP_DIAMOND_SWORD = new ResourceCost(ID, "EQUIP_DIAMOND_SWORD");
+    public static final ResourceCost EQUIP_DIAMOND_PICKAXE = new ResourceCost(ID, "EQUIP_DIAMOND_PICKAXE");
+    public static final ResourceCost EQUIP_DIAMOND_AXE = new ResourceCost(ID, "EQUIP_DIAMOND_AXE");
+    public static final ResourceCost EQUIP_DIAMOND_HOE = new ResourceCost(ID, "EQUIP_DIAMOND_HOE");
     public static final ResourceCost STEAK = new ResourceCost(ID, "STEAK");
     public static final ResourceCost EQUIP_BOW = new ResourceCost(ID, "EQUIP_BOW");
     public static final ResourceCost EQUIP_ARROWS = new ResourceCost(ID, "EQUIP_ARROWS");
@@ -266,6 +281,8 @@ public class ResourceCosts {
         VILLAGER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.VILLAGER);
         MILITIA.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.MILITIA);
         IRON_GOLEM.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.IRON_GOLEM);
+        REDSTONE_GOLEM.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.REDSTONE_GOLEM);
+        REDSTONE_MINE.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.REDSTONE_MINE);
         PILLAGER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.PILLAGER);
         ARCHER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ARCHER);
         ARMORED_PILLAGER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ARMORED_PILLAGER);
@@ -275,9 +292,12 @@ public class ResourceCosts {
         ELITE_ARCHER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ELITE_ARCHER);
         WITCH.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.WITCH);
         EVOKER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.EVOKER);
+        ILLUSIONER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ILLUSIONER);
         RAVAGER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.RAVAGER);
         ROYAL_GUARD.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ROYAL_GUARD);
         ENCHANTER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ENCHANTER);
+        AUROMANCER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.AUROMANCER);
+        HORSE.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.HORSE);
         // Piglins
         GRUNT.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.GRUNT);
         BRUTE.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.BRUTE);
@@ -335,6 +355,11 @@ public class ResourceCosts {
         SHRINE_OF_PROSPERITY.bakeValues(SiegeOfSettlementsCommonConfigs.BuildingCosts.SHRINE_OF_PROSPERITY);
         DRILL.bakeValues(SiegeOfSettlementsCommonConfigs.BuildingCosts.DRILL);
         WALL.bakeValues(SiegeOfSettlementsCommonConfigs.BuildingCosts.WALL);
+        GATE.bakeValues(SiegeOfSettlementsCommonConfigs.BuildingCosts.GATE);
+        CORNER_WALL.bakeValues(SiegeOfSettlementsCommonConfigs.BuildingCosts.CORNER_WALL);
+        RESEARCH_CENTRE.bakeValues(SiegeOfSettlementsCommonConfigs.BuildingCosts.RESEARCH_CENTRE);
+        MARKETPLACE.bakeValues(SiegeOfSettlementsCommonConfigs.BuildingCosts.MARKETPLACE);
+        STABLE.bakeValues(SiegeOfSettlementsCommonConfigs.BuildingCosts.STABLE);
         // Piglins
         CENTRAL_PORTAL.bakeValues(SiegeOfSettlementsCommonConfigs.BuildingCosts.CENTRAL_PORTAL);
         BASIC_PORTAL.bakeValues(SiegeOfSettlementsCommonConfigs.BuildingCosts.BASIC_PORTAL);
@@ -366,6 +391,9 @@ public class ResourceCosts {
         RESEARCH_EVOKER_VEXES.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_EVOKER_VEXES);
         RESEARCH_CASTLE_FLAG.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_CASTLE_FLAG);
         RESEARCH_GRAND_LIBRARY.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_GRAND_LIBRARY);
+        RESEARCH_VILLAGER_HOUSE_T2.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_VILLAGER_HOUSE_T2);
+        ARCANE_TOWER_T2.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.ARCANE_TOWER_T2);
+        ARCANE_TOWER_T3.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.ARCANE_TOWER_T3);
         RESEARCH_SILVERFISH.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_SILVERFISH);
         RESEARCH_SCULK_AMPLIFIERS.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_SCULK_AMPLIFIERS);
         RESEARCH_RAVAGER_ARTILLERY.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_RAVAGER_ARTILLERY);
@@ -388,8 +416,22 @@ public class ResourceCosts {
         RESEARCH_BEACON_LEVEL3.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_BEACON_LEVEL3);
         RESEARCH_BEACON_LEVEL4.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_BEACON_LEVEL4);
         RESEARCH_BEACON_LEVEL5.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_BEACON_LEVEL5);
+        TOGGLE_VILLAGER_GATE.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.TOGGLE_VILLAGER_GATE);
+        RESEARCH_CASTLE.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_CASTLE);
+        RESEARCH_BLACKSMITH.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_BLACKSMITH);
+        RESEARCH_FIRE_WALLS.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_FIRE_WALLS);
+        RESEARCH_FIRE_WALLS2.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_FIRE_WALLS2);
+        RESEARCH_TOWER_DAMAGE1.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_TOWER_DAMAGE1);
+        RESEARCH_TOWER_DAMAGE2.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_TOWER_DAMAGE2);
+        RESEARCH_BEACON.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_BEACON);
         RESEARCH_TRADER.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_TRADER);
+        RESEARCH_MARKETPLACE.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_MARKETPLACE);
         RESEARCH_UPGRADED_BARRACKS.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_UPGRADED_BARRACKS);
+        RESEARCH_UPGRADED_DRILL.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_UPGRADED_DRILL);
+        RESEARCH_ADVANCED_DRILL.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_ADVANCED_DRILL);
+        RESEARCH_ADVANCED_BLACKSMITH.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_ADVANCED_BLACKSMITH);
+        RESEARCH_BIG_HOUSE.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_BIG_HOUSE);
+        RESEARCH_POWERFUL_ARCANE_TOWER.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_POWERFUL_ARCANE_TOWER);
         DRILL_T2.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.DRILL_T2);
         DRILL_T3.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.DRILL_T3);
         DRILL_T4.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.DRILL_T4);
@@ -397,6 +439,8 @@ public class ResourceCosts {
         DRILL_T6.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.DRILL_T6);
         BARRACKS_T2.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.BARRACKS_T2);
         BARRACKS_T3.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.BARRACKS_T3);
+        BLACKSMITH_T2.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.BLACKSMITH_T2);
+        BLACKSMITH_T3.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.BLACKSMITH_T3);
         // ******************* ABILITIES ******************* //
         ENCHANT_MAIMING.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.ENCHANT_MAIMING);
         ENCHANT_QUICK_CHARGE.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.ENCHANT_QUICK_CHARGE);
@@ -410,7 +454,14 @@ public class ResourceCosts {
         EQUIP_IRON_PICKAXE.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_IRON_PICKAXE);
         EQUIP_IRON_AXE.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_IRON_AXE);
         EQUIP_IRON_HOE.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_IRON_HOE);
+        EQUIP_DIAMOND_ARMOR.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_DIAMOND_ARMOR);
+        EQUIP_DIAMOND_SWORD.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_DIAMOND_SWORD);
+        EQUIP_DIAMOND_PICKAXE.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_DIAMOND_PICKAXE);
+        EQUIP_DIAMOND_AXE.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_DIAMOND_AXE);
+        EQUIP_DIAMOND_HOE.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_DIAMOND_HOE);
         STEAK.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.STEAK);
+        EQUIP_BOW.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_BOW);
+        EQUIP_ARROWS.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_ARROWS);
         BECOME_TRADER.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.BECOME_TRADER);
         BERSERK.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.BERSERK);
     }

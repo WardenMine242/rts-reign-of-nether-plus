@@ -377,22 +377,30 @@ public class PlayerClientEvents {
         BlockPos pos = blockHit.getBlockPos();
         BlockState state = MC.level.getBlockState(pos);
         if (!BlockServerEvents.isAllowedSurvivalBreak(state, pos, MC.level)) {
-            evt.setSwingHand(false);
-            evt.setCanceled(true);
+            // Allow attack input animation; actual breaking is prevented by server checks and zero break speed.
+            evt.setSwingHand(true);
         }
     }
 
     @SubscribeEvent
     public static void onItemTooltip(ItemTooltipEvent evt) {
-        if (!evt.getItemStack().is(ItemRegistrar.IRON_SWORD.get())) {
+        boolean isIronSword = evt.getItemStack().is(ItemRegistrar.IRON_SWORD.get());
+        boolean isDiamondSword = evt.getItemStack().is(ItemRegistrar.DIAMOND_SWORD.get());
+        if (!isIronSword && !isDiamondSword) {
             return;
         }
 
         List<Component> tooltip = evt.getToolTip();
 
         boolean isRussian = MC.options.languageCode != null && MC.options.languageCode.startsWith("ru");
-        String unitsDamageText = isRussian ? " Урон по юнитам: 4" : " Damage vs units: 4";
-        String mobsDamageText = isRussian ? " Урон по мобам: 1" : " Damage vs mobs: 1";
+        int unitsDamage = isDiamondSword ? 6 : 4;
+        int mobsDamage = isDiamondSword ? 2 : 1;
+        String unitsDamageText = isRussian
+                ? " \u0423\u0440\u043e\u043d \u043f\u043e \u044e\u043d\u0438\u0442\u0430\u043c: " + unitsDamage
+                : " Damage vs units: " + unitsDamage;
+        String mobsDamageText = isRussian
+                ? " \u0423\u0440\u043e\u043d \u043f\u043e \u043c\u043e\u0431\u0430\u043c: " + mobsDamage
+                : " Damage vs mobs: " + mobsDamage;
         int insertIndex = -1;
 
         for (int i = 0; i < tooltip.size(); i++) {

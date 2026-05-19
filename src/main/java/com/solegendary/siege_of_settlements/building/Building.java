@@ -112,6 +112,10 @@ public abstract class Building {
         return 0;
     }
 
+    public int getPopulationSupply(BuildingPlacement placement) {
+        return cost.population;
+    }
+
     public abstract BuildingPlaceButton getBuildButton(Keybinding var1);
 
     public boolean isTypeOf(Building building) {

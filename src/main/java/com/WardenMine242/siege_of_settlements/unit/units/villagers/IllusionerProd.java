@@ -1,5 +1,6 @@
 package com.WardenMine242.siege_of_settlements.unit.units.villagers;
 
+import com.WardenMine242.siege_of_settlements.building.buildings.placements.ArcaneTowerPlacement;
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
 import com.solegendary.siege_of_settlements.building.production.ProductionItem;
@@ -23,6 +24,7 @@ public class IllusionerProd extends ProductionItem {
 
     public static final String itemName = "Illusioner";
     public static final ResourceCost cost = ResourceCosts.ILLUSIONER;
+    private static final int REQUIRED_ARCANE_TOWER_TIER = 3;
 
     public IllusionerProd() {
         super(cost);
@@ -35,6 +37,11 @@ public class IllusionerProd extends ProductionItem {
 
     public String getItemName() {
         return itemName;
+    }
+
+    private static boolean isUnlocked(ProductionPlacement placement) {
+        return placement instanceof ArcaneTowerPlacement arcaneTowerPlacement
+                && (arcaneTowerPlacement.getUpgradeLevel() + 1) >= REQUIRED_ARCANE_TOWER_TIER;
     }
 
     public UnitSpawnButton getPlaceButton() {
@@ -54,8 +61,8 @@ public class IllusionerProd extends ProductionItem {
                 itemName,
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/illusioner.png"),
                 hotkey,
-                () -> false,
-                () -> true,
+                () -> !isUnlocked(prodBuilding),
+                () -> isUnlocked(prodBuilding),
                 List.of(
                         FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.illusioner"), Style.EMPTY.withBold(true)),
                         ResourceCosts.getFormattedCost(cost),

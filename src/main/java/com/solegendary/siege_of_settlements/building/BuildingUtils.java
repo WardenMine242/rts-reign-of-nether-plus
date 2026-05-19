@@ -2,6 +2,7 @@ package com.solegendary.siege_of_settlements.building;
 
 // class for static building functions
 
+import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.building.buildings.monsters.SculkCatalyst;
 import com.solegendary.siege_of_settlements.building.buildings.monsters.Stronghold;
 import com.solegendary.siege_of_settlements.building.buildings.piglins.Fortress;
@@ -112,15 +113,27 @@ public class BuildingUtils {
 
     public static BuildingPlacement getNewBuildingPlacement(Building building, Level level, BlockPos pos, Rotation rotation, String ownerName, boolean isDiagonalBridge) {
         BuildingPlacement buildingPlacement = null;
-        if (building instanceof AbstractBridge bridge) {
-            buildingPlacement = bridge.createBuildingPlacement(level, pos, rotation, ownerName, isDiagonalBridge);
-        } else {
-            buildingPlacement = building.createBuildingPlacement(level, pos, rotation, ownerName);
-        }
+        try {
+            if (building instanceof AbstractBridge bridge) {
+                buildingPlacement = bridge.createBuildingPlacement(level, pos, rotation, ownerName, isDiagonalBridge);
+            } else {
+                buildingPlacement = building.createBuildingPlacement(level, pos, rotation, ownerName);
+            }
 
-        if (buildingPlacement != null) {
-            buildingPlacement.updateButtons();
-            buildingPlacement.setLevel(level);
+            if (buildingPlacement != null) {
+                buildingPlacement.updateButtons();
+                buildingPlacement.setLevel(level);
+            }
+        } catch (RuntimeException e) {
+            SiegeOfSettlements.LOGGER.error(
+                    "Failed to create building placement for '{}' (structure='{}') at {} owned by '{}'",
+                    building != null ? building.name : "unknown",
+                    building != null ? building.structureName : "unknown",
+                    pos,
+                    ownerName,
+                    e
+            );
+            return null;
         }
 
         return buildingPlacement;

@@ -36,6 +36,7 @@ public enum UnitAction {
     DISMOUNT, // passenger removes itself from vehicle
     EJECT, // vehicle removes itself from passengers
     PROMOTE_ILLAGER,
+    MINEFIELD,
     ROAR,
     THROW_HEALING_POTION,
     THROW_HEALING_POTION_AUTOCAST_ENABLE,
@@ -125,6 +126,7 @@ public enum UnitAction {
     EQUIP_LEATHER_ARMOR,
     EQUIP_CHAINMAIL_ARMOR,
     EQUIP_IRON_ARMOR,
+    EQUIP_DIAMOND_ARMOR,
     EQUIP_IRON_SWORD,
     EQUIP_IRON_PICKAXE,
     EQUIP_IRON_AXE,

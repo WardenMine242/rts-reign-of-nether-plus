@@ -51,7 +51,6 @@ public class Marketplace extends ProductionBuilding {
 
 
         this.productions.add(ProductionItems.RESEARCH_TRADER, Keybindings.keyW);
-        this.productions.add(ProductionItems.AUROMANCER, Keybindings.keyE);
         this.productions.add(ProductionItems.ELITE_VINDICATOR, Keybindings.keyR);
         this.productions.add(ProductionItems.ARCHER, Keybindings.keyY);
 

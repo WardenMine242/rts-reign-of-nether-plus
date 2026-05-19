@@ -54,7 +54,7 @@ public class Barracks extends ProductionBuilding {
         this.productions.add(ProductionItems.PILLAGER, Keybindings.keyE);
         this.productions.add(ProductionItems.ARMORED_PILLAGER, Keybindings.keyR);
         this.productions.add(ProductionItems.BARRACKS_T2, Keybindings.keyE);
-        this.productions.add(ProductionItems.BARRACKS_T3, Keybindings.keyT);
+        this.productions.add(ProductionItems.BARRACKS_T3, Keybindings.keyE);
         this.productions.add(ProductionItems.ARMORED_VINDICATOR, Keybindings.keyU);
     }
 

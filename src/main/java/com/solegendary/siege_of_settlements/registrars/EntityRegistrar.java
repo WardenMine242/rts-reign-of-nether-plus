@@ -24,6 +24,9 @@ import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseProd;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.IllusionerUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneGolemProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneGolemUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneMineUnit;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -184,6 +187,18 @@ public class EntityRegistrar {
                     .sized(EntityType.IRON_GOLEM.getWidth(), EntityType.IRON_GOLEM.getHeight())
                     .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
                     .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "iron_golem_unit").toString()));
+
+    public static final RegistryObject<EntityType<RedstoneGolemUnit>> REDSTONE_GOLEM_UNIT = ENTITIES.register("redstone_golem_unit",
+            () -> EntityType.Builder.of(RedstoneGolemUnit::new, MobCategory.CREATURE)
+                    .sized(EntityType.IRON_GOLEM.getWidth(), EntityType.IRON_GOLEM.getHeight())
+                    .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
+                    .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "redstone_golem_unit").toString()));
+
+    public static final RegistryObject<EntityType<RedstoneMineUnit>> REDSTONE_MINE_UNIT = ENTITIES.register("redstone_mine_unit",
+            () -> EntityType.Builder.of(RedstoneMineUnit::new, MobCategory.CREATURE)
+                    .sized(0.95F, 0.35F)
+                    .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
+                    .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "redstone_mine_unit").toString()));
 
     public static final RegistryObject<EntityType<WitchUnit>> WITCH_UNIT = ENTITIES.register("witch_unit",
             () -> EntityType.Builder.of(WitchUnit::new, MobCategory.CREATURE)
@@ -412,6 +427,14 @@ public class EntityRegistrar {
                     .updateInterval(10)
                     .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "necromancer_projectile").toString()));
 
+    public static final RegistryObject<EntityType<ArcaneChargeProjectile>> ARCANE_CHARGE_PROJECTILE = ENTITIES.register("arcane_charge_projectile",
+            () -> EntityType.Builder.<ArcaneChargeProjectile>of(ArcaneChargeProjectile::new, MobCategory.MISC)
+                    .fireImmune()
+                    .sized(0.5f, 0.5f)
+                    .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
+                    .updateInterval(1)
+                    .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "arcane_charge_projectile").toString()));
+
     public static final RegistryObject<EntityType<WraithSnowball>> WRAITH_SNOWBALL = ENTITIES.register("wraith_snowball",
             () -> EntityType.Builder.of(WraithSnowball::new, MobCategory.MISC)
                     .fireImmune()
@@ -446,6 +469,7 @@ public class EntityRegistrar {
             case PillagerProd.itemName -> EntityRegistrar.PILLAGER_UNIT.get();
             case ArmoredPillagerProd.itemName -> EntityRegistrar.ARMORED_PILLAGER_UNIT.get();
             case IronGolemProd.itemName -> EntityRegistrar.IRON_GOLEM_UNIT.get();
+            case RedstoneGolemProd.itemName -> EntityRegistrar.REDSTONE_GOLEM_UNIT.get();
             case WitchProd.itemName -> EntityRegistrar.WITCH_UNIT.get();
             case EvokerProd.itemName -> EntityRegistrar.EVOKER_UNIT.get();
             case SlimeProd.itemName -> EntityRegistrar.SLIME_UNIT.get();

@@ -41,6 +41,7 @@
     "minVersion": "0.8",
     "client": [
         "ArmorStandMixin",
+        "ArcaneChargeProjectileTrailMixin",
         "CameraMixin",
         "ClientLevelMixin",
         "ClientPacketMixin",

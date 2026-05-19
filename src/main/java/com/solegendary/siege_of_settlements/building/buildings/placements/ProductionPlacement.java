@@ -3,11 +3,14 @@ package com.solegendary.siege_of_settlements.building.buildings.placements;
 import com.solegendary.siege_of_settlements.building.Building;
 import com.solegendary.siege_of_settlements.building.BuildingBlock;
 import com.solegendary.siege_of_settlements.building.BuildingClientboundPacket;
+import com.WardenMine242.siege_of_settlements.building.buildings.placements.ArcaneTowerPlacement;
 import com.WardenMine242.siege_of_settlements.building.buildings.placements.VillageDrillPlacement;
+import com.WardenMine242.siege_of_settlements.building.buildings.placements.VillagerHousePlacement;
 import com.solegendary.siege_of_settlements.building.BuildingPlacement;
 import com.solegendary.siege_of_settlements.building.production.ActiveProduction;
 import com.solegendary.siege_of_settlements.building.production.ProductionBuilding;
 import com.solegendary.siege_of_settlements.building.production.ProductionItem;
+import com.solegendary.siege_of_settlements.building.production.ProductionItems;
 import com.solegendary.siege_of_settlements.hud.Button;
 import com.solegendary.siege_of_settlements.hud.HudClientEvents;
 import com.solegendary.siege_of_settlements.registrars.EntityRegistrar;
@@ -201,6 +204,11 @@ public class ProductionPlacement extends BuildingPlacement {
         if (getBuilding() instanceof ProductionBuilding pb && !pb.productions.get().contains(prodItem)) {
             return false;
         }
+        if (this instanceof BlacksmithPlacement blacksmith &&
+                prodItem == ProductionItems.REDSTONE_GOLEM &&
+                blacksmith.getBlacksmithTier() < BlacksmithPlacement.MAX_BLACKSMITH_TIER) {
+            return false;
+        }
 
         if (prodItem != null) {
             // only worry about checking affordability on serverside
@@ -308,7 +316,11 @@ public class ProductionPlacement extends BuildingPlacement {
                     active = null;
                     productionQueue.remove(0);
                     int productionUpgradeLevelSync =
-                            (this instanceof VillageDrillPlacement || this instanceof BarracksPlacement)
+                            (this instanceof VillageDrillPlacement
+                                    || this instanceof BarracksPlacement
+                                    || this instanceof BlacksmithPlacement
+                                    || this instanceof VillagerHousePlacement
+                                    || this instanceof ArcaneTowerPlacement)
                                     ? this.getUpgradeLevel()
                                     : -1;
                     if (productionQueue.isEmpty())

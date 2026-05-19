@@ -857,6 +857,11 @@ public class BuildingPlacement {
         float blocksPlaced = getBlocksPlaced();
         float blocksTotal = getBlocksTotal();
 
+        // Built buildings should always keep full max-health baseline even after reload.
+        if (isBuilt && highestBlockCountReached < blocksTotal) {
+            highestBlockCountReached = (int) blocksTotal;
+        }
+
         if (blocksPlaced >= blocksTotal && !isBuilt) {
             this.onBuilt();
         }

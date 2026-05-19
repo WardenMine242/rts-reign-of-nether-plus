@@ -1,5 +1,6 @@
 package com.WardenMine242.siege_of_settlements.unit.units.villagers;
 
+import com.WardenMine242.siege_of_settlements.building.buildings.placements.ArcaneTowerPlacement;
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
 import com.solegendary.siege_of_settlements.building.production.ProductionItem;
@@ -23,6 +24,7 @@ public class AuromancerProd extends ProductionItem {
 
     public static final String itemName = "Auromancer";
     public static final ResourceCost cost = ResourceCosts.AUROMANCER;
+    private static final int REQUIRED_ARCANE_TOWER_TIER = 2;
 
     public AuromancerProd() {
         super(cost);
@@ -31,6 +33,11 @@ public class AuromancerProd extends ProductionItem {
                 placement.produceUnit((ServerLevel) level, EntityRegistrar.AUROMANCER_UNIT.get(), placement.ownerName, true);
             }
         };
+    }
+
+    private static boolean isUnlocked(ProductionPlacement placement) {
+        return placement instanceof ArcaneTowerPlacement arcaneTowerPlacement
+                && (arcaneTowerPlacement.getUpgradeLevel() + 1) >= REQUIRED_ARCANE_TOWER_TIER;
     }
 
     public String getItemName() {
@@ -45,9 +52,7 @@ public class AuromancerProd extends ProductionItem {
                         FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.auromancer"), Style.EMPTY.withBold(true)),
                         FormattedCharSequence.forward("", Style.EMPTY),
                         FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.auromancer.tooltip1"), Style.EMPTY),
-                        FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.auromancer.tooltip2"), Style.EMPTY),
-                        FormattedCharSequence.forward("", Style.EMPTY),
-                        FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.auromancer.tooltip3"), Style.EMPTY)
+                        FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.auromancer.tooltip2"), Style.EMPTY)
                 )
         );
     }
@@ -57,17 +62,15 @@ public class AuromancerProd extends ProductionItem {
                 itemName,
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/auromancer.png"),
                 hotkey,
-                () -> false,
-                () -> true,
+                () -> !isUnlocked(prodBuilding),
+                () -> isUnlocked(prodBuilding),
                 List.of(
                         FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.auromancer"), Style.EMPTY.withBold(true)),
                         ResourceCosts.getFormattedCost(cost),
                         ResourceCosts.getFormattedPopAndTime(cost),
                         FormattedCharSequence.forward("", Style.EMPTY),
                         FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.auromancer.tooltip1"), Style.EMPTY),
-                        FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.auromancer.tooltip2"), Style.EMPTY),
-                        FormattedCharSequence.forward("", Style.EMPTY),
-                        FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.auromancer.tooltip3"), Style.EMPTY)
+                        FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.auromancer.tooltip2"), Style.EMPTY)
                 ),
                 this
         );

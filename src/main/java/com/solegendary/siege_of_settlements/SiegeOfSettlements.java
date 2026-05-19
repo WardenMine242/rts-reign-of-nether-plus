@@ -51,7 +51,7 @@ import java.util.function.Supplier;
 public class SiegeOfSettlements {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final String MOD_ID = "siege_of_settlements";
-    public static final String VERSION_STRING = "0.4.0-playtest1";
+    public static final String VERSION_STRING = "0.4.0-playtest3";
 
     // Fields from ClientReset
     public static final Field handshakeField;

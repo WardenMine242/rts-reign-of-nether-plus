@@ -42,6 +42,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
@@ -61,9 +62,12 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -95,6 +99,7 @@ import static com.solegendary.siege_of_settlements.player.PlayerServerEvents.ser
 import static com.solegendary.siege_of_settlements.resources.ResourcesServerEvents.NEUTRAL_UNIT_BOUNTY_PERCENT;
 
 public class UnitServerEvents {
+    private static final String TAG_SHOT_FROM_BOW = "ronShotFromBow";
 
     public static boolean improvedPathfinding = true;
 
@@ -345,6 +350,19 @@ public class UnitServerEvents {
 
     @SubscribeEvent
     public static void onEntityJoin(EntityJoinLevelEvent evt) {
+        if (!evt.getLevel().isClientSide()
+                && evt.getEntity() instanceof AbstractArrow arrow
+                && arrow.getOwner() instanceof Player player) {
+            ItemStack mainHand = player.getMainHandItem();
+            ItemStack offHand = player.getOffhandItem();
+            ItemStack usedItem = player.getUseItem();
+            boolean shotFromBow = mainHand.getItem() instanceof BowItem
+                    || offHand.getItem() instanceof BowItem
+                    || usedItem.getItem() instanceof BowItem;
+            if (shotFromBow) {
+                arrow.getPersistentData().putBoolean(TAG_SHOT_FROM_BOW, true);
+            }
+        }
 
         if (evt.getEntity() instanceof Unit && evt.getEntity() instanceof Mob mob) {
             mob.setBaby(false);
@@ -779,6 +797,42 @@ public class UnitServerEvents {
         return !AlliancesServerEvents.isAllied(ownerName, playerName);
     }
 
+    private static boolean isSurvivalPlayer(Player player) {
+        return player instanceof ServerPlayer serverPlayer
+                && serverPlayer.gameMode.getGameModeForPlayer() == GameType.SURVIVAL;
+    }
+
+    private static boolean isMobOrHostileUnitForPlayer(LivingEntity target, Player player) {
+        if (target instanceof Unit unit) {
+            return isHostileUnitForPlayer(unit, player);
+        }
+        return !(target instanceof Player);
+    }
+
+    private static boolean isAllowedSurvivalMeleeItem(ItemStack stack) {
+        return stack.getItem() instanceof SwordItem;
+    }
+
+    private static boolean isSwordAttackRecharged(Player player) {
+        return player.getAttackStrengthScale(0.5F) > 0.9F;
+    }
+
+    private static boolean isAllowedSurvivalCombatSource(LivingDamageEvent evt, Player player) {
+        Entity direct = evt.getSource().getDirectEntity();
+
+        // Melee/direct hit from player: only sword in main hand and only when fully recharged.
+        if (direct == player) {
+            return isAllowedSurvivalMeleeItem(player.getMainHandItem()) && isSwordAttackRecharged(player);
+        }
+
+        // Ranged from player: allow only arrows that were shot from bow.
+        if (direct instanceof AbstractArrow arrow && arrow.getOwner() == player) {
+            return arrow.getPersistentData().getBoolean(TAG_SHOT_FROM_BOW);
+        }
+
+        return false;
+    }
+
     private static boolean isCriticalPlayerHit(Player player) {
         return player.getAttackStrengthScale(0.5F) > 0.9F
                 && player.fallDistance > 0.0F
@@ -837,12 +891,30 @@ public class UnitServerEvents {
         if (evt.getEntity().level().isClientSide()) {
             return;
         }
-        if (!(evt.getTarget() instanceof Unit unit)) {
+        if (!(evt.getTarget() instanceof LivingEntity target)) {
             return;
         }
         Player player = evt.getEntity();
-        String ownerName = unit.getOwnerName();
-        if (!ownerName.isBlank() && ownerName.equals(player.getName().getString())) {
+
+        if (target instanceof Unit unit) {
+            String ownerName = unit.getOwnerName();
+            if (!ownerName.isBlank() && ownerName.equals(player.getName().getString())) {
+                evt.setCanceled(true);
+                return;
+            }
+        }
+
+        if (!isSurvivalPlayer(player)) {
+            return;
+        }
+        if (!isMobOrHostileUnitForPlayer(target, player)) {
+            return;
+        }
+        if (!isAllowedSurvivalMeleeItem(player.getMainHandItem())) {
+            evt.setCanceled(true);
+            return;
+        }
+        if (!isSwordAttackRecharged(player)) {
             evt.setCanceled(true);
         }
     }
@@ -900,16 +972,29 @@ public class UnitServerEvents {
             }
         }
 
-        if (evt.getSource().getEntity() instanceof Player player &&
-            player.getMainHandItem().is(ItemRegistrar.IRON_SWORD.get())) {
-            if (evt.getEntity() instanceof Unit unit && isHostileUnitForPlayer(unit, player)) {
-                evt.setAmount(4.0f);
-            } else if (!(evt.getEntity() instanceof Unit) && !(evt.getEntity() instanceof Player)) {
-                evt.setAmount(1.0f);
+        if (evt.getSource().getEntity() instanceof Player player) {
+            if (isSurvivalPlayer(player)
+                    && isMobOrHostileUnitForPlayer(evt.getEntity(), player)
+                    && !isAllowedSurvivalCombatSource(evt, player)) {
+                evt.setCanceled(true);
+                return;
             }
 
-            if (isCriticalPlayerHit(player)) {
-                evt.setAmount(evt.getAmount() + 1.0f);
+            boolean isIronSword = player.getMainHandItem().is(ItemRegistrar.IRON_SWORD.get());
+            boolean isDiamondSword = player.getMainHandItem().is(ItemRegistrar.DIAMOND_SWORD.get());
+            if (isIronSword || isDiamondSword) {
+                float damageVsUnits = isDiamondSword ? 6.0f : 4.0f;
+                float damageVsMobs = isDiamondSword ? 2.0f : 1.0f;
+
+                if (evt.getEntity() instanceof Unit unit && isHostileUnitForPlayer(unit, player)) {
+                    evt.setAmount(damageVsUnits);
+                } else if (!(evt.getEntity() instanceof Unit) && !(evt.getEntity() instanceof Player)) {
+                    evt.setAmount(damageVsMobs);
+                }
+
+                if (isCriticalPlayerHit(player)) {
+                    evt.setAmount(evt.getAmount() + 1.0f);
+                }
             }
         }
 

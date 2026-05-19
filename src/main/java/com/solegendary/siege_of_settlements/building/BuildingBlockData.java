@@ -33,6 +33,9 @@ public class BuildingBlockData {
             resourceManager = level.getServer().getResourceManager();
 
         CompoundTag nbt = getBuildingNbt(structureName, resourceManager);
+        if (nbt == null) {
+            throw new IllegalStateException("Missing or unreadable structure NBT: " + structureName);
+        }
 
         return getBuildingBlocksFromNbt(nbt);
     }
@@ -76,7 +79,10 @@ public class BuildingBlockData {
                     "structures/" + structureName + ".nbt"
             );
             Optional<Resource> rs = resManager.getResource(rl);
-            if (rs.isEmpty()) return null;
+            if (rs.isEmpty()) {
+                SiegeOfSettlements.LOGGER.error("Missing structure template: {}", rl);
+                return null;
+            }
             return NbtIo.readCompressed(rs.get().open());
         } catch (IOException e) {
             SiegeOfSettlements.LOGGER.error(e.getMessage(), e);

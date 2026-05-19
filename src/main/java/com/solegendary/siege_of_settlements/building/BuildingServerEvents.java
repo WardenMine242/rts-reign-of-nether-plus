@@ -215,6 +215,11 @@ public class BuildingServerEvents {
                             }
                         }
                     }
+
+                    if (building.isBuilt) {
+                        building.highestBlockCountReached = building.getBlocksTotal();
+                    }
+
                     // setNetherZone can only be run once - this supercedes where it normally happens in tick() ->
                     // onBuilt()
                     if (building instanceof NetherConvertingBuilding ncb && ncb.getMaxNetherRange() > 0) {
@@ -533,7 +538,7 @@ public class BuildingServerEvents {
         int totalPopulationSupply = 0;
         for (BuildingPlacement building : buildings)
             if (building.ownerName.equals(ownerName) && building.isBuilt) {
-                totalPopulationSupply += building.getBuilding().cost.population;
+                totalPopulationSupply += building.getBuilding().getPopulationSupply(building);
             }
         return Math.min(UnitServerEvents.maxPopulation, totalPopulationSupply);
     }

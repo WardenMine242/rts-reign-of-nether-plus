@@ -118,6 +118,7 @@ public class SandboxClientEvents {
                 ProductionItems.VINDICATOR.getPlaceButton(),
                 ProductionItems.PILLAGER.getPlaceButton(),
                 ProductionItems.IRON_GOLEM.getPlaceButton(),
+                ProductionItems.REDSTONE_GOLEM.getPlaceButton(),
                 ProductionItems.WITCH.getPlaceButton(),
                 ProductionItems.EVOKER.getPlaceButton(),
                 ProductionItems.RAVAGER.getPlaceButton(),

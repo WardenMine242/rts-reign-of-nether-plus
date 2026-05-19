@@ -1,12 +1,17 @@
 package com.solegendary.siege_of_settlements.building.production;
 
 import com.WardenMine242.siege_of_settlements.building.buildings.villagers.VillagerDrill;
+import com.WardenMine242.siege_of_settlements.building.buildings.placements.ArcaneTowerPlacement;
 import com.WardenMine242.siege_of_settlements.upgrades.BarracksTierUpgrade;
+import com.WardenMine242.siege_of_settlements.upgrades.BlacksmithTierUpgrade;
 import com.WardenMine242.siege_of_settlements.upgrades.CastleT2;
 import com.WardenMine242.siege_of_settlements.upgrades.DrillTierUpgrade;
 import com.WardenMine242.siege_of_settlements.upgrades.DrillTierUpgrade.DrillResearchRequirement;
+import com.WardenMine242.siege_of_settlements.upgrades.ArcaneTowerTierUpgrade;
+import com.WardenMine242.siege_of_settlements.upgrades.VillagerHouseT2;
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.building.buildings.placements.BarracksPlacement;
+import com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement;
 import com.solegendary.siege_of_settlements.resources.ResourceCosts;
 import com.solegendary.siege_of_settlements.api.SiegeOfSettlementsRegistries;
 import com.solegendary.siege_of_settlements.research.researchItems.*;
@@ -24,6 +29,7 @@ import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherPr
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicatorProd;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseProd;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.IllusionerProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneGolemProd;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
@@ -49,6 +55,7 @@ public class ProductionItems {
     public static final VindicatorProd VINDICATOR = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "vindicator"), new VindicatorProd());
     public static final PillagerProd PILLAGER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "pillager"), new PillagerProd());
     public static final IronGolemProd IRON_GOLEM = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "iron_golem"), new IronGolemProd());
+    public static final RedstoneGolemProd REDSTONE_GOLEM = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "redstone_golem"), new RedstoneGolemProd());
     public static final WitchProd WITCH = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "witch"), new WitchProd());
     public static final EvokerProd EVOKER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "evoker"), new EvokerProd());
     public static final SlimeProd SLIME = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "slime"), new SlimeProd());
@@ -113,6 +120,7 @@ public class ProductionItems {
     public static final ResearchAdvancedPortals RESEARCH_ADVANCED_PORTALS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "advanced_portals"), new ResearchAdvancedPortals());
     public static final ResearchFireResistance RESEARCH_FIRE_RESISTANCE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "fire_resistance"), new ResearchFireResistance());
     public static final ResearchGrandLibrary RESEARCH_GRAND_LIBRARY = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "grand_library"), new ResearchGrandLibrary());
+    public static final VillagerHouseT2 RESEARCH_VILLAGER_HOUSE_T2 = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "villager_house_t2"), new VillagerHouseT2());
     public static final ResearchSuperiorBlacksmith RESEARCH_SUPERIOR_BLACKSMITH = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "superior_blacksmith"), new ResearchSuperiorBlacksmith());
     public static final ResearchSpiderWebs RESEARCH_SPIDER_WEBS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "spider_webs"), new ResearchSpiderWebs());
     public static final ResearchBloodlust RESEARCH_BLOODLUST = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "bloodlust"), new ResearchBloodlust());
@@ -128,6 +136,10 @@ public class ProductionItems {
     public static final DrillTierUpgrade DRILL_T6;
     public static final BarracksTierUpgrade BARRACKS_T2;
     public static final BarracksTierUpgrade BARRACKS_T3;
+    public static final BlacksmithTierUpgrade BLACKSMITH_T2;
+    public static final BlacksmithTierUpgrade BLACKSMITH_T3;
+    public static final ArcaneTowerTierUpgrade ARCANE_TOWER_T2;
+    public static final ArcaneTowerTierUpgrade ARCANE_TOWER_T3;
 
     static {
         DrillTierUpgrade[] t2 = new DrillTierUpgrade[1];
@@ -239,6 +251,70 @@ public class ProductionItems {
                         "research.siege_of_settlements.upgrade.barracks_tier_3.tooltip2"
                 ));
         BARRACKS_T3 = barracksT3[0];
+
+        BlacksmithTierUpgrade[] blacksmithT2 = new BlacksmithTierUpgrade[1];
+        blacksmithT2[0] = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "blacksmith_t2"),
+                new BlacksmithTierUpgrade(
+                        "Blacksmith Tier 2",
+                        ResourceCosts.BLACKSMITH_T2,
+                        0,
+                        ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_advanced_blacksmith"),
+                        p -> blacksmithT2[0].itemIsBeingProducedAt(p)
+                                || !(p instanceof BlacksmithPlacement)
+                                || p.getUpgradeLevel() != 0,
+                        "research.siege_of_settlements.upgrade.t2",
+                        "research.siege_of_settlements.upgrade.blacksmith_tier_2.tooltip1",
+                        "research.siege_of_settlements.upgrade.blacksmith_tier_2.tooltip2"
+                ));
+        BLACKSMITH_T2 = blacksmithT2[0];
+
+        BlacksmithTierUpgrade[] blacksmithT3 = new BlacksmithTierUpgrade[1];
+        blacksmithT3[0] = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "blacksmith_t3"),
+                new BlacksmithTierUpgrade(
+                        "Blacksmith Tier 3",
+                        ResourceCosts.BLACKSMITH_T3,
+                        1,
+                        ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_advanced_blacksmith"),
+                        p -> blacksmithT3[0].itemIsBeingProducedAt(p)
+                                || !(p instanceof BlacksmithPlacement)
+                                || p.getUpgradeLevel() != 1,
+                        "research.siege_of_settlements.upgrade.t3",
+                        "research.siege_of_settlements.upgrade.blacksmith_tier_3.tooltip1",
+                        "research.siege_of_settlements.upgrade.blacksmith_tier_3.tooltip2"
+                ));
+        BLACKSMITH_T3 = blacksmithT3[0];
+
+        ArcaneTowerTierUpgrade[] arcaneTowerT2 = new ArcaneTowerTierUpgrade[1];
+        arcaneTowerT2[0] = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "arcane_tower_tier_2"),
+                new ArcaneTowerTierUpgrade(
+                        "Arcane Tower Tier 2",
+                        ResourceCosts.ARCANE_TOWER_T2,
+                        0,
+                        ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_powerful_arcane_tower"),
+                        p -> arcaneTowerT2[0].itemIsBeingProducedAt(p)
+                                || !(p instanceof ArcaneTowerPlacement)
+                                || p.getUpgradeLevel() != 0,
+                        "research.siege_of_settlements.upgrade.t2",
+                        "research.siege_of_settlements.upgrade.arcane_tower_tier_2.tooltip1",
+                        "research.siege_of_settlements.upgrade.arcane_tower_tier_2.tooltip2"
+                ));
+        ARCANE_TOWER_T2 = arcaneTowerT2[0];
+
+        ArcaneTowerTierUpgrade[] arcaneTowerT3 = new ArcaneTowerTierUpgrade[1];
+        arcaneTowerT3[0] = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "arcane_tower_tier_3"),
+                new ArcaneTowerTierUpgrade(
+                        "Arcane Tower Tier 3",
+                        ResourceCosts.ARCANE_TOWER_T3,
+                        1,
+                        ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_powerful_arcane_tower"),
+                        p -> arcaneTowerT3[0].itemIsBeingProducedAt(p)
+                                || !(p instanceof ArcaneTowerPlacement)
+                                || p.getUpgradeLevel() != 1,
+                        "research.siege_of_settlements.upgrade.t3",
+                        "research.siege_of_settlements.upgrade.arcane_tower_tier_3.tooltip1",
+                        "research.siege_of_settlements.upgrade.arcane_tower_tier_3.tooltip2"
+                ));
+        ARCANE_TOWER_T3 = arcaneTowerT3[0];
     }
     public static final ResearchCastle RESEARCH_CASTLE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_castle"), new ResearchCastle());
     public static final ResearchBlacksmith RESEARCH_BLACKSMITH = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_blacksmith"), new ResearchBlacksmith());
@@ -252,6 +328,9 @@ public class ProductionItems {
     public static final ResearchUpgradedBarracks RESEARCH_UPGRADED_BARRACKS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_upgraded_barracks"), new ResearchUpgradedBarracks());
     public static final ResearchUpgradedDrill RESEARCH_UPGRADED_DRILL = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_upgraded_drill"), new ResearchUpgradedDrill());
     public static final ResearchAdvancedDrill RESEARCH_ADVANCED_DRILL = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_advanced_drill"), new ResearchAdvancedDrill());
+    public static final ResearchAdvancedBlacksmith RESEARCH_ADVANCED_BLACKSMITH = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_advanced_blacksmith"), new ResearchAdvancedBlacksmith());
+    public static final ResearchBigHouse RESEARCH_BIG_HOUSE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_big_house"), new ResearchBigHouse());
+    public static final ResearchPowerfulArcaneTower RESEARCH_POWERFUL_ARCANE_TOWER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_powerful_arcane_tower"), new ResearchPowerfulArcaneTower());
 
 
     public static final ResearchPortalForCivilian RESEARCH_PORTAL_FOR_CIVILIAN = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "portal_for_civilian"), new ResearchPortalForCivilian());

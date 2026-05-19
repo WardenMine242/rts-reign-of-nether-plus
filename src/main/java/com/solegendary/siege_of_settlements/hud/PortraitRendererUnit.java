@@ -35,6 +35,7 @@ import com.solegendary.siege_of_settlements.unit.units.villagers.EvokerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.IronGolemUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.VindicatorUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneGolemUnit;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
 import com.solegendary.siege_of_settlements.util.MyMath;
 import com.solegendary.siege_of_settlements.util.MyRenderer;
@@ -217,7 +218,20 @@ public class PortraitRendererUnit<T extends LivingEntity, M extends EntityModel<
             hasBanner = true;
             entity.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
         }
-        drawEntityOnScreen(guiGraphics.pose(), entity, drawX, drawY, sizeFinal);
+        int portraitMinX = x + 2;
+        int portraitMinY = y + 2;
+        int portraitMaxX = x + frameWidth - 2;
+        int portraitMaxY = y + frameHeight + frameHeightPlus - 2;
+        if (portraitMaxX > portraitMinX && portraitMaxY > portraitMinY) {
+            guiGraphics.enableScissor(portraitMinX, portraitMinY, portraitMaxX, portraitMaxY);
+            try {
+                drawEntityOnScreen(guiGraphics.pose(), entity, drawX, drawY, sizeFinal);
+            } finally {
+                guiGraphics.disableScissor();
+            }
+        } else {
+            drawEntityOnScreen(guiGraphics.pose(), entity, drawX, drawY, sizeFinal);
+        }
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0,0,2000);
         name = WordUtils.capitalize(name);
@@ -294,15 +308,26 @@ public class PortraitRendererUnit<T extends LivingEntity, M extends EntityModel<
         ArrayList<String> texts = new ArrayList<>();
         String healthText = "";
         float health = entity.getHealth();
-        health += entity.getAbsorptionAmount();
+        float maxHealth = entity.getMaxHealth();
+
+        // Redstone Golem HUD should reflect unit-class stats without absorb overlays.
+        if (!(entity instanceof RedstoneGolemUnit)) {
+            health += entity.getAbsorptionAmount();
+            if (entity.getAbsorptionAmount() > 0) {
+                maxHealth += MiscUtil.getMaxAbsorptionAmount(entity);
+            }
+        } else if (entity instanceof Unit unit) {
+            maxHealth = unit.getUnitMaxHealth();
+            if (health > maxHealth) {
+                health = maxHealth;
+            }
+        }
+
         if (health >= 1) {
             healthText = String.valueOf((int) health);
         } else {
             healthText = String.valueOf(health).substring(0, 3);
         }
-        float maxHealth = entity.getMaxHealth();
-        if (entity.getAbsorptionAmount() > 0)
-            maxHealth += MiscUtil.getMaxAbsorptionAmount(entity);
 
         healthText += "/" + ((int) maxHealth);
         texts.add(healthText);
@@ -393,7 +418,17 @@ public class PortraitRendererUnit<T extends LivingEntity, M extends EntityModel<
             // Special-case Iron Golem HUD:
             // - Always show "5" in white
             // - Show "10" in green only while actively attacking a building
-            if (unit instanceof IronGolemUnit) {
+            if (unit instanceof RedstoneGolemUnit) {
+                double atkDmg = attackerUnit.getUnitAttackDamage();
+                double atkDmgRounded = Math.round(atkDmg);
+                if (Math.abs(atkDmgRounded - atkDmg) < 0.1d) {
+                    atkStr = String.valueOf((int) atkDmgRounded);
+                } else {
+                    DecimalFormat df1 = new DecimalFormat("###.#");
+                    atkStr = String.valueOf(df1.format(atkDmg));
+                }
+                atkColour = 0xFFFFFFFF;
+            } else if (unit instanceof IronGolemUnit) {
                 boolean isAttackingBuilding = false;
                 if (attackerUnit.getAttackBuildingGoal() instanceof MeleeAttackBuildingGoal mabg) {
                     isAttackingBuilding = mabg.isAttacking();
@@ -724,4 +759,3 @@ public class PortraitRendererUnit<T extends LivingEntity, M extends EntityModel<
         Lighting.setupFor3DItems();
     }
 }
-

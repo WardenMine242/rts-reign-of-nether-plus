@@ -149,41 +149,8 @@ public class BlockServerEvents {
         Player player = evt.getEntity();
         if (player == null)
             return;
-
-        BlockState clickedState = evt.getLevel().getBlockState(evt.getPos());
-        boolean isInBuilding = BuildingUtils.isPosInsideAnyBuilding(evt.getLevel().isClientSide(), evt.getPos());
-        boolean isCrop = clickedState.is(BlockTags.CROPS) &&
-                evt.getLevel().getBlockState(evt.getPos().below()).is(Blocks.FARMLAND);
-
-        if (evt.getLevel().isClientSide()) {
-            if (!player.isCreative() && !player.isSpectator()) {
-                if (isInBuilding && !isCrop) {
-                    evt.setUseBlock(Event.Result.DENY);
-                    evt.setUseItem(Event.Result.DENY);
-                    evt.setCancellationResult(InteractionResult.FAIL);
-                    evt.setCanceled(true);
-                    return;
-                }
-                if (!isAllowedSurvivalBreak(clickedState, evt.getPos(), evt.getLevel())) {
-                    evt.setUseBlock(Event.Result.DENY);
-                    evt.setUseItem(Event.Result.DENY);
-                    evt.setCancellationResult(InteractionResult.FAIL);
-                    evt.setCanceled(true);
-                }
-            }
-            return;
-        }
-
-        if (player instanceof ServerPlayer serverPlayer &&
-            serverPlayer.gameMode.getGameModeForPlayer() == GameType.SURVIVAL &&
-            !serverPlayer.isCreative()) {
-            if ((isInBuilding && !isCrop) || !isAllowedSurvivalBreak(clickedState, evt.getPos(), evt.getLevel())) {
-                evt.setUseBlock(Event.Result.DENY);
-                evt.setUseItem(Event.Result.DENY);
-                evt.setCancellationResult(InteractionResult.FAIL);
-                evt.setCanceled(true);
-            }
-        }
+        // Intentionally do not cancel left-clicks on restricted blocks.
+        // Survival restrictions are enforced by BreakSpeed (0 speed) and BreakEvent server checks.
     }
 
     @SubscribeEvent
@@ -193,14 +160,37 @@ public class BlockServerEvents {
             return;
 
         BlockState state = evt.getState();
+        BlockPos pos = evt.getPosition().orElse(null);
+        if (pos != null) {
+            boolean isInBuilding = BuildingUtils.isPosInsideAnyBuilding(player.level().isClientSide(), pos);
+            boolean isCrop = state.is(BlockTags.CROPS) &&
+                    player.level().getBlockState(pos.below()).is(Blocks.FARMLAND);
+            if ((isInBuilding && !isCrop) || !isAllowedSurvivalBreak(state, pos, player.level())) {
+                // Make restricted blocks behave like unbreakable blocks in survival.
+                evt.setNewSpeed(0.0f);
+                return;
+            }
+        }
+
         if (player.getMainHandItem().is(ItemRegistrar.IRON_PICKAXE.get()) && state.is(Tags.Blocks.ORES)) {
             // ~20s for regular ores with custom iron pickaxe
             evt.setNewSpeed(Math.max(0.0f, evt.getOriginalSpeed() * 0.1125f));
             return;
         }
+        if (player.getMainHandItem().is(ItemRegistrar.DIAMOND_PICKAXE.get()) && state.is(Tags.Blocks.ORES)) {
+            // 100% faster than custom iron pickaxe on ores
+            evt.setNewSpeed(Math.max(0.0f, evt.getOriginalSpeed() * 0.225f));
+            return;
+        }
 
         if (!(state.is(BlockTags.LOGS) || BlockUtils.isFallingLogBlock(state)))
             return;
+
+        if (player.getMainHandItem().is(ItemRegistrar.DIAMOND_AXE.get())) {
+            // 100% faster than custom iron axe on logs
+            evt.setNewSpeed(0.86f);
+            return;
+        }
 
         if (player.getMainHandItem().getItem() instanceof AxeItem) {
             // ~7s per log for players in survival with an axe
@@ -259,7 +249,9 @@ public class BlockServerEvents {
 
     private static boolean isUsingIronHoe(Player player) {
         return player.getMainHandItem().is(ItemRegistrar.IRON_HOE.get()) ||
-               player.getOffhandItem().is(ItemRegistrar.IRON_HOE.get());
+               player.getOffhandItem().is(ItemRegistrar.IRON_HOE.get()) ||
+               player.getMainHandItem().is(ItemRegistrar.DIAMOND_HOE.get()) ||
+               player.getOffhandItem().is(ItemRegistrar.DIAMOND_HOE.get());
     }
 
     @SubscribeEvent

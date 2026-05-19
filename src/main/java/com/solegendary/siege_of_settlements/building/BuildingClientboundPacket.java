@@ -2,9 +2,12 @@ package com.solegendary.siege_of_settlements.building;
 
 import com.solegendary.siege_of_settlements.api.SiegeOfSettlementsRegistries;
 import com.solegendary.siege_of_settlements.building.buildings.placements.BarracksPlacement;
+import com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement;
 import com.solegendary.siege_of_settlements.building.buildings.placements.PortalPlacement;
 import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
+import com.WardenMine242.siege_of_settlements.building.buildings.placements.ArcaneTowerPlacement;
 import com.WardenMine242.siege_of_settlements.building.buildings.placements.VillageDrillPlacement;
+import com.WardenMine242.siege_of_settlements.building.buildings.placements.VillagerHousePlacement;
 import com.solegendary.siege_of_settlements.building.custombuilding.CustomBuilding;
 import com.solegendary.siege_of_settlements.building.custombuilding.CustomBuildingClientEvents;
 import com.solegendary.siege_of_settlements.building.production.ActiveProduction;
@@ -414,6 +417,21 @@ public class BuildingClientboundPacket {
         if (pBuilding instanceof BarracksPlacement barracks) {
             barracks.syncTierFromNetwork(upgradeLevelSync);
             barracks.applyStructureForCurrentTier();
+            return;
+        }
+        if (pBuilding instanceof BlacksmithPlacement blacksmith) {
+            blacksmith.syncTierFromNetwork(upgradeLevelSync);
+            blacksmith.applyStructureForCurrentTier();
+            return;
+        }
+        if (pBuilding instanceof VillagerHousePlacement house) {
+            house.syncTierFromNetwork(upgradeLevelSync);
+            house.applyStructureForCurrentTier();
+            return;
+        }
+        if (pBuilding instanceof ArcaneTowerPlacement tower) {
+            tower.syncTierFromNetwork(upgradeLevelSync);
+            tower.applyStructureForCurrentTier();
         }
     }
 }
