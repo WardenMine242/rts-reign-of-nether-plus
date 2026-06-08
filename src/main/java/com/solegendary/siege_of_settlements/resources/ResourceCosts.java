@@ -144,6 +144,7 @@ public class ResourceCosts {
     public static final ResourceCost RESEARCH_CASTLE_FLAG = new ResourceCost(ID, "RESEARCH_CASTLE_FLAG");
     public static final ResourceCost RESEARCH_GRAND_LIBRARY = new ResourceCost(ID, "RESEARCH_GRAND_LIBRARY");
     public static final ResourceCost RESEARCH_VILLAGER_HOUSE_T2 = new ResourceCost(ID, "RESEARCH_VILLAGER_HOUSE_T2");
+    public static final ResourceCost RESEARCH_TOWN_CENTRE_T2 = new ResourceCost(ID, "RESEARCH_TOWN_CENTRE_T2");
     public static final ResourceCost ARCANE_TOWER_T2 = new ResourceCost(ID, "ARCANE_TOWER_T2");
     public static final ResourceCost ARCANE_TOWER_T3 = new ResourceCost(ID, "ARCANE_TOWER_T3");
     public static final ResourceCost BLACKSMITH_T2 = new ResourceCost(ID, "BLACKSMITH_T2");
@@ -215,6 +216,7 @@ public class ResourceCosts {
     public static final ResourceCost STEAK = new ResourceCost(ID, "STEAK");
     public static final ResourceCost EQUIP_BOW = new ResourceCost(ID, "EQUIP_BOW");
     public static final ResourceCost EQUIP_ARROWS = new ResourceCost(ID, "EQUIP_ARROWS");
+    public static final ResourceCost EQUIP_RAVAGER_ARMOR = new ResourceCost(ID, "EQUIP_RAVAGER_ARMOR");
     public static final ResourceCost BECOME_TRADER = new ResourceCost(ID, "BECOME_TRADER");
     public static final ResourceCost BERSERK = new ResourceCost(ID, "BERSERK");
 
@@ -462,6 +464,7 @@ public class ResourceCosts {
         STEAK.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.STEAK);
         EQUIP_BOW.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_BOW);
         EQUIP_ARROWS.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_ARROWS);
+        EQUIP_RAVAGER_ARMOR.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_RAVAGER_ARMOR);
         BECOME_TRADER.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.BECOME_TRADER);
         BERSERK.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.BERSERK);
     }

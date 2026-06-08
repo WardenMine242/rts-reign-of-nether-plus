@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "siege_of_settlements:block/stone_pillar",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "siege_of_settlements:block/stone_pillar"
+    },
+    "axis=z": {
+      "model": "siege_of_settlements:block/stone_pillar",
+      "x": 90
+    }
+  }
+}

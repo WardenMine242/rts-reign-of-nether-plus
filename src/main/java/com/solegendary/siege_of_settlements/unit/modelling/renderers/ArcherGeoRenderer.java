@@ -5,7 +5,6 @@ import com.solegendary.siege_of_settlements.unit.units.villagers.RavagerUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArcherUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -27,10 +26,6 @@ public class ArcherGeoRenderer extends GeoEntityRenderer<ArcherUnit> {
     protected void applyRotations(ArcherUnit animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
         super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
         poseStack.scale(0.9375F, 0.9375F, 0.9375F);
-
-        if (animatable.shouldUseAttackFacing()) {
-            poseStack.mulPose(Axis.YP.rotationDegrees(45.0F));
-        }
     }
 
     @Override

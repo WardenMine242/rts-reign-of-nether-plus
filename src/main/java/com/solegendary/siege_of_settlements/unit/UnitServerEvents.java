@@ -852,6 +852,33 @@ public class UnitServerEvents {
         return 0.0f;
     }
 
+    private static boolean isDirectAttackerUnitMeleeDamage(LivingDamageEvent evt) {
+        Entity sourceEntity = evt.getSource().getEntity();
+        if (!(sourceEntity instanceof AttackerUnit)) {
+            return false;
+        }
+        if (evt.getSource().getDirectEntity() != sourceEntity) {
+            return false;
+        }
+        return !evt.getSource().is(DamageTypeTags.IS_PROJECTILE) &&
+                !evt.getSource().is(DamageTypeTags.IS_FIRE) &&
+                !evt.getSource().is(DamageTypeTags.BYPASSES_ARMOR) &&
+                !evt.getSource().is(DamageTypeTags.BYPASSES_RESISTANCE) &&
+                !evt.getSource().is(DamageTypeTags.BYPASSES_SHIELD);
+    }
+
+    private static float getAttackerUnitDamageAmount(AttackerUnit attackerUnit, Entity sourceEntity, LivingEntity target, boolean ranged) {
+        float dmg = attackerUnit.getUnitAttackDamage() + getAuromancerAuraDamageBonus(sourceEntity);
+        if (target instanceof Unit unit) {
+            dmg *= (1 - unit.getUnitPhysicalArmorPercentage());
+            if (ranged) {
+                dmg *= (1 - unit.getUnitRangedArmorPercentage());
+            }
+            dmg *= (1 - unit.getUnitResistPercentage());
+        }
+        return dmg;
+    }
+
     public static Entity spawnMob(
             EntityType<? extends Mob> entityType, ServerLevel level, Vec3i pos, String ownerName
     ) {
@@ -1048,16 +1075,15 @@ public class UnitServerEvents {
             }
         }
 
+        if (isDirectAttackerUnitMeleeDamage(evt) &&
+                evt.getSource().getEntity() instanceof AttackerUnit attackerUnit) {
+            evt.setAmount(getAttackerUnitDamageAmount(attackerUnit, evt.getSource().getEntity(), evt.getEntity(), false));
+        }
+
         // ensure projectiles from units do the damage of the unit, not the item
         if (evt.getSource().is(DamageTypeTags.IS_PROJECTILE) &&
                 evt.getSource().getEntity() instanceof AttackerUnit attackerUnit) {
-            float dmg = attackerUnit.getUnitAttackDamage() + getAuromancerAuraDamageBonus(evt.getSource().getEntity());
-            if (evt.getEntity() instanceof Unit unit) {
-                dmg *= (1 - unit.getUnitPhysicalArmorPercentage());
-                dmg *= (1 - unit.getUnitRangedArmorPercentage());
-                dmg *= (1 - unit.getUnitResistPercentage());
-            }
-            evt.setAmount(dmg);
+            evt.setAmount(getAttackerUnitDamageAmount(attackerUnit, evt.getSource().getEntity(), evt.getEntity(), true));
         }
 
         // ignore added weapon damage for workers

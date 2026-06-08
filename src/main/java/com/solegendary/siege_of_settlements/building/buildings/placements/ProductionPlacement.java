@@ -319,6 +319,7 @@ public class ProductionPlacement extends BuildingPlacement {
                             (this instanceof VillageDrillPlacement
                                     || this instanceof BarracksPlacement
                                     || this instanceof BlacksmithPlacement
+                                    || this instanceof TownCentrePlacement
                                     || this instanceof VillagerHousePlacement
                                     || this instanceof ArcaneTowerPlacement)
                                     ? this.getUpgradeLevel()

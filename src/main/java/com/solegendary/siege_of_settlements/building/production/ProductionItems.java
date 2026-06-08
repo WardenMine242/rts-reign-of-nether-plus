@@ -9,6 +9,7 @@ import com.WardenMine242.siege_of_settlements.upgrades.DrillTierUpgrade;
 import com.WardenMine242.siege_of_settlements.upgrades.DrillTierUpgrade.DrillResearchRequirement;
 import com.WardenMine242.siege_of_settlements.upgrades.ArcaneTowerTierUpgrade;
 import com.WardenMine242.siege_of_settlements.upgrades.VillagerHouseT2;
+import com.WardenMine242.siege_of_settlements.upgrades.TownCentreT2;
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.building.buildings.placements.BarracksPlacement;
 import com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement;
@@ -61,6 +62,7 @@ public class ProductionItems {
     public static final SlimeProd SLIME = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "slime"), new SlimeProd());
     public static final WardenProd WARDEN = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "warden"), new WardenProd());
     public static final RavagerProd RAVAGER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "ravager"), new RavagerProd());
+    public static final DragonProd DRAGON = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "dragon"), new DragonProd());
 
     public static final GruntProd GRUNT = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "grunt"), new GruntProd());
     public static final BruteProd BRUTE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "brute"), new BruteProd());
@@ -121,6 +123,7 @@ public class ProductionItems {
     public static final ResearchFireResistance RESEARCH_FIRE_RESISTANCE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "fire_resistance"), new ResearchFireResistance());
     public static final ResearchGrandLibrary RESEARCH_GRAND_LIBRARY = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "grand_library"), new ResearchGrandLibrary());
     public static final VillagerHouseT2 RESEARCH_VILLAGER_HOUSE_T2 = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "villager_house_t2"), new VillagerHouseT2());
+    public static final TownCentreT2 RESEARCH_TOWN_CENTRE_T2 = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "town_centre_t2"), new TownCentreT2());
     public static final ResearchSuperiorBlacksmith RESEARCH_SUPERIOR_BLACKSMITH = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "superior_blacksmith"), new ResearchSuperiorBlacksmith());
     public static final ResearchSpiderWebs RESEARCH_SPIDER_WEBS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "spider_webs"), new ResearchSpiderWebs());
     public static final ResearchBloodlust RESEARCH_BLOODLUST = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "bloodlust"), new ResearchBloodlust());

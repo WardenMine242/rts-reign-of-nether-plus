@@ -130,6 +130,7 @@ public class HudClientEvents {
             ProductionItems.DRILL_T5,
             ProductionItems.DRILL_T6,
             ProductionItems.RESEARCH_VILLAGER_HOUSE_T2,
+            ProductionItems.RESEARCH_TOWN_CENTRE_T2,
             ProductionItems.ARCANE_TOWER_T2,
             ProductionItems.ARCANE_TOWER_T3,
             ProductionItems.BLACKSMITH_T2,

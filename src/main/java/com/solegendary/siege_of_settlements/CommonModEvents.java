@@ -19,6 +19,7 @@ import com.solegendary.siege_of_settlements.unit.units.piglins.*;
 import com.solegendary.siege_of_settlements.unit.units.villagers.*;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredPillagerUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredRavagerUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredVindicatorUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArcherUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
@@ -116,6 +117,7 @@ public class CommonModEvents {
         evt.registerEntityRenderer(EntityRegistrar.ENDERMAN_UNIT.get(), EndermanRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.WARDEN_UNIT.get(), WardenRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.RAVAGER_UNIT.get(), RavagerRenderer::new);
+        evt.registerEntityRenderer(EntityRegistrar.ARMORED_RAVAGER_UNIT.get(), ArmoredRavagerGeoRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.SILVERFISH_UNIT.get(), SilverfishRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.GRUNT_UNIT.get(), PiglinUnitRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.BRUTE_UNIT.get(), PiglinUnitRenderer::new);
@@ -126,6 +128,7 @@ public class CommonModEvents {
         evt.registerEntityRenderer(EntityRegistrar.BLAZE_UNIT.get(), BlazeRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.WITHER_SKELETON_UNIT.get(), WitherSkeletonRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.GHAST_UNIT.get(), GhastUnitRenderer::new);
+        evt.registerEntityRenderer(EntityRegistrar.DRAGON_UNIT.get(), DragonUnitGeoRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.MAGMA_CUBE_UNIT.get(), MagmaCubeUnitRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.SLIME_UNIT.get(), SlimeRenderer::new);
 
@@ -193,6 +196,7 @@ public class CommonModEvents {
         evt.put(EntityRegistrar.ENDERMAN_UNIT.get(), EndermanUnit.createAttributes().build());
         evt.put(EntityRegistrar.WARDEN_UNIT.get(), WardenUnit.createAttributes().build());
         evt.put(EntityRegistrar.RAVAGER_UNIT.get(), RavagerUnit.createAttributes().build());
+        evt.put(EntityRegistrar.ARMORED_RAVAGER_UNIT.get(), ArmoredRavagerUnit.createAttributes().build());
         evt.put(EntityRegistrar.SILVERFISH_UNIT.get(), SilverfishUnit.createAttributes().build());
         evt.put(EntityRegistrar.GRUNT_UNIT.get(), GruntUnit.createAttributes().build());
         evt.put(EntityRegistrar.HEADHUNTER_UNIT.get(), HeadhunterUnit.createAttributes().build());
@@ -203,6 +207,7 @@ public class CommonModEvents {
         evt.put(EntityRegistrar.BLAZE_UNIT.get(), BlazeUnit.createAttributes().build());
         evt.put(EntityRegistrar.WITHER_SKELETON_UNIT.get(), WitherSkeletonUnit.createAttributes().build());
         evt.put(EntityRegistrar.GHAST_UNIT.get(), GhastUnit.createAttributes().build());
+        evt.put(EntityRegistrar.DRAGON_UNIT.get(), DragonUnit_TEST.createAttributes().build());
         evt.put(EntityRegistrar.MAGMA_CUBE_UNIT.get(), SlimeUnit.createAttributes().build());
         evt.put(EntityRegistrar.SLIME_UNIT.get(), SlimeUnit.createAttributes().build());
         evt.put(EntityRegistrar.ROYAL_GUARD_UNIT.get(), RoyalGuardUnit.createAttributes().build());
@@ -282,6 +287,7 @@ public class CommonModEvents {
             event.accept(ItemRegistrar.ENDERMAN_UNIT_SPAWN_EGG);
             event.accept(ItemRegistrar.WARDEN_UNIT_SPAWN_EGG);
             event.accept(ItemRegistrar.RAVAGER_UNIT_SPAWN_EGG);
+            event.accept(ItemRegistrar.ARMORED_RAVAGER_UNIT_SPAWN_EGG);
             event.accept(ItemRegistrar.SILVERFISH_UNIT_SPAWN_EGG);
             event.accept(ItemRegistrar.GRUNT_UNIT_SPAWN_EGG);
             event.accept(ItemRegistrar.BRUTE_UNIT_SPAWN_EGG);

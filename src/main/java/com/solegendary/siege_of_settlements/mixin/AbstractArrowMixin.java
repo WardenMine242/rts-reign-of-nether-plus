@@ -28,6 +28,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -205,6 +206,10 @@ public abstract class AbstractArrowMixin extends Projectile {
             cancellable = true
     )
     protected void onHitEntity(EntityHitResult pResult, CallbackInfo ci) {
+        if (siege_of_settlements$shouldUseVanillaSurvivalPlayerArrowHit(pResult.getEntity())) {
+            return;
+        }
+
         ci.cancel();
         Entity entity = pResult.getEntity();
 
@@ -318,6 +323,25 @@ public abstract class AbstractArrowMixin extends Projectile {
                     false,
                     Level.ExplosionInteraction.BLOCK);
         }
+    }
+
+    @Unique
+    private boolean siege_of_settlements$shouldUseVanillaSurvivalPlayerArrowHit(Entity target) {
+        if (!(target instanceof LivingEntity)) {
+            return false;
+        }
+        if (siege_of_settlements$shouldExplodeMountedShot()) {
+            return false;
+        }
+
+        Entity owner = this.getOwner();
+        if (!(owner instanceof Player player)) {
+            return false;
+        }
+        if (owner instanceof ServerPlayer serverPlayer) {
+            return serverPlayer.gameMode.getGameModeForPlayer() == GameType.SURVIVAL;
+        }
+        return !player.isCreative() && !player.isSpectator();
     }
 
     @Inject(

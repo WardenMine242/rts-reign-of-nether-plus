@@ -23,6 +23,7 @@ import com.WardenMine242.siege_of_settlements.ability.abilities.EquipIronChestpl
 import com.WardenMine242.siege_of_settlements.ability.abilities.EquipIronHoe;
 import com.WardenMine242.siege_of_settlements.ability.abilities.EquipIronPickaxe;
 import com.WardenMine242.siege_of_settlements.ability.abilities.EquipIronSword;
+import com.WardenMine242.siege_of_settlements.ability.abilities.EquipRavagerArmor;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Style;
@@ -62,12 +63,13 @@ public class Blacksmith extends ProductionBuilding {
         this.abilities.add(new EquipChainmailChestplate(), Keybindings.keyY);
         this.abilities.add(new EquipIronChestplate(), Keybindings.keyL);
         this.abilities.add(new EquipDiamondChestplate(), Keybindings.keyG);
-        this.abilities.add(new EquipIronSword(), Keybindings.keyU);
-        this.abilities.add(new EquipIronPickaxe(), Keybindings.keyI);
-        this.abilities.add(new EquipIronAxe(), Keybindings.keyO);
-        this.abilities.add(new EquipIronHoe(), Keybindings.keyP);
-        this.abilities.add(new EquipBow(), Keybindings.keyJ);
-        this.abilities.add(new EquipArrows(), Keybindings.keyK);
+        this.abilities.add(new EquipRavagerArmor(), Keybindings.keyU);
+        this.abilities.add(new EquipIronSword(), Keybindings.keyI);
+        this.abilities.add(new EquipIronPickaxe(), Keybindings.keyO);
+        this.abilities.add(new EquipIronAxe(), Keybindings.keyP);
+        this.abilities.add(new EquipIronHoe(), Keybindings.keyJ);
+        this.abilities.add(new EquipBow(), Keybindings.keyK);
+        this.abilities.add(new EquipArrows(), Keybindings.keyV);
 
         this.productions.add(ProductionItems.IRON_GOLEM, Keybindings.keyQ);
         this.productions.add(ProductionItems.REDSTONE_GOLEM, Keybindings.keyF);

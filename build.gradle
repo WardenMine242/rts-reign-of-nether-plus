@@ -19,7 +19,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
-version = '0.4.0-playtest3'
+version = '0.4.0-playtest4'
 group = 'com.solegendary.siege_of_settlements' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'siege_of_settlements'
 

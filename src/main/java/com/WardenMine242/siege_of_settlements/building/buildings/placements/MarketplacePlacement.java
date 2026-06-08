@@ -19,6 +19,7 @@ import java.util.Set;
 
 public class MarketplacePlacement extends ProductionPlacement {
     public static final int MAX_TRADERS = 6;
+    private static final BlockPos UNIT_SPAWN_OFFSET = new BlockPos(5, 0, 4);
 
     private record TraderStallSlot(BlockPos stallPos, BlockPos frontPos, Direction facing) { }
 
@@ -82,6 +83,16 @@ public class MarketplacePlacement extends ProductionPlacement {
     public static BlockPos getTraderSlotExitWorldPos(MarketplacePlacement marketplace, int slotIndex) {
         TraderStallSlot slot = marketplace.getTraderSlot(slotIndex);
         return slot != null ? slot.stallPos.relative(slot.facing, 2) : marketplace.originPos;
+    }
+
+    @Override
+    public BlockPos getIndoorSpawnPoint(ServerLevel level) {
+        return originPos.offset(UNIT_SPAWN_OFFSET.rotate(this.rotation));
+    }
+
+    @Override
+    public BlockPos getDefaultOutdoorSpawnPoint() {
+        return originPos.offset(UNIT_SPAWN_OFFSET.rotate(this.rotation));
     }
 
     public int getTraderSlotCount() {

@@ -5,6 +5,7 @@ import com.solegendary.siege_of_settlements.building.buildings.placements.Barrac
 import com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement;
 import com.solegendary.siege_of_settlements.building.buildings.placements.PortalPlacement;
 import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
+import com.solegendary.siege_of_settlements.building.buildings.placements.TownCentrePlacement;
 import com.WardenMine242.siege_of_settlements.building.buildings.placements.ArcaneTowerPlacement;
 import com.WardenMine242.siege_of_settlements.building.buildings.placements.VillageDrillPlacement;
 import com.WardenMine242.siege_of_settlements.building.buildings.placements.VillagerHousePlacement;
@@ -422,6 +423,12 @@ public class BuildingClientboundPacket {
         if (pBuilding instanceof BlacksmithPlacement blacksmith) {
             blacksmith.syncTierFromNetwork(upgradeLevelSync);
             blacksmith.applyStructureForCurrentTier();
+            return;
+        }
+        if (pBuilding instanceof TownCentrePlacement townCentre) {
+            townCentre.syncTierFromNetwork(upgradeLevelSync);
+            townCentre.applyStructureForCurrentTier();
+            townCentre.setServerBlocksPlaced(townCentre.getBlocksTotal());
             return;
         }
         if (pBuilding instanceof VillagerHousePlacement house) {

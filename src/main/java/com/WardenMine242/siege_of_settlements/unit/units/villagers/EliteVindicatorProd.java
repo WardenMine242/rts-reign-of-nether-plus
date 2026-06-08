@@ -40,7 +40,7 @@ public class EliteVindicatorProd extends ProductionItem {
     public UnitSpawnButton getPlaceButton() {
         return new UnitSpawnButton(
                 itemName,
-                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/elite_vindicator_unit.png"),
+                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/elite_vindicator.png"),
                 List.of(
                         FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.elite_vindicator"), Style.EMPTY.withBold(true)),
                         FormattedCharSequence.forward("", Style.EMPTY),
@@ -55,7 +55,7 @@ public class EliteVindicatorProd extends ProductionItem {
     public StartProductionButton getStartButton(ProductionPlacement prodBuilding, Keybinding hotkey) {
         return new StartProductionButton(
                 itemName,
-                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/elite_vindicator_unit.png"),
+                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/elite_vindicator.png"),
                 hotkey,
                 () -> false,
                 () -> true,
@@ -76,7 +76,7 @@ public class EliteVindicatorProd extends ProductionItem {
     public StopProductionButton getCancelButton(ProductionPlacement prodBuilding, boolean first) {
         return new StopProductionButton(
                 itemName,
-                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/elite_vindicator_unit.png"),
+                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/elite_vindicator.png"),
                 prodBuilding,
                 this,
                 first

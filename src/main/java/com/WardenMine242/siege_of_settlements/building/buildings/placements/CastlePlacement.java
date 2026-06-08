@@ -10,6 +10,7 @@ import com.solegendary.siege_of_settlements.building.production.ProductionItem;
 import com.solegendary.siege_of_settlements.building.production.ProductionItems;
 import com.solegendary.siege_of_settlements.building.production.StartProductionButton;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -24,6 +25,8 @@ import java.util.UUID;
 public class CastlePlacement extends com.solegendary.siege_of_settlements.building.buildings.placements.CastlePlacement {
     private static final int BASE_SLOT_CAPACITY = MAX_OCCUPANTS;
     private static final int EXTRA_SLOT_CAPACITY = 4;
+    private static final BlockPos UNIT_SPAWN_OFFSET = new BlockPos(5, 2, 6);
+    private static final BlockPos UNIT_SPAWN_FORWARD_OFFSET = new BlockPos(0, 0, 1);
     private static final BlockPos[] ENTRY_OFFSETS = new BlockPos[] {
             new BlockPos(5, 16, 5),
             new BlockPos(2, 11, 2),
@@ -140,6 +143,17 @@ public class CastlePlacement extends com.solegendary.siege_of_settlements.buildi
 
     public void releaseEntryReservation(Entity entity) {
         reservedEntrySlots.remove(entity.getUUID());
+    }
+
+    @Override
+    public BlockPos getIndoorSpawnPoint(ServerLevel level) {
+        return originPos.offset(GarrisonableBuilding.rotatePos(UNIT_SPAWN_OFFSET, this.rotation));
+    }
+
+    @Override
+    public BlockPos getDefaultOutdoorSpawnPoint() {
+        return super.getDefaultOutdoorSpawnPoint()
+                .offset(GarrisonableBuilding.rotatePos(UNIT_SPAWN_FORWARD_OFFSET, this.rotation));
     }
 
     @Override

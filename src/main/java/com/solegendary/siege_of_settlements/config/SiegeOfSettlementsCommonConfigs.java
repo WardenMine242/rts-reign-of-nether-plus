@@ -1,5 +1,7 @@
 package com.solegendary.siege_of_settlements.config;
 
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredRavagerUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneGolemUnit;
 import com.solegendary.siege_of_settlements.resources.ResourceCosts;
 import net.minecraftforge.common.ForgeConfigSpec;
 
@@ -81,6 +83,8 @@ public class SiegeOfSettlementsCommonConfigs {
 
         BUILDER.comment("Redstone Golem stat configuration");
         RedstoneGolemStats.define(BUILDER);
+        BUILDER.comment("Armored Ravager stat configuration");
+        ArmoredRavagerStats.define(BUILDER);
 
         //*Buildings*
         BUILDER.comment("Building Cost Configurations");
@@ -207,6 +211,8 @@ public class SiegeOfSettlementsCommonConfigs {
         ResearchCosts.RESEARCH_ADVANCED_BLACKSMITH.define(BUILDER);
         ResearchCosts.RESEARCH_BIG_HOUSE.define(BUILDER);
         ResearchCosts.RESEARCH_POWERFUL_ARCANE_TOWER.define(BUILDER);
+        ResearchCosts.RESEARCH_TOWN_CENTRE_T2.define(BUILDER);
+
 
         //*Abilities*
         BUILDER.comment("Ability Cost Configurations");
@@ -230,6 +236,7 @@ public class SiegeOfSettlementsCommonConfigs {
         AbilityCosts.STEAK.define(BUILDER);
         AbilityCosts.EQUIP_BOW.define(BUILDER);
         AbilityCosts.EQUIP_ARROWS.define(BUILDER);
+        AbilityCosts.EQUIP_RAVAGER_ARMOR.define(BUILDER);
         AbilityCosts.BECOME_TRADER.define(BUILDER);
         AbilityCosts.BERSERK.define(BUILDER);
 
@@ -309,34 +316,82 @@ public class SiegeOfSettlementsCommonConfigs {
         public static ForgeConfigSpec.DoubleValue ATTACKS_PER_SECOND;
         public static ForgeConfigSpec.DoubleValue ATTACK_RANGE;
         public static ForgeConfigSpec.DoubleValue AGGRO_RANGE;
+        public static ForgeConfigSpec.DoubleValue ATTACK_KNOCKBACK;
         public static ForgeConfigSpec.DoubleValue KNOCKBACK_RESISTANCE;
 
         public static void define(ForgeConfigSpec.Builder builder) {
             builder.push("RedstoneGolemStats");
             ATTACK_DAMAGE = builder
                     .comment("Base melee damage of the Redstone Golem.")
-                    .defineInRange("attack_damage", 40.0D, 0.0D, 2048.0D);
+                    .defineInRange("attack_damage", (double) RedstoneGolemUnit.DEFAULT_ATTACK_DAMAGE, 0.0D, 2048.0D);
             MAX_HEALTH = builder
                     .comment("Base maximum health of the Redstone Golem.")
-                    .defineInRange("max_health", 440.0D, 1.0D, 4096.0D);
+                    .defineInRange("max_health", (double) RedstoneGolemUnit.DEFAULT_MAX_HEALTH, 1.0D, 4096.0D);
             ARMOR = builder
                     .comment("Base armor value of the Redstone Golem.")
-                    .defineInRange("armor", 0.0D, 0.0D, 200.0D);
+                    .defineInRange("armor", (double) RedstoneGolemUnit.DEFAULT_ARMOR, 0.0D, 200.0D);
             MOVEMENT_SPEED = builder
                     .comment("Movement speed of the Redstone Golem. HUD speed is this value multiplied by 100.")
-                    .defineInRange("movement_speed", 0.25D, 0.0D, 4.0D);
+                    .defineInRange("movement_speed", (double) RedstoneGolemUnit.DEFAULT_MOVEMENT_SPEED, 0.0D, 4.0D);
             ATTACKS_PER_SECOND = builder
                     .comment("Attack speed of the Redstone Golem in attacks per second.")
-                    .defineInRange("attacks_per_second", 0.6D, 0.01D, 20.0D);
+                    .defineInRange("attacks_per_second", (double) RedstoneGolemUnit.DEFAULT_ATTACKS_PER_SECOND, 0.01D, 20.0D);
             ATTACK_RANGE = builder
                     .comment("Melee attack range used by unit logic.")
-                    .defineInRange("attack_range", 3.0D, 0.0D, 64.0D);
+                    .defineInRange("attack_range", (double) RedstoneGolemUnit.DEFAULT_ATTACK_RANGE, 0.0D, 64.0D);
             AGGRO_RANGE = builder
                     .comment("Aggro range used when idle/retaliating.")
-                    .defineInRange("aggro_range", 10.0D, 0.0D, 128.0D);
+                    .defineInRange("aggro_range", (double) RedstoneGolemUnit.DEFAULT_AGGRO_RANGE, 0.0D, 128.0D);
+            ATTACK_KNOCKBACK = builder
+                    .comment("Attack knockback of the Redstone Golem.")
+                    .defineInRange("attack_knockback", RedstoneGolemUnit.DEFAULT_ATTACK_KNOCKBACK, 0.0D, 32.0D);
             KNOCKBACK_RESISTANCE = builder
                     .comment("Knockback resistance of the Redstone Golem.")
-                    .defineInRange("knockback_resistance", 1.0D, 0.0D, 1.0D);
+                    .defineInRange("knockback_resistance", RedstoneGolemUnit.DEFAULT_KNOCKBACK_RESISTANCE, 0.0D, 1.0D);
+            builder.pop();
+        }
+    }
+
+    public static class ArmoredRavagerStats {
+        public static ForgeConfigSpec.DoubleValue ATTACK_DAMAGE;
+        public static ForgeConfigSpec.DoubleValue MAX_HEALTH;
+        public static ForgeConfigSpec.DoubleValue ARMOR;
+        public static ForgeConfigSpec.DoubleValue MOVEMENT_SPEED;
+        public static ForgeConfigSpec.DoubleValue ATTACKS_PER_SECOND;
+        public static ForgeConfigSpec.DoubleValue ATTACK_RANGE;
+        public static ForgeConfigSpec.DoubleValue AGGRO_RANGE;
+        public static ForgeConfigSpec.DoubleValue ATTACK_KNOCKBACK;
+        public static ForgeConfigSpec.DoubleValue KNOCKBACK_RESISTANCE;
+
+        public static void define(ForgeConfigSpec.Builder builder) {
+            builder.push("ArmoredRavagerStats");
+            ATTACK_DAMAGE = builder
+                    .comment("Base melee damage of the Armored Ravager.")
+                    .defineInRange("attack_damage", (double) ArmoredRavagerUnit.DEFAULT_ATTACK_DAMAGE, 0.0D, 2048.0D);
+            MAX_HEALTH = builder
+                    .comment("Base maximum health of the Armored Ravager.")
+                    .defineInRange("max_health", (double) ArmoredRavagerUnit.DEFAULT_MAX_HEALTH, 1.0D, 4096.0D);
+            ARMOR = builder
+                    .comment("Base armor value of the Armored Ravager.")
+                    .defineInRange("armor", (double) ArmoredRavagerUnit.DEFAULT_ARMOR, 0.0D, 200.0D);
+            MOVEMENT_SPEED = builder
+                    .comment("Movement speed of the Armored Ravager. HUD speed is this value multiplied by 100.")
+                    .defineInRange("movement_speed", (double) ArmoredRavagerUnit.DEFAULT_MOVEMENT_SPEED, 0.0D, 4.0D);
+            ATTACKS_PER_SECOND = builder
+                    .comment("Attack speed of the Armored Ravager in attacks per second.")
+                    .defineInRange("attacks_per_second", (double) ArmoredRavagerUnit.DEFAULT_ATTACKS_PER_SECOND, 0.01D, 20.0D);
+            ATTACK_RANGE = builder
+                    .comment("Melee attack range used by unit logic.")
+                    .defineInRange("attack_range", (double) ArmoredRavagerUnit.DEFAULT_ATTACK_RANGE, 0.0D, 64.0D);
+            AGGRO_RANGE = builder
+                    .comment("Aggro range used when idle/retaliating.")
+                    .defineInRange("aggro_range", (double) ArmoredRavagerUnit.DEFAULT_AGGRO_RANGE, 0.0D, 128.0D);
+            ATTACK_KNOCKBACK = builder
+                    .comment("Attack knockback of the Armored Ravager.")
+                    .defineInRange("attack_knockback", ArmoredRavagerUnit.DEFAULT_ATTACK_KNOCKBACK, 0.0D, 32.0D);
+            KNOCKBACK_RESISTANCE = builder
+                    .comment("Knockback resistance of the Armored Ravager.")
+                    .defineInRange("knockback_resistance", ArmoredRavagerUnit.DEFAULT_KNOCKBACK_RESISTANCE, 0.0D, 1.0D);
             builder.pop();
         }
     }
@@ -468,6 +523,7 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry RESEARCH_ADVANCED_BLACKSMITH = ResourceCostConfigEntry.Research(0, 5000, 3000,0, 120, ResourceCosts.RESEARCH_ADVANCED_BLACKSMITH, "Research Advanced Blacksmith Config");
         public static final ResourceCostConfigEntry RESEARCH_BIG_HOUSE = ResourceCostConfigEntry.Research(0, 3000, 2000,50, 100, ResourceCosts.RESEARCH_BIG_HOUSE, "Research Big House Config");
         public static final ResourceCostConfigEntry RESEARCH_POWERFUL_ARCANE_TOWER = ResourceCostConfigEntry.Research(0, 5000, 6000,0, 120, ResourceCosts.RESEARCH_POWERFUL_ARCANE_TOWER, "Research Powerful Arcane Tower Config");
+        public static final ResourceCostConfigEntry RESEARCH_TOWN_CENTRE_T2 = ResourceCostConfigEntry.Research(0, 1000, 2000,0, 120, ResourceCosts.RESEARCH_TOWN_CENTRE_T2, "Research Tower Centre t2 Config");
 
     }
     public static class AbilityCosts implements Costs {
@@ -491,6 +547,7 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry STEAK = ResourceCostConfigEntry.Ability(200,0, 0,0, ResourceCosts.STEAK, "Steak Config");
         public static final ResourceCostConfigEntry EQUIP_BOW = ResourceCostConfigEntry.Ability(0,300, 200,0, ResourceCosts.EQUIP_BOW, "Bow Config");
         public static final ResourceCostConfigEntry EQUIP_ARROWS = ResourceCostConfigEntry.Ability(0,100, 50,0, ResourceCosts.EQUIP_ARROWS, "Arrows Config");
+        public static final ResourceCostConfigEntry EQUIP_RAVAGER_ARMOR = ResourceCostConfigEntry.Ability(0,0, 3000,0, ResourceCosts.EQUIP_RAVAGER_ARMOR, "Equip Ravager Armor Config");
         public static final ResourceCostConfigEntry BECOME_TRADER = ResourceCostConfigEntry.Ability(400,1300, 800,0, ResourceCosts.BECOME_TRADER, "Become Trader Config");
         public static final ResourceCostConfigEntry BERSERK = ResourceCostConfigEntry.Ability(1000,0, 0,0, ResourceCosts.BERSERK, "Elite Vindicator Berserk Config");
 

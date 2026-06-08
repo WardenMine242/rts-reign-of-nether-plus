@@ -8,7 +8,7 @@ import com.solegendary.siege_of_settlements.building.BuildingClientEvents;
 import com.solegendary.siege_of_settlements.building.BuildingPlaceButton;
 import com.solegendary.siege_of_settlements.building.BuildingPlacement;
 import com.solegendary.siege_of_settlements.building.Buildings;
-import com.solegendary.siege_of_settlements.building.buildings.placements.RangeIndicatorProductionPlacement;
+import com.solegendary.siege_of_settlements.building.buildings.placements.TownCentrePlacement;
 import com.solegendary.siege_of_settlements.building.production.ProductionBuilding;
 import com.solegendary.siege_of_settlements.building.production.ProductionItems;
 import com.solegendary.siege_of_settlements.keybinds.Keybinding;
@@ -34,6 +34,7 @@ public class TownCentre extends ProductionBuilding {
 
     public final static String buildingName = "Town Centre";
     public final static String structureName = "town_centre";
+    public final static String upgradedStructureName = "town_centre_t2";
     public final static ResourceCost cost = ResourceCosts.TOWN_CENTRE;
 
     // distance you can move away from a town centre before being turned back into a villager
@@ -58,13 +59,27 @@ public class TownCentre extends ProductionBuilding {
         this.abilities.add(backToWork, Keybindings.build);
 
         this.productions.add(ProductionItems.VILLAGER, Keybindings.keyQ);
+        this.productions.add(ProductionItems.RESEARCH_TOWN_CENTRE_T2, Keybindings.keyW);
     }
 
     public Faction getFaction() {return Faction.VILLAGERS;}
 
     @Override
     public BuildingPlacement createBuildingPlacement(Level level, BlockPos pos, Rotation rotation, String ownerName) {
-        return new RangeIndicatorProductionPlacement(this, level, pos, rotation, ownerName, getAbsoluteBlockData(getRelativeBlockData(level), level, pos, rotation), true, MILITIA_RANGE, true, false);
+        return new TownCentrePlacement(this, level, pos, rotation, ownerName, getAbsoluteBlockData(getRelativeBlockData(level), level, pos, rotation), true, MILITIA_RANGE, true, false);
+    }
+
+    @Override
+    public int getUpgradeLevel(BuildingPlacement placement) {
+        if (placement instanceof TownCentrePlacement townCentre) {
+            return townCentre.getUpgradeLevel();
+        }
+        return 0;
+    }
+
+    @Override
+    public String getUpgradedStructureName(int upgradeLevel) {
+        return upgradeLevel > 0 ? upgradedStructureName : structureName;
     }
 
     public BuildingPlaceButton getBuildButton(Keybinding hotkey) {

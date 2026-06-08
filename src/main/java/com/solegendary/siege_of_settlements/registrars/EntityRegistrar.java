@@ -11,6 +11,7 @@ import com.solegendary.siege_of_settlements.unit.units.villagers.*;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerProd;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredPillagerProd;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredPillagerUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredRavagerUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredVindicatorProd;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredVindicatorUnit;
@@ -230,6 +231,12 @@ public class EntityRegistrar {
                     .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
                     .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "ravager_unit").toString()));
 
+    public static final RegistryObject<EntityType<ArmoredRavagerUnit>> ARMORED_RAVAGER_UNIT = ENTITIES.register("armored_ravager_unit",
+            () -> EntityType.Builder.of(ArmoredRavagerUnit::new, MobCategory.CREATURE)
+                    .sized(EntityType.RAVAGER.getWidth(), EntityType.RAVAGER.getHeight())
+                    .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
+                    .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "armored_ravager_unit").toString()));
+
     public static final RegistryObject<EntityType<WardenUnit>> WARDEN_UNIT = ENTITIES.register("warden_unit",
             () -> EntityType.Builder.of(WardenUnit::new, MobCategory.CREATURE)
                     .sized(EntityType.WARDEN.getWidth(), EntityType.WARDEN.getHeight())
@@ -297,6 +304,12 @@ public class EntityRegistrar {
                             EntityType.GHAST.getHeight() * GhastUnitRenderer.SCALE_MULT)
                     .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
                     .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "ghast_unit").toString()));
+
+    public static final RegistryObject<EntityType<DragonUnit_TEST>> DRAGON_UNIT = ENTITIES.register("dragon_unit",
+            () -> EntityType.Builder.of(DragonUnit_TEST::new, MobCategory.CREATURE)
+                    .sized(EntityType.GHAST.getWidth(), EntityType.GHAST.getHeight() * 0.85F)
+                    .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
+                    .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "dragon_unit").toString()));
 
     public static final RegistryObject<EntityType<MagmaCubeUnit>> MAGMA_CUBE_UNIT = ENTITIES.register("magma_cube_unit",
             () -> EntityType.Builder.of(MagmaCubeUnit::new, MobCategory.CREATURE)
@@ -484,6 +497,7 @@ public class EntityRegistrar {
             case WitherSkeletonProd.itemName -> EntityRegistrar.WITHER_SKELETON_UNIT.get();
             case MagmaCubeProd.itemName -> EntityRegistrar.MAGMA_CUBE_UNIT.get();
             case GhastProd.itemName -> EntityRegistrar.GHAST_UNIT.get();
+            case DragonProd.itemName -> EntityRegistrar.DRAGON_UNIT.get();
             case NecromancerProd.itemName -> EntityRegistrar.NECROMANCER_UNIT.get();
             case PiglinMerchantProd.itemName -> EntityRegistrar.PIGLIN_MERCHANT_UNIT.get();
             case WildfireProd.itemName -> EntityRegistrar.WILDFIRE_UNIT.get();

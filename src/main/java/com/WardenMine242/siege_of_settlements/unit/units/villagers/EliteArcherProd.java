@@ -1,6 +1,7 @@
 package com.WardenMine242.siege_of_settlements.unit.units.villagers;
 
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
+import com.WardenMine242.siege_of_settlements.building.buildings.placements.MarketplacePlacement;
 import com.solegendary.siege_of_settlements.building.buildings.placements.BarracksPlacement;
 import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
 import com.solegendary.siege_of_settlements.building.production.ProductionItem;
@@ -24,6 +25,7 @@ public class EliteArcherProd extends ProductionItem {
 
     public static final String itemName = "Elite Archer";
     public static final ResourceCost cost = ResourceCosts.ELITE_ARCHER;
+    private static final ResourceLocation ICON = ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/elite_archer.png");
 
     public EliteArcherProd() {
         super(cost);
@@ -41,7 +43,7 @@ public class EliteArcherProd extends ProductionItem {
     public UnitSpawnButton getPlaceButton() {
         return new UnitSpawnButton(
                 itemName,
-                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/pillager.png"),
+                ICON,
                 List.of(
                         FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.elite_archer"), Style.EMPTY.withBold(true)),
                         FormattedCharSequence.forward("", Style.EMPTY),
@@ -55,10 +57,12 @@ public class EliteArcherProd extends ProductionItem {
     public StartProductionButton getStartButton(ProductionPlacement prodBuilding, Keybinding hotkey) {
         return new StartProductionButton(
                 itemName,
-                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/pillager.png"),
+                ICON,
                 hotkey,
-                () -> !(prodBuilding instanceof BarracksPlacement) || prodBuilding.getUpgradeLevel() < 2,
-                () -> prodBuilding instanceof BarracksPlacement && prodBuilding.getUpgradeLevel() >= 2,
+                () -> !(prodBuilding instanceof MarketplacePlacement) &&
+                        (!(prodBuilding instanceof BarracksPlacement) || prodBuilding.getUpgradeLevel() < 2),
+                () -> prodBuilding instanceof MarketplacePlacement ||
+                        prodBuilding instanceof BarracksPlacement && prodBuilding.getUpgradeLevel() >= 2,
                 List.of(
                         FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.elite_archer"), Style.EMPTY.withBold(true)),
                         ResourceCosts.getFormattedCost(cost),
@@ -75,7 +79,7 @@ public class EliteArcherProd extends ProductionItem {
     public StopProductionButton getCancelButton(ProductionPlacement prodBuilding, boolean first) {
         return new StopProductionButton(
                 itemName,
-                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/pillager.png"),
+                ICON,
                 prodBuilding,
                 this,
                 first

@@ -5,7 +5,6 @@ import com.solegendary.siege_of_settlements.unit.units.villagers.RavagerUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -28,11 +27,6 @@ public class EliteArcherGeoRenderer extends GeoEntityRenderer<EliteArcherUnit> {
         super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
         // Keep the custom geo model at the same visual size as a regular pillager.
         poseStack.scale(0.9375F, 0.9375F, 0.9375F);
-
-        if (animatable.shouldUseAttackFacing()) {
-            // During draw/fire animation, visually rotate front by 45deg (red-arrow direction).
-            poseStack.mulPose(Axis.YP.rotationDegrees(45.0F));
-        }
     }
 
     @Override

@@ -38,15 +38,17 @@ public class RedstoneGolemUnit extends IronGolemUnit implements GeoEntity {
         ABILITIES.add(new Minefield(), Keybindings.keyQ);
     }
 
-    private static final float DEFAULT_MOVEMENT_SPEED = 0.25F; // HUD shows this as 25
-    private static final float DEFAULT_ATTACKS_PER_SECOND = 0.6F;
-    private static final float DEFAULT_ATTACK_DAMAGE = 40.0F;
-    private static final float DEFAULT_MAX_HEALTH = 450.0F;
-    private static final float DEFAULT_ARMOR = 0.0F;
-    private static final float DEFAULT_ATTACK_RANGE = 3.0F;
-    private static final float DEFAULT_AGGRO_RANGE = 10.0F;
-    private static final double DEFAULT_KNOCKBACK_RESISTANCE = 1.0D;
+    public static final float DEFAULT_MOVEMENT_SPEED = 0.25F; // HUD shows this as 25
+    public static final float DEFAULT_ATTACKS_PER_SECOND = 0.6F;
+    public static final float DEFAULT_ATTACK_DAMAGE = 20.0F;
+    public static final float DEFAULT_MAX_HEALTH = 450.0F;
+    public static final float DEFAULT_ARMOR = 0.0F;
+    public static final float DEFAULT_ATTACK_RANGE = 3.0F;
+    public static final float DEFAULT_AGGRO_RANGE = 10.0F;
+    public static final double DEFAULT_ATTACK_KNOCKBACK = 1.5D;
+    public static final double DEFAULT_KNOCKBACK_RESISTANCE = 1.0D;
     private static final double LEGACY_ATTACK_DAMAGE = 10.0D;
+    private static final double LEGACY_CONFIG_ATTACK_DAMAGE = 40.0D;
     private static final double LEGACY_MAX_HEALTH = 140.0D;
     private static final double ATTACK_ANIMATION_SPEED = 0.7D;
     private static final int ATTACK_ANIM_TICKS = 15;
@@ -119,6 +121,7 @@ public class RedstoneGolemUnit extends IronGolemUnit implements GeoEntity {
                 .add(Attributes.ARMOR, DEFAULT_ARMOR)
                 .add(Attributes.MAX_HEALTH, DEFAULT_MAX_HEALTH)
                 .add(Attributes.FOLLOW_RANGE, com.solegendary.siege_of_settlements.unit.interfaces.Unit.getFollowRange())
+                .add(Attributes.ATTACK_KNOCKBACK, DEFAULT_ATTACK_KNOCKBACK)
                 .add(Attributes.KNOCKBACK_RESISTANCE, DEFAULT_KNOCKBACK_RESISTANCE);
     }
 
@@ -227,7 +230,21 @@ public class RedstoneGolemUnit extends IronGolemUnit implements GeoEntity {
             startAttackAnimationFromSwingIndex(nextSwingIndex);
             this.lastSeenAttackSwingIndex = nextSwingIndex;
         }
-        return super.doHurtTarget(target);
+        return hurtTargetWithConfiguredDamage(target);
+    }
+
+    private boolean hurtTargetWithConfiguredDamage(Entity target) {
+        boolean hurt = target.hurt(this.damageSources().mobAttack(this), getUnitAttackDamage());
+        if (hurt) {
+            double knockback = this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
+            if (knockback > 0.0D && target instanceof LivingEntity livingTarget) {
+                livingTarget.knockback((float) knockback * 0.5F, Mth.sin(this.getYRot() * 0.017453292F), -Mth.cos(this.getYRot() * 0.017453292F));
+                this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
+            }
+            this.doEnchantDamageEffects(this, target);
+            this.setLastHurtMob(target);
+        }
+        return hurt;
     }
 
     @Override
@@ -246,7 +263,8 @@ public class RedstoneGolemUnit extends IronGolemUnit implements GeoEntity {
     private static float getConfiguredAttackDamage() {
         try {
             double configured = SiegeOfSettlementsCommonConfigs.RedstoneGolemStats.ATTACK_DAMAGE.get().doubleValue();
-            if (Math.abs(configured - LEGACY_ATTACK_DAMAGE) < 1.0E-6D) {
+            if (Math.abs(configured - LEGACY_ATTACK_DAMAGE) < 1.0E-6D ||
+                    Math.abs(configured - LEGACY_CONFIG_ATTACK_DAMAGE) < 1.0E-6D) {
                 return DEFAULT_ATTACK_DAMAGE;
             }
             return (float) configured;
@@ -307,11 +325,20 @@ public class RedstoneGolemUnit extends IronGolemUnit implements GeoEntity {
         }
     }
 
+    private static double getConfiguredAttackKnockback() {
+        try {
+            return SiegeOfSettlementsCommonConfigs.RedstoneGolemStats.ATTACK_KNOCKBACK.get();
+        } catch (IllegalStateException ignored) {
+            return DEFAULT_ATTACK_KNOCKBACK;
+        }
+    }
+
     private void syncConfiguredAttributes() {
         applyConfiguredAttribute(Attributes.MOVEMENT_SPEED, getConfiguredMovementSpeed());
         applyConfiguredAttribute(Attributes.ATTACK_DAMAGE, getConfiguredAttackDamage());
         applyConfiguredAttribute(Attributes.MAX_HEALTH, getConfiguredMaxHealth());
         applyConfiguredAttribute(Attributes.ARMOR, getConfiguredArmor());
+        applyConfiguredAttribute(Attributes.ATTACK_KNOCKBACK, getConfiguredAttackKnockback());
         applyConfiguredAttribute(Attributes.KNOCKBACK_RESISTANCE, getConfiguredKnockbackResistance());
 
         if (this.getHealth() > this.getMaxHealth()) {

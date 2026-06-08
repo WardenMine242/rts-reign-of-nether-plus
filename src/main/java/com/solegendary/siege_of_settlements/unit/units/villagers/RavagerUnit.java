@@ -14,6 +14,7 @@ import com.solegendary.siege_of_settlements.unit.Relationship;
 import com.solegendary.siege_of_settlements.unit.UnitServerEvents;
 import com.solegendary.siege_of_settlements.unit.goals.*;
 import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
+import com.solegendary.siege_of_settlements.unit.interfaces.ConvertableUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.faction.Faction;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
@@ -52,7 +53,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class RavagerUnit extends Ravager implements Unit, AttackerUnit {
+public class RavagerUnit extends Ravager implements Unit, AttackerUnit, ConvertableUnit {
     public static final Abilities ABILITIES = new Abilities();
     static {
         ABILITIES.add(new Roar(), Keybindings.keyQ);
@@ -73,6 +74,9 @@ public class RavagerUnit extends Ravager implements Unit, AttackerUnit {
 
     Ability autocast;
 
+    private boolean shouldDiscard = false;
+    public boolean shouldDiscard() { return shouldDiscard; }
+    public void setShouldDiscard(boolean discard) { this.shouldDiscard = discard; }
 
     private int eatingTicksLeft = 0;
     public void setEatingTicksLeft(int amount) { eatingTicksLeft = amount; }
@@ -290,6 +294,10 @@ public class RavagerUnit extends Ravager implements Unit, AttackerUnit {
     protected void blockedByShield(LivingEntity pEntity) { }
 
     public void tick() {
+        if (shouldDiscard) {
+            this.discard();
+            return;
+        }
         this.setCanPickUpLoot(false);
 
         boolean playerControlledNow = this.getFirstPassenger() instanceof Player;

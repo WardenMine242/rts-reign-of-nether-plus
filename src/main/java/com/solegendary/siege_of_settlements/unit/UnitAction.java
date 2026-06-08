@@ -133,6 +133,7 @@ public enum UnitAction {
     EQUIP_IRON_HOE,
     EQUIP_BOW,
     EQUIP_ARROWS,
+    EQUIP_RAVAGER_ARMOR,
 
     BEACON_HASTE,
     BEACON_RESISTANCE,

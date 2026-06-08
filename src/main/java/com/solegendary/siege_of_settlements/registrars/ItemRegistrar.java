@@ -106,6 +106,10 @@ public class ItemRegistrar {
             ITEMS.register("ravager_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.RAVAGER_UNIT,
                     0x6e6d69, 0x413934, new Item.Properties()));
 
+    public static final RegistryObject<ForgeSpawnEggItem> ARMORED_RAVAGER_UNIT_SPAWN_EGG =
+            ITEMS.register("armored_ravager_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.ARMORED_RAVAGER_UNIT,
+                    0x8aa3a0, 0x403a35, new Item.Properties()));
+
     public static final RegistryObject<ForgeSpawnEggItem> SILVERFISH_UNIT_SPAWN_EGG =
             ITEMS.register("silverfish_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.SILVERFISH_UNIT,
                     0x666666, 0x222222, new Item.Properties()));

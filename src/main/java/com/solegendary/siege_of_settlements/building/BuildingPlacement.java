@@ -15,6 +15,7 @@ import com.solegendary.siege_of_settlements.building.buildings.placements.Bridge
 import com.solegendary.siege_of_settlements.building.buildings.placements.PortalPlacement;
 import com.solegendary.siege_of_settlements.building.buildings.shared.AbstractBridge;
 import com.solegendary.siege_of_settlements.building.buildings.shared.AbstractStockpile;
+import com.solegendary.siege_of_settlements.building.buildings.villagers.TownCentre;
 import com.solegendary.siege_of_settlements.building.buildings.villagers.Watchtower;
 import com.solegendary.siege_of_settlements.building.custombuilding.CustomBuilding;
 import com.solegendary.siege_of_settlements.building.production.ProductionItems;
@@ -156,9 +157,9 @@ public class BuildingPlacement {
     protected long tickAgeAfterBuilt = 0; // not saved
     protected long tickAge = 0; // not saved
 
-    public final BlockPos minCorner;
-    public final BlockPos maxCorner;
-    public final BlockPos centrePos;
+    public BlockPos minCorner;
+    public BlockPos maxCorner;
+    public BlockPos centrePos;
 
     public boolean isDiagonalBridge = false;
 
@@ -226,28 +227,6 @@ public class BuildingPlacement {
         setBlocks(blocks);
 
         cooldowns.defaultReturnValue(0F);
-        var maxX = Integer.MIN_VALUE;
-        var minX = Integer.MAX_VALUE;
-        var maxY = Integer.MIN_VALUE;
-        var minY = Integer.MAX_VALUE;
-        var maxZ = Integer.MIN_VALUE;
-        var minZ = Integer.MAX_VALUE;
-        for (var block : blocks) {
-            var pos = block.getBlockPos();
-            maxX = Math.max(pos.getX(), maxX);
-            minX = Math.min(pos.getX(), minX);
-            maxY = Math.max(pos.getY(), maxY);
-            minY = Math.min(pos.getY(), minY);
-            maxZ = Math.max(pos.getZ(), maxZ);
-            minZ = Math.min(pos.getZ(), minZ);
-        }
-        this.minCorner = new BlockPos(minX, minY, minZ);
-        this.maxCorner = new BlockPos(maxX, maxY, maxZ);
-        this.centrePos = new BlockPos((int) ((float) (this.minCorner.getX() + this.maxCorner.getX()) / 2),
-            (int) ((float) (this.minCorner.getY() + this.maxCorner.getY()) / 2),
-            (int) ((float) (this.minCorner.getZ() + this.maxCorner.getZ()) / 2)
-        );
-
         // re-hide players if they were revealed
         if (this.isCapitol && !this.level.isClientSide()) {
             if (BuildingUtils.getTotalCompletedBuildingsOwned(false, this.ownerName) == 1 &&
@@ -266,13 +245,45 @@ public class BuildingPlacement {
     protected void setBlocks(ArrayList<BuildingBlock> blocks) {
         this.blocks = blocks;
         this.blockMap.clear();
-        var index = 0;
+
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int minZ = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int maxY = Integer.MIN_VALUE;
+        int maxZ = Integer.MIN_VALUE;
+        int nonAirBlockCount = 0;
+
         for (BuildingBlock block : this.blocks) {
-            blockMap.put(block.getBlockPos(), block);
-            if (block.getBlockState().isAir()) continue;
-            index++;
+            BlockPos pos = block.getBlockPos();
+            blockMap.put(pos, block);
+
+            minX = Math.min(pos.getX(), minX);
+            minY = Math.min(pos.getY(), minY);
+            minZ = Math.min(pos.getZ(), minZ);
+            maxX = Math.max(pos.getX(), maxX);
+            maxY = Math.max(pos.getY(), maxY);
+            maxZ = Math.max(pos.getZ(), maxZ);
+
+            if (!block.getBlockState().isAir()) {
+                nonAirBlockCount++;
+            }
         }
-        this.totalBlocks = index;
+
+        this.totalBlocks = nonAirBlockCount;
+        if (this.blocks.isEmpty()) {
+            this.minCorner = originPos;
+            this.maxCorner = originPos;
+            this.centrePos = originPos;
+        } else {
+            this.minCorner = new BlockPos(minX, minY, minZ);
+            this.maxCorner = new BlockPos(maxX, maxY, maxZ);
+            this.centrePos = new BlockPos(
+                    (this.minCorner.getX() + this.maxCorner.getX()) / 2,
+                    (this.minCorner.getY() + this.maxCorner.getY()) / 2,
+                    (this.minCorner.getZ() + this.maxCorner.getZ()) / 2
+            );
+        }
     }
 
     public float getMeleeDamageMult() {
@@ -628,9 +639,15 @@ public class BuildingPlacement {
         }
 
         if (!this.level.isClientSide() && isRTSPlayer(this.ownerName)) {
-            if (BuildingUtils.getTotalCompletedBuildingsOwned(false, this.ownerName) == 0 &&
-                !SandboxServer.isSandboxPlayer(this.ownerName)) {
-                PlayerServerEvents.defeat(this.ownerName, Component.translatable("server.siege_of_settlements.lost_buildings").getString());
+            boolean isSandboxPlayer = SandboxServer.isSandboxPlayer(this.ownerName);
+            boolean lostTownCentre = this.getBuilding() instanceof TownCentre;
+            boolean lostAllBuildings = BuildingUtils.getTotalCompletedBuildingsOwned(false, this.ownerName) == 0;
+
+            if (!isSandboxPlayer && (lostTownCentre || lostAllBuildings)) {
+                String defeatReasonKey = lostTownCentre
+                    ? "server.siege_of_settlements.lost_capitol_defeat"
+                    : "server.siege_of_settlements.lost_buildings";
+                PlayerServerEvents.defeat(this.ownerName, Component.translatable(defeatReasonKey).getString());
             } else if (this.isCapitol) {
                 var flag = false;
                 for (BuildingPlacement placement : BuildingServerEvents.getBuildings()) {
@@ -1207,8 +1224,32 @@ public class BuildingPlacement {
     }
 
     public void changeStructure(String newStructureName) {
-        ArrayList<BuildingBlock> newBlocks = BuildingBlockData.getBuildingBlocksFromNbt(newStructureName, this.getLevel());
-        setBlocks(getAbsoluteBlockData(newBlocks, this.getLevel(), originPos, rotation));
+        ArrayList<BuildingBlock> newRelativeBlocks = BuildingBlockData.getBuildingBlocksFromNbt(newStructureName, this.getLevel());
+        ArrayList<BuildingBlock> newAbsoluteBlocks = getAbsoluteBlockData(newRelativeBlocks, this.getLevel(), originPos, rotation);
+
+        // Ensure that any old blocks that are not present in the new structure (or are now air) are removed from the world.
+        // This guarantees no leftover blocks remain where the new structure expects air.
+        if (!this.getLevel().isClientSide()) {
+            ServerLevel serverLevel = (ServerLevel) this.getLevel();
+            java.util.Map<BlockPos, BlockState> newStatesByPos = new java.util.HashMap<>();
+            for (BuildingBlock b : newAbsoluteBlocks) newStatesByPos.put(b.getBlockPos(), b.getBlockState());
+
+            for (BuildingBlock oldBlock : new ArrayList<>(this.blocks)) {
+                BlockPos pos = oldBlock.getBlockPos();
+                BlockState newState = newStatesByPos.get(pos);
+                if (newState == null || newState.isAir()) {
+                    BlockEntity oldBe = serverLevel.getBlockEntity(pos);
+                    if (oldBe != null) serverLevel.removeBlockEntity(pos);
+                    BlockState worldState = serverLevel.getBlockState(pos);
+                    if (!worldState.isAir()) {
+                        serverLevel.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+                    }
+                }
+            }
+        }
+
+        // Replace internal block data with the new structure and queue non-air blocks for gradual placement
+        setBlocks(newAbsoluteBlocks);
         refreshBlocks();
     }
 

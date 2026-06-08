@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "siege_of_settlements:block/stone_pillar",
+    "end": "siege_of_settlements:block/stone_pillar_top"
+  }
+}
