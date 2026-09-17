@@ -419,7 +419,7 @@ public class PortraitRendererUnit<T extends LivingEntity, M extends EntityModel<
             // - Always show "5" in white
             // - Show "10" in green only while actively attacking a building
             if (unit instanceof RedstoneGolemUnit) {
-                double atkDmg = attackerUnit.getUnitAttackDamage();
+                double atkDmg = attackerUnit.getUnitAttackDamage() + auraAtkBonus;
                 double atkDmgRounded = Math.round(atkDmg);
                 if (Math.abs(atkDmgRounded - atkDmg) < 0.1d) {
                     atkStr = String.valueOf((int) atkDmgRounded);
@@ -427,7 +427,7 @@ public class PortraitRendererUnit<T extends LivingEntity, M extends EntityModel<
                     DecimalFormat df1 = new DecimalFormat("###.#");
                     atkStr = String.valueOf(df1.format(atkDmg));
                 }
-                atkColour = 0xFFFFFFFF;
+                atkColour = auraAtkBonus > 0 ? 0xFF2BFF2B : 0xFFFFFFFF;
             } else if (unit instanceof IronGolemUnit) {
                 boolean isAttackingBuilding = false;
                 if (attackerUnit.getAttackBuildingGoal() instanceof MeleeAttackBuildingGoal mabg) {

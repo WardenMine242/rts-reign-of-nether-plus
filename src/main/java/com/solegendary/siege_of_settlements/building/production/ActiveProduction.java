@@ -8,4 +8,10 @@ public class ActiveProduction {
         this.item = item;
         this.ticksLeft = item.getCost(isClientside, ownerName).ticks;
     }
+
+    public ActiveProduction(ProductionItem item, float ticksLeft, boolean completed) {
+        this.item = item;
+        this.ticksLeft = Math.max(0, ticksLeft);
+        this.completed = completed;
+    }
 }

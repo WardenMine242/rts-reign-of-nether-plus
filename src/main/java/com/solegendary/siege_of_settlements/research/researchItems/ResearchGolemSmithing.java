@@ -49,7 +49,8 @@ public class ResearchGolemSmithing extends ProductionItem {
             hotkey,
             () -> ProductionItems.RESEARCH_GOLEM_SMITHING.itemIsBeingProduced(prodBuilding.ownerName)
                 || ResearchClient.hasResearch(ProductionItems.RESEARCH_GOLEM_SMITHING),
-            () -> true,
+                () -> (ResearchClient.hasResearch(ProductionItems.RESEARCH_MILITIA_BOWS)) ||
+                        ResearchClient.hasCheat("modifythephasevariance"),
             List.of(FormattedCharSequence.forward(I18n.get("research.siege_of_settlements.golem_smithing"),
                     Style.EMPTY.withBold(true)
                 ),

@@ -5,6 +5,7 @@
     "refmap": "siege_of_settlements.refmap.json",
     "mixins": [
         "AbstractArrowMixin",
+        "ArcherHurtMixin",
         "BaseSpawnerMixin",
         "BeaconBlockEntityMixin",
         "BlazeMixin",

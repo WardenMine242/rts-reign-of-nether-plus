@@ -5,6 +5,7 @@ import com.solegendary.siege_of_settlements.ability.Ability;
 import com.solegendary.siege_of_settlements.ability.heroAbilities.enchanter.ProtectiveEnchantment;
 import com.solegendary.siege_of_settlements.ability.heroAbilities.piglinmerchant.FancyFeast;
 import com.solegendary.siege_of_settlements.building.BuildingUtils;
+import com.solegendary.siege_of_settlements.building.GarrisonableBuilding;
 import com.solegendary.siege_of_settlements.building.buildings.placements.BridgePlacement;
 import com.solegendary.siege_of_settlements.building.production.ProductionItems;
 import com.solegendary.siege_of_settlements.hud.Button;
@@ -607,10 +608,21 @@ public interface Unit {
         return null;
     }
 
+    @Nullable
+    default MountGoal getMountGoal() {
+        return null;
+    }
+
+    default boolean isMounting() {
+        MountGoal mountGoal = getMountGoal();
+        return mountGoal != null && mountGoal.isActive();
+    }
+
     default boolean isIdle() {
         boolean idleAttacker = true;
         boolean idleBuildingAttacker = true;
-        if (this instanceof AttackerUnit attackerUnit) {
+        // Traders are not combat units - they should never be considered as attackers
+        if (this instanceof AttackerUnit attackerUnit && !(this instanceof com.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit)) {
             idleAttacker = attackerUnit.getAttackMoveTarget() == null &&
                     !((Unit) attackerUnit).hasLivingTarget() &&
                     !AttackerUnit.isAttackingBuilding(attackerUnit);
@@ -628,6 +640,7 @@ public interface Unit {
         }
         return (this.getMoveGoal().getMoveTarget() == null || stationaryNearMoveTarget) &&
                 this.getFollowTarget() == null &&
+                !this.isMounting() &&
                 idleAttacker &&
                 idleWorker;
     }
@@ -653,6 +666,37 @@ public interface Unit {
     }
 
     void updateAbilityButtons();
+
+    default Vec3 getLeadingTargetPosition(LivingEntity target, float projectileSpeed) {
+        if (GarrisonableBuilding.getGarrison(this) != null) {
+            double distance = ((Entity) this).distanceTo(target);
+            double travelTime = distance / Math.max(0.1, projectileSpeed);
+
+            Vec3 movement = target.getDeltaMovement();
+            double mx = movement.x;
+            double mz = movement.z;
+
+            // If delta movement is zero (common for players on server or just stopped mobs),
+            // use the actual position change from last tick for better prediction.
+            if (Math.abs(mx) < 0.001 && Math.abs(mz) < 0.001) {
+                mx = target.getX() - target.xo;
+                mz = target.getZ() - target.zo;
+            }
+
+            // Lead factor to shoot slightly more ahead for better accuracy as requested.
+            // Applied to Archer and Pillager type units.
+            String className = this.getClass().getSimpleName();
+            double leadFactor = (className.contains("Pillager") || className.contains("Archer")) ? 1.25 : 1.0;
+
+            // We lead horizontally more than vertically, as vertical movement in MC is less predictable.
+            return target.position().add(
+                    mx * travelTime * leadFactor,
+                    0,
+                    mz * travelTime * leadFactor
+            );
+        }
+        return target.position();
+    }
 
     default boolean isCasting() {
         for (Ability ability : getAbilities().get())

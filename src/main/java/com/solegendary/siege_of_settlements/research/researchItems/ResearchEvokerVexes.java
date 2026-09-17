@@ -49,7 +49,9 @@ public class ResearchEvokerVexes extends ProductionItem {
             hotkey,
             () -> ProductionItems.RESEARCH_EVOKER_VEXES.itemIsBeingProduced(prodBuilding.ownerName)
                 || ResearchClient.hasResearch(ProductionItems.RESEARCH_EVOKER_VEXES),
-            () -> true,
+                () -> (ResearchClient.hasResearch(ProductionItems.RESEARCH_HEALING_POTIONS)
+                        && ResearchClient.hasResearch(ProductionItems.RESEARCH_POWERFUL_ARCANE_TOWER)) ||
+                        ResearchClient.hasCheat("modifythephasevariance"),
             List.of(FormattedCharSequence.forward(I18n.get("research.siege_of_settlements.evoker_vexes"),
                     Style.EMPTY.withBold(true)
                 ),

@@ -103,6 +103,7 @@ public class TownCentre extends ProductionBuilding {
                         ResourceCosts.getFormattedCost(cost),
                         FormattedCharSequence.forward("", Style.EMPTY),
                         FormattedCharSequence.forward(I18n.get("buildings.villagers.siege_of_settlements.town_centre.tooltip1"), Style.EMPTY),
+                        FormattedCharSequence.forward(I18n.get("buildings.villagers.siege_of_settlements.town_centre.tooltip2"), Style.EMPTY),
                         FormattedCharSequence.forward("", Style.EMPTY),
                         FormattedCharSequence.forward(I18n.get("buildings.siege_of_settlements.only.one_building"), Style.EMPTY)
                 ),

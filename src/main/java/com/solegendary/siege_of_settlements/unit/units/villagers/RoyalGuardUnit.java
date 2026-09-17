@@ -1,6 +1,7 @@
 package com.solegendary.siege_of_settlements.unit.units.villagers;
 
 import com.solegendary.siege_of_settlements.ability.Abilities;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
 import com.solegendary.siege_of_settlements.ability.Ability;
 import com.solegendary.siege_of_settlements.ability.abilities.PromoteIllager;
 import com.solegendary.siege_of_settlements.ability.heroAbilities.royalguard.Avatar;
@@ -160,9 +161,9 @@ public class RoyalGuardUnit extends Vindicator implements Unit, AttackerUnit, Ke
 
     // endregion
 
-    final static public float attackDamage = 6.0f;
+    final static public float attackDamage = 18.0f;
     final static public float attacksPerSecond = 0.5f;
-    final static public float maxHealth = 125.0f;
+    final static public float maxHealth = 350.0f;
     final static public float armorValue = 0.0f;
     final static public float movementSpeed = 0.28f;
     final static public float attackRange = 2; // only used by ranged units or melee building attackers
@@ -535,6 +536,9 @@ public class RoyalGuardUnit extends Vindicator implements Unit, AttackerUnit, Ke
         TauntingCry tauntingCry = getTauntingCry();
         if (tauntingCry != null) {
             for (Mob e : MiscUtil.getEntitiesWithinRange(position(), TauntingCry.RANGE, Mob.class, level())) {
+                // Traders are not combat units - skip taunting cry effect on them
+                if (e instanceof TraderUnit)
+                    continue;
                 if (!(e instanceof AttackerUnit attackerUnit) ||
                     List.of(Relationship.OWNED, Relationship.FRIENDLY)
                             .contains(UnitServerEvents.getUnitToEntityRelationship((Unit) attackerUnit, this))) continue;

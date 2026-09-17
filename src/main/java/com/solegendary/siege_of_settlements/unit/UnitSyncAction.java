@@ -8,7 +8,9 @@ public enum UnitSyncAction {
     MAKE_VILLAGER_VETERAN,
     SYNC_ANCHOR_POS,
     REMOVE_ANCHOR_POS,
+    SET_VILLAGER_PROFESSION,
 
     SYNC_ABILITIES,
     REQUEST_SYNC_ABILITIES, // ask the server to sync cooldowns
+    REQUEST_SYNC_OWNER, // ask the server to sync owner name after reconnect
 }

@@ -25,7 +25,7 @@ public class ArmoredVindicatorProd extends ProductionItem {
     public static final String itemName = "Armored Vindicator";
     public static final ResourceCost cost = ResourceCosts.ARMORED_VINDICATOR;
 
-    public ArmoredVindicatorProd() {
+    public ArmoredVindicatorProd(boolean first) {
         super(cost);
         this.onComplete = (Level level, ProductionPlacement placement) -> {
             if (!level.isClientSide()) {
@@ -56,8 +56,8 @@ public class ArmoredVindicatorProd extends ProductionItem {
                 itemName,
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/armored_vindicator.png"),
                 hotkey,
-                () -> !(prodBuilding instanceof BarracksPlacement) || prodBuilding.getUpgradeLevel() < 2,
-                () -> prodBuilding instanceof BarracksPlacement && prodBuilding.getUpgradeLevel() >= 2,
+                () -> prodBuilding instanceof BarracksPlacement && prodBuilding.getUpgradeLevel() < 2,
+                () -> !(prodBuilding instanceof BarracksPlacement) || prodBuilding.getUpgradeLevel() >= 2,
                 List.of(
                         FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.armored_vindicator"), Style.EMPTY.withBold(true)),
                         ResourceCosts.getFormattedCost(cost),

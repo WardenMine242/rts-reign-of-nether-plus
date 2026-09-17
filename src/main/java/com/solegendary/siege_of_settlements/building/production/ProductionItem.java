@@ -52,6 +52,14 @@ public abstract class ProductionItem {
     }
 
     public boolean canAfford(Level level, String ownerName) {
+        if (level.isClientSide()) {
+            if (com.solegendary.siege_of_settlements.sandbox.SandboxClientEvents.isSandboxPlayer(ownerName))
+                return true;
+        } else {
+            if (com.solegendary.siege_of_settlements.sandbox.SandboxServer.isSandboxPlayer(ownerName))
+                return true;
+        }
+
         for (Resources resources : ResourcesServerEvents.resourcesList)
             if (resources.ownerName.equals(ownerName))
                 return (resources.food >= getCost(level.isClientSide(), ownerName).food &&

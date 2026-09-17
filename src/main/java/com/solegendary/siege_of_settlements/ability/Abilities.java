@@ -22,7 +22,9 @@ public class Abilities {
             Keybindings.keyE,
             Keybindings.keyR,
             Keybindings.keyT,
-            Keybindings.keyY
+            Keybindings.keyY,
+            Keybindings.keyU,
+            Keybindings.keyI
     );
     List<Pair<Ability, Keybinding>> abilities = new ArrayList<>();
 
@@ -36,6 +38,10 @@ public class Abilities {
 
     public void add(Ability ability, Keybinding keybind) {
         abilities.add(new Pair<>(ability, keybind));
+    }
+
+    public void remove(Class<? extends Ability> abilityClass) {
+        abilities.removeIf(pair -> abilityClass.isInstance(pair.getA()));
     }
 
     public List<AbilityButton> getButtons(BuildingPlacement placement) {

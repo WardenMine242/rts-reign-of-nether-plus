@@ -39,6 +39,7 @@ import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -450,9 +451,10 @@ public class NecromancerUnit extends Skeleton implements Unit, AttackerUnit, Ran
     @Override
     public void performUnitRangedAttack(LivingEntity pTarget, float velocity) {
 
-        double x = pTarget.getX() - this.getX();
-        double y = pTarget.getY(0.5) - this.getY(0.5);
-        double z = pTarget.getZ() - this.getZ();
+        Vec3 targetPos = getLeadingTargetPosition(pTarget, 1.6f);
+        double x = targetPos.x - this.getX();
+        double y = targetPos.y + pTarget.getBbHeight() * 0.5 - this.getY(0.5);
+        double z = targetPos.z - this.getZ();
         NecromancerProjectile proj = new NecromancerProjectile(this.level(), this, x, y, z);
         proj.setPos(this.getEyePosition());
 

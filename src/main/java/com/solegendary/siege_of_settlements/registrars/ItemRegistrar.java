@@ -82,6 +82,22 @@ public class ItemRegistrar {
             ITEMS.register("pillager_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.PILLAGER_UNIT,
                     0x502C34, 0x757D78, new Item.Properties()));
 
+    public static final RegistryObject<ForgeSpawnEggItem> ELITE_ARMORED_PILLAGER_UNIT_SPAWN_EGG =
+            ITEMS.register("elite_armored_pillager_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.ELITE_ARMORED_PILLAGER_UNIT,
+                    0x757D78, 0x502C34, new Item.Properties()));
+
+    public static final RegistryObject<ForgeSpawnEggItem> ARMORED_PILLAGER_UNIT_SPAWN_EGG =
+            ITEMS.register("armored_pillager_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.ARMORED_PILLAGER_UNIT,
+                    0xFFD700, 0x757D78, new Item.Properties()));
+
+    public static final RegistryObject<ForgeSpawnEggItem> ELITE_ARMORED_VINDICATOR_UNIT_SPAWN_EGG =
+            ITEMS.register("elite_armored_vindicator_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.ELITE_ARMORED_VINDICATOR_UNIT,
+                    0x757D78, 0x1F4952, new Item.Properties()));
+
+    public static final RegistryObject<ForgeSpawnEggItem> ARMORED_VINDICATOR_UNIT_SPAWN_EGG =
+            ITEMS.register("armored_vindicator_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.ARMORED_VINDICATOR_UNIT,
+                    0xFFD700, 0x1F4952, new Item.Properties()));
+
     public static final RegistryObject<ForgeSpawnEggItem> IRON_GOLEM_UNIT_SPAWN_EGG =
             ITEMS.register("iron_golem_unit_spawn_egg", () -> new ForgeSpawnEggItem(EntityRegistrar.IRON_GOLEM_UNIT,
                     0x101010, 0x757D78, new Item.Properties()));

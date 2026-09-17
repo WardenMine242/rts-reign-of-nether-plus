@@ -8,8 +8,6 @@ import com.solegendary.siege_of_settlements.building.BuildingPlacement;
 import com.solegendary.siege_of_settlements.building.BuildingServerEvents;
 import com.solegendary.siege_of_settlements.building.Buildings;
 import com.solegendary.siege_of_settlements.building.BuildingUtils;
-import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
-import com.solegendary.siege_of_settlements.building.production.ActiveProduction;
 import com.solegendary.siege_of_settlements.player.PlayerServerEvents;
 import com.solegendary.siege_of_settlements.registrars.BlockRegistrar;
 import com.solegendary.siege_of_settlements.registrars.GameRuleRegistrar;
@@ -56,6 +54,7 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 import static com.solegendary.siege_of_settlements.resources.BlockUtils.isLogBlock;
@@ -83,9 +82,9 @@ public class ResourcesServerEvents {
     public static int MARKET_SELL_FOOD_EMERALDS = 30;
     public static int MARKET_SELL_WOOD_EMERALDS = 25;
     public static int MARKET_SELL_ORE_EMERALDS = 35;
-    public static int MARKET_BUY_FOOD_EMERALDS = 40;
-    public static int MARKET_BUY_WOOD_EMERALDS = 30;
-    public static int MARKET_BUY_ORE_EMERALDS = 40;
+    public static int MARKET_BUY_FOOD_EMERALDS = 30;
+    public static int MARKET_BUY_WOOD_EMERALDS = 25;
+    public static int MARKET_BUY_ORE_EMERALDS = 35;
 
     public static final float NEUTRAL_UNIT_BOUNTY_PERCENT = 0.25f;
     public static final float NEUTRAL_BUILDING_BOUNTY_PERCENT = 0.25f;
@@ -113,26 +112,11 @@ public class ResourcesServerEvents {
                     unitEmerald += unitRes.emerald;
                 }
             }
-            // add all production item costs since they will be cancelled on server shutdown
-            int prodFood = 0;
-            int prodWood = 0;
-            int prodOre = 0;
-            int prodEmerald = 0;
-            for (BuildingPlacement building : BuildingServerEvents.getBuildings()) {
-                if (building instanceof ProductionPlacement pBuilding) {
-                    for (ActiveProduction item : pBuilding.productionQueue) {
-                        prodFood += item.item.getCost(false, pBuilding.ownerName).food;
-                        prodWood += item.item.getCost(false, pBuilding.ownerName).wood;
-                        prodOre += item.item.getCost(false, pBuilding.ownerName).ore;
-                        prodEmerald += item.item.getCost(false, pBuilding.ownerName).emerald;
-                    }
-                }
-            }
             data.resources.add(new Resources(r.ownerName,
-                r.food + r.foodToAdd + unitFood + prodFood,
-                r.wood + r.woodToAdd + unitWood + prodWood,
-                r.ore + r.oreToAdd + unitOre + prodOre,
-                r.emerald + r.emeraldToAdd + unitEmerald + prodEmerald
+                r.food + r.foodToAdd + unitFood,
+                r.wood + r.woodToAdd + unitWood,
+                r.ore + r.oreToAdd + unitOre,
+                r.emerald + r.emeraldToAdd + unitEmerald
             ));
             //SiegeOfSettlements.LOGGER.info("saved resources in serverevents: " + r.ownerName + "|" + r.food + "|" + r.wood + "|" + r.ore);
         });
@@ -243,12 +227,25 @@ public class ResourcesServerEvents {
     }
 
     @SubscribeEvent
+    public static void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent evt) {
+        ServerLevel level = evt.getEntity().level().getServer() != null
+                ? evt.getEntity().level().getServer().getLevel(Level.OVERWORLD)
+                : null;
+        if (level != null) {
+            saveResources(level);
+        }
+    }
+
+    @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent evt) {
         String playerName = evt.getEntity().getName().getString();
         ResourcesClientboundPacket.syncResources(resourcesList);
     }
 
     public static void assignResources(String playerName) {
+        if (getResources(playerName) != null) {
+            return;
+        }
         resourcesList.removeIf(r -> r.ownerName.equals(playerName));
         Resources resources;
         if (TutorialServerEvents.isEnabled()) {
@@ -263,6 +260,16 @@ public class ResourcesServerEvents {
         }
         resourcesList.add(resources);
         ResourcesClientboundPacket.syncResources(resourcesList);
+    }
+
+    @Nullable
+    public static Resources getResources(String playerName) {
+        for (Resources resources : resourcesList) {
+            if (resources.ownerName.equals(playerName)) {
+                return resources;
+            }
+        }
+        return null;
     }
 
     // prevent vanilla growth mechanics because they're slow and random, see FarmPlacement instead

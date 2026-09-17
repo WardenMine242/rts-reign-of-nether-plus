@@ -3,7 +3,11 @@ package com.solegendary.siege_of_settlements.unit.packets;
 import com.solegendary.siege_of_settlements.registrars.PacketHandler;
 import com.solegendary.siege_of_settlements.unit.UnitServerEvents;
 import com.solegendary.siege_of_settlements.unit.UnitSyncAction;
+import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
+import com.solegendary.siege_of_settlements.unit.packets.UnitSyncAbilityClientboundPacket;
+import com.solegendary.siege_of_settlements.unit.packets.UnitSyncClientboundPacket;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -17,6 +21,10 @@ public class UnitSyncServerboundPacket {
 
     public static void requestSyncAbilities(int unitId) {
         PacketHandler.INSTANCE.sendToServer(new UnitSyncServerboundPacket(UnitSyncAction.REQUEST_SYNC_ABILITIES, unitId));
+    }
+
+    public static void requestSyncOwner(int unitId) {
+        PacketHandler.INSTANCE.sendToServer(new UnitSyncServerboundPacket(UnitSyncAction.REQUEST_SYNC_OWNER, unitId));
     }
 
     // packet-handler functions
@@ -42,10 +50,17 @@ public class UnitSyncServerboundPacket {
     public boolean handle(Supplier<NetworkEvent.Context> ctx) {
         final var success = new AtomicBoolean(false);
         ctx.get().enqueueWork(() -> {
+            ServerPlayer player = ctx.get().getSender();
             if (this.syncAction == UnitSyncAction.REQUEST_SYNC_ABILITIES) {
                 for (LivingEntity entity : UnitServerEvents.getAllUnits()) {
                     if (entity.getId() == this.entityId) {
                         UnitSyncAbilityClientboundPacket.sendSyncAbilitiesPacket(entity);
+                    }
+                }
+            } else if (this.syncAction == UnitSyncAction.REQUEST_SYNC_OWNER && player != null) {
+                for (LivingEntity entity : UnitServerEvents.getAllUnits()) {
+                    if (entity.getId() == this.entityId && entity instanceof Unit unit) {
+                        UnitSyncClientboundPacket.sendSyncOwnerNamePacket(player, unit);
                     }
                 }
             }

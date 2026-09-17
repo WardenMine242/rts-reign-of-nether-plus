@@ -17,6 +17,7 @@ import com.solegendary.siege_of_settlements.unit.UnitAction;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.packets.UnitConvertClientboundPacket;
 import com.solegendary.siege_of_settlements.unit.units.villagers.VillagerUnit;
+import com.solegendary.siege_of_settlements.unit.units.villagers.VillagerUnitProfession;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -72,9 +73,9 @@ public class VillagerBecomeTrader extends Ability {
         return new AbilityButton(
                 "Become Trader",
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/trader.png"),
-                hotkey,
+                null,
                 () -> false,
-                () -> !ResearchClient.hasResearch(ProductionItems.RESEARCH_TRADER),
+                () -> !ResearchClient.hasResearch(ProductionItems.RESEARCH_TRADER) || villagerUnit.getUnitProfession() != VillagerUnitProfession.NONE,
                 () -> canAfford(villagerUnit.getOwnerName(), true),
                 () -> sendUnitCommand(UnitAction.BECOME_TRADER),
                 null,

@@ -54,11 +54,7 @@ public class Library extends ProductionBuilding {
         this.abilities.add(new EnchantMultishot(), Keybindings.keyR);
         this.abilities.add(new EnchantVigor(), Keybindings.keyT);
 
-        this.productions.add(ProductionItems.RESEARCH_LINGERING_POTIONS, Keybindings.keyY);
-        this.productions.add(ProductionItems.RESEARCH_HEALING_POTIONS, Keybindings.keyU);
-        this.productions.add(ProductionItems.RESEARCH_WATER_POTIONS, Keybindings.keyI);
-        this.productions.add(ProductionItems.RESEARCH_EVOKER_VEXES, Keybindings.keyO);
-        this.productions.add(ProductionItems.RESEARCH_GRAND_LIBRARY, Keybindings.keyP);
+        this.productions.add(ProductionItems.RESEARCH_GRAND_LIBRARY, Keybindings.keyY);
     }
 
     public Faction getFaction() {

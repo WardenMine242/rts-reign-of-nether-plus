@@ -24,6 +24,7 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.List;
 
 public class BuildingSaveData extends SavedData {
 
@@ -73,6 +74,20 @@ public class BuildingSaveData extends SavedData {
                 int drillTier = btag.contains("drillTier") ? btag.getInt("drillTier") : 0;
                 PortalPlacement.PortalType portalType = PortalPlacement.PortalType.valueOf(btag.getString("portalType"));
                 BlockPos portalDestination = new BlockPos(btag.getInt("xp"), btag.getInt("yp"), btag.getInt("zp"));
+                List<BuildingSave.ProductionSave> productionQueue = new ArrayList<>();
+                if (btag.contains("productionQueue", Tag.TAG_LIST)) {
+                    for (Tag productionTag : btag.getList("productionQueue", Tag.TAG_COMPOUND)) {
+                        CompoundTag production = (CompoundTag) productionTag;
+                        ResourceLocation itemKey = ResourceLocation.tryParse(production.getString("itemKey"));
+                        if (itemKey != null) {
+                            productionQueue.add(new BuildingSave.ProductionSave(
+                                    itemKey,
+                                    production.getFloat("ticksLeft"),
+                                    production.getBoolean("completed")
+                            ));
+                        }
+                    }
+                }
 
                 if (building != null) {
                     data.buildings.add(new BuildingSave(pos,
@@ -86,7 +101,8 @@ public class BuildingSaveData extends SavedData {
                             upgradeLevel,
                             drillTier,
                             portalType,
-                            portalDestination
+                            portalDestination,
+                            productionQueue
                     ));
                     SiegeOfSettlements.LOGGER.info("BuildingSaveData.load: " + ownerName + "|" + building.name);
                 }
@@ -124,6 +140,17 @@ public class BuildingSaveData extends SavedData {
             cTag.putInt("xp", b.portalDestination != null ? b.portalDestination.getX() : 0);
             cTag.putInt("yp", b.portalDestination != null ? b.portalDestination.getY() : 0);
             cTag.putInt("zp", b.portalDestination != null ? b.portalDestination.getZ() : 0);
+            if (!b.productionQueue.isEmpty()) {
+                ListTag productionQueue = new ListTag();
+                for (BuildingSave.ProductionSave production : b.productionQueue) {
+                    CompoundTag productionTag = new CompoundTag();
+                    productionTag.putString("itemKey", production.itemKey.toString());
+                    productionTag.putFloat("ticksLeft", production.ticksLeft);
+                    productionTag.putBoolean("completed", production.completed);
+                    productionQueue.add(productionTag);
+                }
+                cTag.put("productionQueue", productionQueue);
+            }
             list.add(cTag);
 
             //SiegeOfSettlements.LOGGER.info("BuildingSaveData.save: " + b.ownerName + "|" + buildingName);

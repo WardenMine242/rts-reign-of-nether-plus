@@ -36,12 +36,13 @@ public class ResearchWaterPotions extends ProductionItem {
 
     public StartProductionButton getStartButton(ProductionPlacement prodBuilding, Keybinding hotkey) {
         return new StartProductionButton(ResearchWaterPotions.itemName,
-            ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/items/splash_potion_water.png"),
+            ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/research/research_water_potion.png"),
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
             hotkey,
             () -> ProductionItems.RESEARCH_WATER_POTIONS.itemIsBeingProduced(prodBuilding.ownerName)
                 || ResearchClient.hasResearch(ProductionItems.RESEARCH_WATER_POTIONS),
-            () -> true,
+            () -> ResearchClient.hasResearch(ProductionItems.RESEARCH_MARKETPLACE) ||
+                    ResearchClient.hasCheat("modifythephasevariance"),
             List.of(FormattedCharSequence.forward(I18n.get("research.siege_of_settlements.water_potions"),
                     Style.EMPTY.withBold(true)
                 ),

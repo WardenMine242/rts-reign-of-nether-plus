@@ -1,5 +1,6 @@
 package com.solegendary.siege_of_settlements.registrars;
 
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredPillagerUnit;
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.entities.*;
 import com.solegendary.siege_of_settlements.hero.HeroExperienceOrb;
@@ -9,11 +10,14 @@ import com.solegendary.siege_of_settlements.unit.units.neutral.*;
 import com.solegendary.siege_of_settlements.unit.units.piglins.*;
 import com.solegendary.siege_of_settlements.unit.units.villagers.*;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArmoredPillager;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredPillagerProd;
-import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredPillagerUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArmoredPillagerUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredRavagerUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArmoredVindicator;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredVindicatorProd;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArmoredVindicatorUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredVindicatorUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArcherProd;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArcherUnit;
@@ -24,6 +28,7 @@ import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteVindicat
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseProd;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteTraderUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.IllusionerUnit;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneGolemProd;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneGolemUnit;
@@ -123,6 +128,12 @@ public class EntityRegistrar {
                     .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
                     .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "trader_unit").toString()));
 
+    public static final RegistryObject<EntityType<EliteTraderUnit>> ELITE_TRADER_UNIT = ENTITIES.register("elite_trader_unit",
+            () -> EntityType.Builder.of(EliteTraderUnit::new, MobCategory.CREATURE)
+                    .sized(EntityType.VILLAGER.getWidth(), EntityType.VILLAGER.getHeight())
+                    .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
+                    .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "elite_trader_unit").toString()));
+
     public static final RegistryObject<EntityType<AuromancerUnit>> AUROMANCER_UNIT = ENTITIES.register("auromancer_unit",
             () -> EntityType.Builder.of(AuromancerUnit::new, MobCategory.CREATURE)
                     .sized(EntityType.VINDICATOR.getWidth(), EntityType.VINDICATOR.getHeight())
@@ -134,6 +145,12 @@ public class EntityRegistrar {
                     .sized(EntityType.VINDICATOR.getWidth(), EntityType.VINDICATOR.getHeight())
                     .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
                     .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "elite_vindicator_unit").toString()));
+
+    public static final RegistryObject<EntityType<EliteArmoredVindicatorUnit>> ELITE_ARMORED_VINDICATOR_UNIT = ENTITIES.register("elite_armored_vindicator_unit",
+            () -> EntityType.Builder.of(EliteArmoredVindicatorUnit::new, MobCategory.CREATURE)
+                    .sized(EntityType.VINDICATOR.getWidth(), EntityType.VINDICATOR.getHeight())
+                    .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
+                    .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "elite_armored_vindicator_unit").toString()));
 
     public static final RegistryObject<EntityType<ArmoredVindicatorUnit>> ARMORED_VINDICATOR_UNIT = ENTITIES.register("armored_vindicator_unit",
             () -> EntityType.Builder.of(ArmoredVindicatorUnit::new, MobCategory.CREATURE)
@@ -176,6 +193,12 @@ public class EntityRegistrar {
                     .sized(EntityType.PILLAGER.getWidth(), EntityType.PILLAGER.getHeight())
                     .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
                     .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "pillager_unit").toString()));
+
+    public static final RegistryObject<EntityType<EliteArmoredPillagerUnit>> ELITE_ARMORED_PILLAGER_UNIT = ENTITIES.register("elite_armored_pillager_unit",
+            () -> EntityType.Builder.of(EliteArmoredPillagerUnit::new, MobCategory.CREATURE)
+                    .sized(EntityType.PILLAGER.getWidth(), EntityType.PILLAGER.getHeight())
+                    .clientTrackingRange(UNIT_CLIENT_TRACKING_RANGE)
+                    .build(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "elite_armored_pillager_unit").toString()));
 
     public static final RegistryObject<EntityType<ArmoredPillagerUnit>> ARMORED_PILLAGER_UNIT = ENTITIES.register("armored_pillager_unit",
             () -> EntityType.Builder.of(ArmoredPillagerUnit::new, MobCategory.CREATURE)
@@ -473,6 +496,7 @@ public class EntityRegistrar {
             case VillagerProd.itemName -> EntityRegistrar.VILLAGER_UNIT.get();
             case AuromancerProd.itemName -> EntityRegistrar.AUROMANCER_UNIT.get();
             case EliteVindicatorProd.itemName -> EntityRegistrar.ELITE_VINDICATOR_UNIT.get();
+            case EliteArmoredVindicator.itemName -> EntityRegistrar.ELITE_ARMORED_VINDICATOR_UNIT.get();
             case ArmoredVindicatorProd.itemName -> EntityRegistrar.ARMORED_VINDICATOR_UNIT.get();
             case EliteArcherProd.itemName -> EntityRegistrar.ELITE_ARCHER_UNIT.get();
             case ArcherProd.itemName -> EntityRegistrar.ARCHER_UNIT.get();
@@ -480,7 +504,8 @@ public class EntityRegistrar {
             case ZombieVillagerProd.itemName -> EntityRegistrar.ZOMBIE_VILLAGER_UNIT.get();
             case VindicatorProd.itemName -> EntityRegistrar.VINDICATOR_UNIT.get();
             case PillagerProd.itemName -> EntityRegistrar.PILLAGER_UNIT.get();
-            case ArmoredPillagerProd.itemName -> EntityRegistrar.ARMORED_PILLAGER_UNIT.get();
+            case EliteArmoredPillager.itemName -> EntityRegistrar.ELITE_ARMORED_PILLAGER_UNIT.get();
+            case com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredPillagerProd.itemName -> EntityRegistrar.ARMORED_PILLAGER_UNIT.get();
             case IronGolemProd.itemName -> EntityRegistrar.IRON_GOLEM_UNIT.get();
             case RedstoneGolemProd.itemName -> EntityRegistrar.REDSTONE_GOLEM_UNIT.get();
             case WitchProd.itemName -> EntityRegistrar.WITCH_UNIT.get();

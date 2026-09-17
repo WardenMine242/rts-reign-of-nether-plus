@@ -49,7 +49,8 @@ public class ResearchRavagerCavalry extends ProductionItem {
             hotkey,
             () -> ProductionItems.RESEARCH_RAVAGER_CAVALRY.itemIsBeingProduced(prodBuilding.ownerName)
                 || ResearchClient.hasResearch(ProductionItems.RESEARCH_RAVAGER_CAVALRY),
-            () -> true,
+                () -> (ResearchClient.hasResearch(ProductionItems.RESEARCH_CASTLE)) ||
+                        ResearchClient.hasCheat("modifythephasevariance"),
             List.of(FormattedCharSequence.forward(I18n.get("research.siege_of_settlements.ravager_cavalry"),
                     Style.EMPTY.withBold(true)
                 ),

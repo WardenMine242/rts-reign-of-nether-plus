@@ -53,17 +53,18 @@ public class RTSPlayer {
         this.name = name;
     }
 
-    private RTSPlayer(String name, int id, int ticksWithoutCapitol, Faction faction, int beaconOwnerTicks, int[] scores) {
+    private RTSPlayer(String name, int id, int ticksWithoutCapitol, Faction faction, int beaconOwnerTicks, int[] scores, int startPosColorId) {
         this.name = name;
         this.id = id;
         this.ticksWithoutCapitol = ticksWithoutCapitol;
         this.faction = faction;
         this.beaconOwnerTicks = beaconOwnerTicks;
         this.scores.setScoreListFromArray(scores);
+        this.startPosColorId = startPosColorId;
     }
 
-    public static RTSPlayer getFromSave(String name, int id, int ticksWithoutCapitol, Faction faction, int beaconOwnerTicks, int[] scores) {
-        return new RTSPlayer(name, id, ticksWithoutCapitol, faction, beaconOwnerTicks, scores);
+    public static RTSPlayer getFromSave(String name, int id, int ticksWithoutCapitol, Faction faction, int beaconOwnerTicks, int[] scores, int startPosColorId) {
+        return new RTSPlayer(name, id, ticksWithoutCapitol, faction, beaconOwnerTicks, scores, startPosColorId);
     }
 
     public static RTSPlayer getNewPlayer(String playerName, Faction faction, int id) {

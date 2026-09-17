@@ -4,6 +4,7 @@ import com.solegendary.siege_of_settlements.alliance.AlliancesServerEvents;
 import com.solegendary.siege_of_settlements.building.Building;
 import com.solegendary.siege_of_settlements.building.BuildingBlock;
 import com.solegendary.siege_of_settlements.building.BuildingBlockData;
+import com.solegendary.siege_of_settlements.building.GarrisonableBuilding;
 import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
 import com.solegendary.siege_of_settlements.building.buildings.villagers.ArcaneTower;
 import com.solegendary.siege_of_settlements.entities.ArcaneChargeProjectile;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +31,7 @@ import java.util.Map;
 
 import static com.solegendary.siege_of_settlements.building.BuildingUtils.getAbsoluteBlockData;
 
-public class ArcaneTowerPlacement extends ProductionPlacement {
+public class ArcaneTowerPlacement extends ProductionPlacement implements GarrisonableBuilding {
     public static final int MIN_ARCANE_TOWER_TIER = 1;
     public static final int MAX_ARCANE_TOWER_TIER = 3;
     private static final int MIN_ATTACK_TIER = 2;
@@ -43,6 +45,7 @@ public class ArcaneTowerPlacement extends ProductionPlacement {
     private static final double TIER3_CRYSTAL_PARTICLE_RADIUS = 4.0D;
     private static final int TIER2_PARTICLE_CHANCE = 2; // 1 in 2 checks
     private static final int TIER3_PARTICLE_CHANCE = 1; // every check (2x more often than T2)
+    public final static int MAX_OCCUPANTS = 5;
 
     private int arcaneTowerTier = MIN_ARCANE_TOWER_TIER;
 
@@ -93,6 +96,24 @@ public class ArcaneTowerPlacement extends ProductionPlacement {
         }
         updateButtons();
     }
+
+    @Override
+    public int getAttackRange() { return 30; }
+    @Override
+    public int getExternalAttackRangeBonus() { return 15; }
+
+    @Override
+    public BlockPos getEntryPosition() {
+        return originPos.offset(GarrisonableBuilding.rotatePos(new BlockPos(3, 11, 3), this.rotation));
+    }
+
+    @Override
+    public BlockPos getExitPosition() {
+        return originPos.offset(GarrisonableBuilding.rotatePos(new BlockPos(3, 1, 3), this.rotation));
+    }
+
+    @Override
+    public int getCapacity() { return MAX_OCCUPANTS; }
 
     @Override
     public int getUpgradeLevel() {

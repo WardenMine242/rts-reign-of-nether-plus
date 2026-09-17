@@ -3,7 +3,10 @@ package com.solegendary.siege_of_settlements.unit.modelling.renderers;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredVindicatorUnit;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
-import com.solegendary.siege_of_settlements.unit.modelling.models.ArmoredVindicatorModel;
+import com.solegendary.siege_of_settlements.unit.goals.MeleeAttackBuildingGoal;
+import com.solegendary.siege_of_settlements.unit.modelling.models.EliteArmoredVindicatorModel;
+import com.solegendary.siege_of_settlements.unit.modelling.models.VillagerUnitModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -17,8 +20,14 @@ public class ArmoredVindicatorRenderer extends AbstractVillagerUnitRenderer<Armo
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/entities/armored_vindicator.png");
 
     public ArmoredVindicatorRenderer(EntityRendererProvider.Context context) {
-        super(context, new ArmoredVindicatorModel<>(context.bakeLayer(ArmoredVindicatorModel.LAYER_LOCATION)), 0.5F);
-        this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
+        super(context, new EliteArmoredVindicatorModel<>(context.bakeLayer(EliteArmoredVindicatorModel.LAYER_LOCATION)), 0.5F);
+        this.addLayer(new ItemInHandLayer<ArmoredVindicatorUnit, VillagerUnitModel<ArmoredVindicatorUnit>>(this, context.getItemInHandRenderer()) {
+            public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, ArmoredVindicatorUnit unit, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+                if (unit.getTarget() != null || (unit.getAttackBuildingGoal() instanceof MeleeAttackBuildingGoal mabg && mabg.getBuildingTarget() != null)) {
+                    super.render(poseStack, bufferSource, packedLight, unit, limbSwing, limbSwingAmount, partialTick, ageInTicks, netHeadYaw, headPitch);
+                }
+            }
+        });
     }
 
     @Override

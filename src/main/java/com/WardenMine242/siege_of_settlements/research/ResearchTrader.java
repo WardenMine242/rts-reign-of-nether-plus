@@ -44,7 +44,7 @@ public class ResearchTrader extends ProductionItem {
 
     public StartProductionButton getStartButton(ProductionPlacement prodBuilding, Keybinding hotkey) {
         return new StartProductionButton(ResearchTrader.itemName,
-                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/trader.png"),
+                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/research/research_trader.png"),
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
                 hotkey,
                 () -> ProductionItems.RESEARCH_TRADER.itemIsBeingProduced(prodBuilding.ownerName)

@@ -43,6 +43,18 @@ public class MountGoal extends MoveToTargetBlockGoal {
 
     public void setTarget(LivingEntity entity) {
         this.targetEntity = entity;
+        if (entity != null) {
+            this.setMoveTarget(entity.getOnPos());
+        }
+    }
+
+    @Override
+    public boolean canUse() {
+        return this.targetEntity != null || this.autofind || super.canUse();
+    }
+
+    public boolean isActive() {
+        return this.targetEntity != null || this.moveTarget != null || this.autofind;
     }
 
     public void setTargetType(TargetType targetType) {

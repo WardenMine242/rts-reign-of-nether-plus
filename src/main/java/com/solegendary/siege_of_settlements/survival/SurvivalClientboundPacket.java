@@ -2,6 +2,7 @@ package com.solegendary.siege_of_settlements.survival;
 
 import com.solegendary.siege_of_settlements.registrars.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
@@ -21,13 +22,28 @@ public class SurvivalClientboundPacket {
                 new SurvivalClientboundPacket(SurvivalSyncAction.ENABLE_AND_SET_DIFFICULTY, diff, 0, 0L));
     }
 
+    public static void enableAndSetDifficulty(ServerPlayer player, WaveDifficulty diff) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new SurvivalClientboundPacket(SurvivalSyncAction.ENABLE_AND_SET_DIFFICULTY, diff, 0, 0L));
+    }
+
     public static void setWaveNumber(long waveNumber) {
         PacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(),
                 new SurvivalClientboundPacket(SurvivalSyncAction.SET_WAVE_NUMBER, WaveDifficulty.EASY, waveNumber, 0L));
     }
 
+    public static void setWaveNumber(ServerPlayer player, long waveNumber) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new SurvivalClientboundPacket(SurvivalSyncAction.SET_WAVE_NUMBER, WaveDifficulty.EASY, waveNumber, 0L));
+    }
+
     public static void setWaveRandomSeed(long seed) {
         PacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(),
+                new SurvivalClientboundPacket(SurvivalSyncAction.SET_WAVE_RANDOM_SEED, WaveDifficulty.EASY, seed, 0L));
+    }
+
+    public static void setWaveRandomSeed(ServerPlayer player, long seed) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
                 new SurvivalClientboundPacket(SurvivalSyncAction.SET_WAVE_RANDOM_SEED, WaveDifficulty.EASY, seed, 0L));
     }
 

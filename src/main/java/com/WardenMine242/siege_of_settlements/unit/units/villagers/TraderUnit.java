@@ -10,6 +10,7 @@ import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.VindicatorUnit;
 import com.WardenMine242.siege_of_settlements.ability.abilities.ExitMarketplace;
 import com.WardenMine242.siege_of_settlements.ability.abilities.OccupyMarketplace;
+import com.WardenMine242.siege_of_settlements.ability.abilities.UpgradeTraderToElite;
 import com.WardenMine242.siege_of_settlements.building.buildings.placements.MarketplacePlacement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -54,6 +56,7 @@ public class TraderUnit extends VindicatorUnit {
     static {
         ABILITIES.add(new OccupyMarketplace(), Keybindings.keyQ);
         ABILITIES.add(new ExitMarketplace(), Keybindings.keyQ);
+        ABILITIES.add(new UpgradeTraderToElite(), Keybindings.keyE);
     }
 
     private Abilities abilities = ABILITIES.clone();
@@ -218,8 +221,12 @@ public class TraderUnit extends VindicatorUnit {
 
         marketplaceIncomeProgress %= TICKS_PER_MINUTE;
         ResourcesServerEvents.addSubtractResources(
-                new Resources(getOwnerName(), 0, 0, 0, MARKETPLACE_EMERALDS_PER_MINUTE)
+                new Resources(getOwnerName(), 0, 0, 0, getMarketplaceEmeraldsPerMinute())
         );
+    }
+
+    public int getMarketplaceEmeraldsPerMinute() {
+        return MARKETPLACE_EMERALDS_PER_MINUTE;
     }
 
     private void handleMoveToMarketplace() {
@@ -438,5 +445,45 @@ public class TraderUnit extends VindicatorUnit {
     @Override
     public boolean doHurtTarget(@NotNull Entity pEntity) {
         return false;
+    }
+
+    @Override
+    public Goal getAttackGoal() {
+        return null;
+    }
+
+    @Override
+    public Goal getAttackBuildingGoal() {
+        return null;
+    }
+
+    @Override
+    public BlockPos getAttackMoveTarget() {
+        return null;
+    }
+
+    @Override
+    public void setAttackMoveTarget(@Nullable BlockPos bp) {
+        // Traders cannot attack move
+    }
+
+    @Override
+    public float getAttackCooldown() {
+        return 999999f;
+    }
+
+    @Override
+    public float getAttacksPerSecond() {
+        return 0f;
+    }
+
+    @Override
+    public float getBaseAttacksPerSecond() {
+        return 0f;
+    }
+
+    @Override
+    public float getAggroRange() {
+        return 0f;
     }
 }

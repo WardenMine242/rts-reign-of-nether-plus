@@ -17,6 +17,7 @@ import com.solegendary.siege_of_settlements.registrars.PacketHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -78,6 +79,38 @@ public class BuildingClientboundPacket {
         ));
     }
 
+    public static void placeBuilding(
+            ServerPlayer player,
+            BlockPos buildingPos,
+            Building building,
+            Rotation rotation,
+            String ownerName,
+            int numQueuedBlocks,
+            boolean isDiagonalBridge,
+            int upgradeLevel,
+            boolean isBuilt,
+            PortalPlacement.PortalType portalType,
+            BlockPos portalDestination,
+            boolean forPlayerLoggingIn
+    ) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new BuildingClientboundPacket(
+                building instanceof CustomBuilding ? BuildingAction.PLACE_CUSTOM : BuildingAction.PLACE,
+                building instanceof CustomBuilding ? EMPTY : SiegeOfSettlementsRegistries.BUILDING.getKey(building),
+                building.name,
+                buildingPos,
+                rotation,
+                ownerName,
+                0,
+                numQueuedBlocks,
+                isDiagonalBridge,
+                upgradeLevel,
+                isBuilt,
+                portalType,
+                portalDestination,
+                forPlayerLoggingIn
+        ));
+    }
+
     public static void syncBuilding(BlockPos buildingPos, int blocksPlaced, String ownerName) {
         PacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(),
             new BuildingClientboundPacket(BuildingAction.SYNC_BLOCKS_AND_OWNER,
@@ -116,6 +149,45 @@ public class BuildingClientboundPacket {
                 false
             )
         );
+    }
+
+    public static void syncProductionQueue(ServerPlayer player, ProductionPlacement building) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new BuildingClientboundPacket(BuildingAction.RESET_PRODUCTION_QUEUE,
+                        EMPTY,
+                        "",
+                        building.originPos,
+                        Rotation.NONE,
+                        "",
+                        0,
+                        0,
+                        false,
+                        0,
+                        false,
+                        PortalPlacement.PortalType.BASIC,
+                        new BlockPos(0, 0, 0),
+                        false
+                )
+        );
+        for (ActiveProduction production : building.productionQueue) {
+            PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                    new BuildingClientboundPacket(BuildingAction.SYNC_PRODUCTION,
+                            SiegeOfSettlementsRegistries.PRODUCTION_ITEM.getKey(production.item),
+                            "",
+                            building.originPos,
+                            Rotation.NONE,
+                            building.ownerName,
+                            Math.round(production.ticksLeft),
+                            0,
+                            false,
+                            0,
+                            false,
+                            PortalPlacement.PortalType.BASIC,
+                            new BlockPos(0, 0, 0),
+                            false
+                    )
+            );
+        }
     }
 
     public static void cancelProduction(BlockPos buildingPos, ProductionItem item, boolean frontItem) {
@@ -350,6 +422,19 @@ public class BuildingClientboundPacket {
                         ((ProductionPlacement) building).startProductionItem(
                             SiegeOfSettlementsRegistries.PRODUCTION_ITEM.get(itemKey)
                         );
+                    }
+                    case SYNC_PRODUCTION -> {
+                        if (building instanceof ProductionPlacement productionBuilding) {
+                            ProductionItem item = SiegeOfSettlementsRegistries.PRODUCTION_ITEM.get(itemKey);
+                            if (item != null) {
+                                productionBuilding.productionQueue.add(new ActiveProduction(item, this.blocksPlaced, false));
+                            }
+                        }
+                    }
+                    case RESET_PRODUCTION_QUEUE -> {
+                        if (building instanceof ProductionPlacement productionBuilding) {
+                            productionBuilding.productionQueue.clear();
+                        }
                     }
                     case CANCEL_PRODUCTION -> {
                         ((ProductionPlacement) building).cancelProductionItem(

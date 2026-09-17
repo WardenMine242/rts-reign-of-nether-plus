@@ -5,6 +5,7 @@ import com.solegendary.siege_of_settlements.startpos.StartPosClientEvents;
 import com.solegendary.siege_of_settlements.startpos.StartPosServerboundPacket;
 import com.solegendary.siege_of_settlements.faction.Faction;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
@@ -21,6 +22,11 @@ public class GameModeClientboundPacket {
     // unlocked and reset back to
     public static void setAndLockAllClientGameModes(GameMode mode) {
         PacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(),
+                new GameModeClientboundPacket(mode));
+    }
+
+    public static void setAndLockGameMode(ServerPlayer player, GameMode mode) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
                 new GameModeClientboundPacket(mode));
     }
 

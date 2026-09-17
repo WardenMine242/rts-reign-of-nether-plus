@@ -11,6 +11,7 @@ import com.solegendary.siege_of_settlements.unit.Checkpoint;
 import com.solegendary.siege_of_settlements.unit.UnitAnimationAction;
 import com.solegendary.siege_of_settlements.unit.goals.*;
 import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
+import com.solegendary.siege_of_settlements.unit.interfaces.ConvertableUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.packets.UnitAnimationClientboundPacket;
 import com.solegendary.siege_of_settlements.faction.Faction;
@@ -45,7 +46,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class VindicatorUnit extends Vindicator implements Unit, AttackerUnit {
+public class VindicatorUnit extends Vindicator implements Unit, AttackerUnit, ConvertableUnit {
     public static final Abilities ABILITIES = new Abilities();
 
     //region
@@ -112,6 +113,12 @@ public class VindicatorUnit extends Vindicator implements Unit, AttackerUnit {
     public static final EntityDataAccessor<String> ownerDataAccessor =
             SynchedEntityData.defineId(VindicatorUnit.class, EntityDataSerializers.STRING);
 
+    // ConvertableUnit
+    public boolean converted = false;
+    private boolean shouldDiscard = false;
+    public boolean shouldDiscard() { return shouldDiscard; }
+    public void setShouldDiscard(boolean discard) { this.shouldDiscard = discard; }
+
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
@@ -155,7 +162,7 @@ public class VindicatorUnit extends Vindicator implements Unit, AttackerUnit {
     private AbstractMeleeAttackUnitGoal attackGoal;
     private MeleeAttackBuildingGoal attackBuildingGoal;
 
-    private Abilities abilities = ABILITIES.clone();
+    protected Abilities abilities = ABILITIES.clone();
     private final List<ItemStack> items = new ArrayList<>();
 
     public VindicatorUnit(EntityType<? extends Vindicator> entityType, Level level) {

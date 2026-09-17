@@ -18,12 +18,11 @@ import com.solegendary.siege_of_settlements.resources.ResourceCosts;
 import com.solegendary.siege_of_settlements.unit.Checkpoint;
 import com.solegendary.siege_of_settlements.unit.goals.*;
 import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
+import com.solegendary.siege_of_settlements.unit.interfaces.ConvertableUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.RangedAttackerUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.faction.Faction;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArcherUnit;
-import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArcherUnit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -60,7 +59,7 @@ import java.util.Optional;
 
 // despite being a RangedAttackerUnit we don't implement performRangedAttack as we override the Pillager crossbow attack instead
 // we just implement this for fog reveal methods
-public class  PillagerUnit extends Pillager implements Unit, AttackerUnit, RangedAttackerUnit {
+public class  PillagerUnit extends Pillager implements Unit, AttackerUnit, RangedAttackerUnit, ConvertableUnit {
     private static final ResourceLocation LEGACY_RESEARCH_TOWER_DAMAGE_1 =
             ResourceLocation.fromNamespaceAndPath("reignofnether", "research_tower_damage1");
     private static final ResourceLocation LEGACY_RESEARCH_TOWER_DAMAGE_2 =
@@ -147,6 +146,12 @@ public class  PillagerUnit extends Pillager implements Unit, AttackerUnit, Range
     public static final EntityDataAccessor<String> ownerDataAccessor =
             SynchedEntityData.defineId(PillagerUnit.class, EntityDataSerializers.STRING);
 
+    // ConvertableUnit
+    public boolean converted = false;
+    private boolean shouldDiscard = false;
+    public boolean shouldDiscard() { return shouldDiscard; }
+    public void setShouldDiscard(boolean discard) { this.shouldDiscard = discard; }
+
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
@@ -187,9 +192,9 @@ public class  PillagerUnit extends Pillager implements Unit, AttackerUnit, Range
 
     // endregion
 
-    final static public float attackDamage = 7.0f;
+    final static public float attackDamage = 8.0f;
     final static public float attacksPerSecond = 0.632f; // excludes crossbow charge time
-    final static public float maxHealth = 45.0f;
+    final static public float maxHealth = 60.0f;
     final static public float armorValue = 0.0f;
     final static public float movementSpeed = 0.24f;
     final static public float attackRange = 16.0F; // only used by ranged units or melee building attackers
@@ -212,7 +217,7 @@ public class  PillagerUnit extends Pillager implements Unit, AttackerUnit, Range
     private UnitCrossbowAttackGoal<? extends LivingEntity> attackGoal;
     private RangedAttackBuildingGoal<?> attackBuildingGoal;
 
-    private Abilities abilities = ABILITIES.clone();
+    protected Abilities abilities = ABILITIES.clone();
     private final List<ItemStack> items = new ArrayList<>();
 
     public PillagerUnit(EntityType<? extends Pillager> entityType, Level level) {
@@ -241,9 +246,8 @@ public class  PillagerUnit extends Pillager implements Unit, AttackerUnit, Range
         AttackerUnit.tick(this);
         this.mountGoal.tick();
         PromoteIllager.checkAndApplyBuff(this);
-        // Elite Archer controls draw timing inside UnitCrossbowAttackGoal tick(),
-        // so he doesn't pre-charge shots like a crossbowman.
-        if (!(this instanceof EliteArcherUnit) && !(this instanceof ArcherUnit)) {
+        String className = this.getClass().getSimpleName();
+        if (!className.contains("Archer")) {
             this.attackGoal.tickChargeCrossbow();
         }
     }
@@ -340,10 +344,11 @@ public class  PillagerUnit extends Pillager implements Unit, AttackerUnit, Range
         if (pTarget == null)
             return;
 
-        double d0 = pTarget.getX() - pUser.getX();
-        double d1 = pTarget.getZ() - pUser.getZ();
+        Vec3 targetPos = getLeadingTargetPosition(pTarget, pVelocity);
+        double d0 = targetPos.x - pUser.getX();
+        double d1 = targetPos.z - pUser.getZ();
         double d2 = Math.sqrt(d0 * d0 + d1 * d1);
-        double d3 = pTarget.getY(0.3333333333333333) - pProjectile.getY() + d2 * 0.20000000298023224;
+        double d3 = targetPos.y + pTarget.getBbHeight() * 0.3333333333333333 - pProjectile.getY() + d2 * 0.20000000298023224;
 
         if (pTarget.getEyeHeight() <= 1.0f)
             d3 -= (1.0f - pTarget.getEyeHeight());
@@ -421,5 +426,12 @@ public class  PillagerUnit extends Pillager implements Unit, AttackerUnit, Range
         }
         return ResearchClient.hasResearch(ProductionItems.RESEARCH_TOWER_DAMAGE_2)
                 || ResearchClient.hasResearch(LEGACY_RESEARCH_TOWER_DAMAGE_2);
+    }
+
+    protected boolean hasRavagerCavalryResearch() {
+        if (!this.level().isClientSide()) {
+            return ResearchServerEvents.playerHasResearch(this.getOwnerName(), ProductionItems.RESEARCH_RAVAGER_CAVALRY);
+        }
+        return ResearchClient.hasResearch(ProductionItems.RESEARCH_RAVAGER_CAVALRY);
     }
 }

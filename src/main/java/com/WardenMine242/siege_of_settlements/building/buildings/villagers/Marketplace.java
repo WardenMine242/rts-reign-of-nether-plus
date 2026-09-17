@@ -50,9 +50,7 @@ public class Marketplace extends ProductionBuilding {
         this.abilities.add(new MarketplaceTradeGUI(), Keybindings.keyQ);
 
 
-        this.productions.add(ProductionItems.RESEARCH_TRADER, Keybindings.keyW);
         this.productions.add(ProductionItems.ELITE_VINDICATOR, Keybindings.keyR);
-        this.productions.add(ProductionItems.ELITE_ARCHER, Keybindings.keyY);
 
 
 
@@ -92,9 +90,7 @@ public class Marketplace extends ProductionBuilding {
                     if (Minecraft.getInstance().player == null) {
                         return true;
                     }
-                    String placementOwnerName = BuildingClientEvents.getPlacementOwnerName(this);
-                    return !BuildingClientEvents.playerHasAnyBuilding(Buildings.MARKETPLACE, placementOwnerName) &&
-                            (ResearchClient.hasResearch(ProductionItems.RESEARCH_MARKETPLACE) ||
+                    return (ResearchClient.hasResearch(ProductionItems.RESEARCH_MARKETPLACE) ||
                                     ResearchClient.hasCheat("modifythephasevariance"));
                 },
                 List.of(
@@ -104,9 +100,7 @@ public class Marketplace extends ProductionBuilding {
                         FormattedCharSequence.forward(I18n.get("buildings.villagers.siege_of_settlements.marketplace.tooltip1"), Style.EMPTY),
                         FormattedCharSequence.forward(I18n.get("buildings.villagers.siege_of_settlements.marketplace.tooltip2"), Style.EMPTY),
                         FormattedCharSequence.forward("", Style.EMPTY),
-                        FormattedCharSequence.forward(I18n.get("research.siege_of_settlements.requires.research"), Style.EMPTY),
-                        FormattedCharSequence.forward("", Style.EMPTY),
-                        FormattedCharSequence.forward(I18n.get("buildings.siege_of_settlements.only.one_building"), Style.EMPTY)
+                        FormattedCharSequence.forward(I18n.get("research.siege_of_settlements.requires.research"), Style.EMPTY)
                 ),
                 this
         );

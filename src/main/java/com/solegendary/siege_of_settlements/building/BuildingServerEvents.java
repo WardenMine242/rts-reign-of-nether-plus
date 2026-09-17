@@ -2,11 +2,14 @@ package com.solegendary.siege_of_settlements.building;
 
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.alliance.AlliancesServerEvents;
+import com.solegendary.siege_of_settlements.api.SiegeOfSettlementsRegistries;
 import com.solegendary.siege_of_settlements.building.buildings.neutral.NeutralTransportPortal;
 import com.solegendary.siege_of_settlements.building.buildings.placements.*;
 import com.solegendary.siege_of_settlements.building.buildings.shared.AbstractBridge;
 import com.solegendary.siege_of_settlements.building.buildings.villagers.TownCentre;
 import com.solegendary.siege_of_settlements.building.custombuilding.CustomBuildingServerEvents;
+import com.solegendary.siege_of_settlements.building.production.ActiveProduction;
+import com.solegendary.siege_of_settlements.building.production.ProductionItem;
 import com.solegendary.siege_of_settlements.fogofwar.FrozenChunkClientboundPacket;
 import com.solegendary.siege_of_settlements.nether.NetherBlocks;
 import com.solegendary.siege_of_settlements.player.PlayerServerEvents;
@@ -125,6 +128,18 @@ public class BuildingServerEvents {
             if (b instanceof VillageDrillPlacement vdp) {
                 drillTier = vdp.getDrillTier();
             }
+            List<BuildingSave.ProductionSave> productionQueue = new ArrayList<>();
+            if (b instanceof ProductionPlacement productionBuilding) {
+                for (ActiveProduction production : productionBuilding.productionQueue) {
+                    if (production.completed) {
+                        continue;
+                    }
+                    var itemKey = SiegeOfSettlementsRegistries.PRODUCTION_ITEM.getKey(production.item);
+                    if (itemKey != null) {
+                        productionQueue.add(new BuildingSave.ProductionSave(itemKey, production.ticksLeft, false));
+                    }
+                }
+            }
             buildingData.buildings.add(new BuildingSave(b.originPos,
                     level,
                     b.getBuilding(),
@@ -136,7 +151,8 @@ public class BuildingServerEvents {
                     b.getUpgradeLevel(),
                     drillTier,
                     portalType,
-                    b instanceof PortalPlacement portal && portal.hasDestination() ? portal.destination : new BlockPos(0,0,0)
+                    b instanceof PortalPlacement portal && portal.hasDestination() ? portal.destination : new BlockPos(0,0,0),
+                    productionQueue
             ));
             //SiegeOfSettlements.LOGGER.info("saved buildings/nether in serverevents: " + b.originPos);
         });
@@ -184,6 +200,13 @@ public class BuildingServerEvents {
 
                     if (building instanceof ProductionPlacement pb) {
                         pb.setRallyPoint(b.rallyPoint);
+                        for (BuildingSave.ProductionSave savedProduction : b.productionQueue) {
+                            ProductionItem item = SiegeOfSettlementsRegistries.PRODUCTION_ITEM.get(savedProduction.itemKey);
+                            if (item != null && pb.getBuilding() instanceof com.solegendary.siege_of_settlements.building.production.ProductionBuilding productionBuilding
+                                    && productionBuilding.productions.get().contains(item)) {
+                                pb.productionQueue.add(new ActiveProduction(item, savedProduction.ticksLeft, false));
+                            }
+                        }
                     }
 
                     if (building instanceof VillageDrillPlacement drillInit) {
@@ -306,17 +329,6 @@ public class BuildingServerEvents {
                         continue;
                     }
                     if (placement.ownerName.equals(ownerName) && placement.getBuilding() instanceof TownCentre) {
-                        return null;
-                    }
-                }
-            }
-            // only allow one Marketplace per owner
-            if (building instanceof Marketplace) {
-                for (BuildingPlacement placement : buildings) {
-                    if (placement.shouldBeDestroyed()) {
-                        continue;
-                    }
-                    if (placement.ownerName.equals(ownerName) && placement.getBuilding() instanceof Marketplace) {
                         return null;
                     }
                 }
@@ -553,6 +565,27 @@ public class BuildingServerEvents {
         }
     }
 
+    public static void syncBuildingsForPlayer(ServerPlayer player) {
+        for (BuildingPlacement building : buildings) {
+            BuildingClientboundPacket.placeBuilding(player,
+                    building.originPos,
+                    building.getBuilding(),
+                    building.rotation,
+                    building.ownerName,
+                    building.blockPlaceQueue.size(),
+                    building instanceof BridgePlacement bridge && bridge.isDiagonalBridge,
+                    building.getUpgradeLevel(),
+                    building.isBuilt,
+                    building instanceof PortalPlacement p ? p.getPortalType() : PortalPlacement.PortalType.BASIC,
+                    building instanceof PortalPlacement p && p.hasDestination() ? p.destination : new BlockPos(0, 0, 0),
+                    true
+            );
+            if (building instanceof ProductionPlacement productionBuilding) {
+                BuildingClientboundPacket.syncProductionQueue(player, productionBuilding);
+            }
+        }
+    }
+
     private static void placeBuildingsClientside() {
         for (BuildingPlacement building : buildings) {
             BuildingClientboundPacket.placeBuilding(building.originPos,
@@ -592,16 +625,7 @@ public class BuildingServerEvents {
 
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent evt) {
-        if (!PlayerServerEvents.rtsSyncingEnabled) {
-            return;
-        }
-        MinecraftServer server = evt.getEntity().level().getServer();
-        if (server == null || !server.isDedicatedServer()) {
-            CompletableFuture.delayedExecutor(1000, TimeUnit.MILLISECONDS).execute(BuildingServerEvents::placeBuildingsClientside);
-        } else {
-            placeBuildingsClientside();
-        }
-        //SiegeOfSettlements.LOGGER.info("Synced " + buildings.size() + " buildings with player logged in");
+        // Building and unit ownership are synced via PlayerServerEvents.syncPlayerSession.
     }
 
     // if blocks are destroyed manually by a player then help it along by causing periodic explosions

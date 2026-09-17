@@ -44,12 +44,13 @@ public class ResearchMilitiaBows extends ProductionItem {
 
     public StartProductionButton getStartButton(ProductionPlacement prodBuilding, Keybinding hotkey) {
         return new StartProductionButton(itemName,
-            ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/items/sword_and_bow.png"),
+            ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/research/research_militia_bows.png"),
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
             hotkey,
             () -> ProductionItems.RESEARCH_MILITIA_BOWS.itemIsBeingProduced(prodBuilding.ownerName)
                 || ResearchClient.hasResearch(ProductionItems.RESEARCH_MILITIA_BOWS),
-            () -> true,
+                () -> (ResearchClient.hasResearch(ProductionItems.RESEARCH_UPGRADED_BARRACKS)) ||
+                        ResearchClient.hasCheat("modifythephasevariance"),
             List.of(FormattedCharSequence.forward(I18n.get("research.siege_of_settlements.militia_bows"),
                     Style.EMPTY.withBold(true)
                 ),

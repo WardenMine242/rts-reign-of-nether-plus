@@ -29,7 +29,7 @@ public class StartButtons {
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/tick.png"),
             (Keybinding) null,
             () -> false,
-            () -> false,
+            () -> PlayerClientEvents.isRTSPlayer(),
             () -> {
                 Minecraft MC = Minecraft.getInstance();
                 if (MC.player == null || MC.gameMode == null) {
@@ -51,7 +51,7 @@ public class StartButtons {
         ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/villager.png"),
         (Keybinding) null,
         () -> CursorClientEvents.getLeftClickAction() == UnitAction.STARTRTS_VILLAGERS,
-        () -> !TutorialClientEvents.isAtOrPastStage(TutorialStage.PLACE_WORKERS_B) || !PlayerClientEvents.canStartRTS,
+        () -> !TutorialClientEvents.isAtOrPastStage(TutorialStage.PLACE_WORKERS_B) || !PlayerClientEvents.canStartRTS || PlayerClientEvents.isRTSPlayer(),
         () -> true,
         () -> {
             CursorClientEvents.setLeftClickAction(UnitAction.STARTRTS_VILLAGERS);

@@ -356,18 +356,30 @@ public class UnitCrossbowAttackGoal<T extends Monster & RangedAttackMob & Crossb
         }
 
         float yawToTarget = (float) (Math.atan2(dz, dx) * (180.0D / Math.PI)) - 90.0F;
-        horse.setYRot(yawToTarget);
-        horse.yRotO = yawToTarget;
-        horse.setYBodyRot(yawToTarget);
-        horse.setYHeadRot(yawToTarget);
-        horse.yBodyRotO = yawToTarget;
-        horse.yHeadRotO = yawToTarget;
 
+        // Rider ALWAYS faces the target during combat.
         this.mob.setYRot(yawToTarget);
         this.mob.yRotO = yawToTarget;
         this.mob.setYBodyRot(yawToTarget);
         this.mob.setYHeadRot(yawToTarget);
         this.mob.yBodyRotO = yawToTarget;
         this.mob.yHeadRotO = yawToTarget;
+
+        if (horse.getNavigation().isDone()) {
+            // Horse fully faces the target when idle.
+            horse.setYRot(yawToTarget);
+            horse.yRotO = yawToTarget;
+            horse.setYBodyRot(yawToTarget);
+            horse.setYHeadRot(yawToTarget);
+            horse.yBodyRotO = yawToTarget;
+            horse.yHeadRotO = yawToTarget;
+        } else {
+            // Horse body faces destination (controlled by navigation),
+            // but head and torso try to look at the target.
+            horse.setYHeadRot(yawToTarget);
+            horse.yHeadRotO = yawToTarget;
+            horse.setYBodyRot(yawToTarget);
+            horse.yBodyRotO = yawToTarget;
+        }
     }
 }

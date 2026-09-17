@@ -2,8 +2,11 @@ package com.solegendary.siege_of_settlements.building;
 
 import com.solegendary.siege_of_settlements.building.buildings.placements.PortalPlacement;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
+
+import java.util.List;
 
 // contains all necessary data for a restarted server to recreate all buildings in the level
 public class BuildingSave {
@@ -21,9 +24,11 @@ public class BuildingSave {
     public int drillTier;
     PortalPlacement.PortalType portalType;
     public BlockPos portalDestination;
+    public List<ProductionSave> productionQueue;
 
     public BuildingSave(BlockPos originPos, Level level, Building building, String ownerName, Rotation rotation, BlockPos rallyPoint,
-                        boolean isDiagonalBridge, boolean isBuilt, int upgradeLevel, int drillTier, PortalPlacement.PortalType portalType, BlockPos portalDestination) {
+                        boolean isDiagonalBridge, boolean isBuilt, int upgradeLevel, int drillTier, PortalPlacement.PortalType portalType,
+                        BlockPos portalDestination, List<ProductionSave> productionQueue) {
         this.originPos = originPos;
         this.level = level;
         this.building = building;
@@ -36,5 +41,18 @@ public class BuildingSave {
         this.drillTier = drillTier;
         this.portalType = portalType;
         this.portalDestination = portalDestination;
+        this.productionQueue = productionQueue;
+    }
+
+    public static class ProductionSave {
+        public final ResourceLocation itemKey;
+        public final float ticksLeft;
+        public final boolean completed;
+
+        public ProductionSave(ResourceLocation itemKey, float ticksLeft, boolean completed) {
+            this.itemKey = itemKey;
+            this.ticksLeft = ticksLeft;
+            this.completed = completed;
+        }
     }
 }

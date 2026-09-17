@@ -64,6 +64,7 @@ public class SurvivalServerEvents {
         SurvivalSaveData survivalData = SurvivalSaveData.getInstance(level);
         survivalData.isEnabled = isEnabled;
         survivalData.waveNumber = nextWave.number;
+        survivalData.currentWaveNumber = currentWave != null ? currentWave.number : 0;
         survivalData.difficulty = difficulty;
         survivalData.randomSeed = Wave.randomSeed;
         survivalData.save();
@@ -78,6 +79,12 @@ public class SurvivalServerEvents {
             SurvivalSaveData survivalData = SurvivalSaveData.getInstance(level);
             isEnabled = survivalData.isEnabled;
             nextWave = Wave.getWave(survivalData.waveNumber);
+            int currentWaveNum = survivalData.currentWaveNumber;
+            if (currentWaveNum > 0) {
+                currentWave = Wave.getWave(currentWaveNum);
+            } else {
+                currentWave = null;
+            }
             Wave.randomSeed = survivalData.randomSeed;
             Wave.reseedWaves();
             difficulty = survivalData.difficulty;
@@ -88,6 +95,7 @@ public class SurvivalServerEvents {
             }
             SiegeOfSettlements.LOGGER.info("loaded survival data: isEnabled: " + isEnabled());
             SiegeOfSettlements.LOGGER.info("loaded survival data: nextWave: " + nextWave.number);
+            SiegeOfSettlements.LOGGER.info("loaded survival data: currentWave: " + (currentWave != null ? currentWave.number : "none"));
             SiegeOfSettlements.LOGGER.info("loaded survival data: difficulty: " + difficulty);
         }
     }
@@ -99,7 +107,7 @@ public class SurvivalServerEvents {
 
         serverLevel = (ServerLevel) evt.level;
 
-        if (!isEnabled())
+        if (serverLevel == null || !isEnabled())
             return;
 
         ticks += 1;
@@ -108,11 +116,6 @@ public class SurvivalServerEvents {
 
         long time = evt.level.getDayTime();
         long normTime = TimeUtils.normaliseTime(evt.level.getDayTime());
-
-        if (!isStarted()) {
-            setToGameStartTime();
-            return;
-        }
 
         if (lastTime >= 0) {
             if (lastTime <= TimeUtils.DUSK - 600 && normTime > TimeUtils.DUSK - 600) {
@@ -208,7 +211,7 @@ public class SurvivalServerEvents {
         return 1;
     }
 
-    public static void enable(WaveDifficulty diff) {
+    public static void enable(ServerLevel level, WaveDifficulty diff) {
         if (TutorialServerEvents.isEnabled())
             return;
         if (!isEnabled()) {
@@ -216,9 +219,12 @@ public class SurvivalServerEvents {
             lastEnemyCount = 0;
             difficulty = diff;
             isEnabled = true;
+            serverLevel = level;
             SurvivalClientboundPacket.enableAndSetDifficulty(difficulty);
-            if (serverLevel != null)
+            if (serverLevel != null) {
+                setToGameStartTime();
                 saveData(serverLevel);
+            }
         }
     }
 
@@ -230,6 +236,7 @@ public class SurvivalServerEvents {
             portal.portal.destroy(serverLevel);
         difficulty = WaveDifficulty.EASY;
         isEnabled = false;
+        currentWave = null;
         portals.clear();
         enemies.clear();
         Wave.randomSeed = System.currentTimeMillis();
@@ -244,9 +251,6 @@ public class SurvivalServerEvents {
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent evt) {
         if (isEnabled()) {
-            SurvivalClientboundPacket.enableAndSetDifficulty(difficulty);
-            SurvivalClientboundPacket.setWaveNumber(nextWave.number);
-            SurvivalClientboundPacket.setWaveRandomSeed(Wave.randomSeed);
             for (RTSPlayer rtsPlayer : PlayerServerEvents.rtsPlayers)
                 AlliancesServerEvents.addAlliance(rtsPlayer.name, evt.getEntity().getName().getString());
         }
@@ -282,24 +286,24 @@ public class SurvivalServerEvents {
     }
 
     public static void setToStartingDayTime() {
-        serverLevel.setDayTime(TimeUtils.DAWN + getWaveSurvivalTimeModifier(difficulty));
+        if (serverLevel != null)
+            serverLevel.setDayTime(TimeUtils.DAWN + getWaveSurvivalTimeModifier(difficulty));
     }
 
     public static void setToStartingNightTime() {
-        serverLevel.setDayTime(TimeUtils.DUSK + getWaveSurvivalTimeModifier(difficulty));
+        if (serverLevel != null)
+            serverLevel.setDayTime(TimeUtils.DUSK + getWaveSurvivalTimeModifier(difficulty));
     }
 
     public static void setToGameStartTime() {
-        serverLevel.setDayTime(TimeUtils.DUSK + getWaveSurvivalTimeModifier(difficulty) + 60);
+        if (serverLevel != null)
+            serverLevel.setDayTime(TimeUtils.DAWN);
     }
 
     public static boolean isEnabled() { return isEnabled; }
 
     public static boolean isStarted() {
-        for (RTSPlayer player : PlayerServerEvents.rtsPlayers)
-            if (BuildingUtils.getTotalCompletedBuildingsOwned(false, player.name) > 0)
-                return true;
-        return false;
+        return isEnabled();
     }
 
     public static List<WaveEnemy> getCurrentEnemies() {

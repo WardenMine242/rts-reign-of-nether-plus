@@ -303,5 +303,11 @@ public final class PacketHandler {
                 .decoder(MapMarkerClientboundPacket::new)
                 .consumerMainThread(MapMarkerClientboundPacket::handle)
                 .add();
+
+        INSTANCE.messageBuilder(com.WardenMine242.siege_of_settlements.network.ResearchTreeServerboundPacket.class, index++, NetworkDirection.PLAY_TO_SERVER)
+                .encoder(com.WardenMine242.siege_of_settlements.network.ResearchTreeServerboundPacket::encode)
+                .decoder(com.WardenMine242.siege_of_settlements.network.ResearchTreeServerboundPacket::new)
+                .consumerMainThread(com.WardenMine242.siege_of_settlements.network.ResearchTreeServerboundPacket::handle)
+                .add();
     }
 }

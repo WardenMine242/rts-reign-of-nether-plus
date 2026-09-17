@@ -71,7 +71,6 @@ public class FactionRegistries {
         register(Faction.VILLAGERS, Buildings.ARCANE_TOWER, Keybindings.keyI);
         register(Faction.VILLAGERS, Buildings.LIBRARY, Keybindings.keyO);
         register(Faction.VILLAGERS, Buildings.CASTLE, Keybindings.keyP);
-        register(Faction.VILLAGERS, Buildings.SHRINE_OF_PROSPERITY, Keybindings.keyF);
         register(Faction.VILLAGERS, Buildings.IRON_GOLEM_BUILDING, Keybindings.keyL);
         register(Faction.VILLAGERS, Buildings.OAK_BRIDGE, Keybindings.keyC);
         register(Faction.VILLAGERS, Buildings.VILLAGER_DRILL, Keybindings.keyZ);

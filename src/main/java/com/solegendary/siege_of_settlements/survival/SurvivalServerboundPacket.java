@@ -43,7 +43,7 @@ public class SurvivalServerboundPacket {
         final var success = new AtomicBoolean(false);
         ctx.get().enqueueWork(() -> {
             if (this.waveNumber <= 0) {
-                SurvivalServerEvents.enable(difficulty);
+                SurvivalServerEvents.enable(ctx.get().getSender().serverLevel(), difficulty);
             } else {
                 SurvivalServerEvents.setWaveNumber(waveNumber);
             }

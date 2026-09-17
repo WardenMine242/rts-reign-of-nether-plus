@@ -114,10 +114,8 @@ public class VillagerUnitModel<T extends AbstractIllager> extends HumanoidModel<
         else if (entity instanceof EvokerUnit evokerUnit) {
             return evokerUnit.getEvokerArmPose();
         }
-        else if (entity instanceof PillagerUnit) {
-            // CROSSBOW_HOLD
-            // CROSSBOW_CHARGE
-            return VillagerUnitModel.ArmPose.CROSSBOW_CHARGE;
+        else if (entity instanceof PillagerUnit pillagerUnit) {
+            return fromIllagerArmPose(pillagerUnit.getArmPose());
         }
         else if (entity instanceof MilitiaUnit militiaUnit) {
             if (militiaUnit.isUsingBow()) {
@@ -136,6 +134,17 @@ public class VillagerUnitModel<T extends AbstractIllager> extends HumanoidModel<
                 return VillagerUnitModel.ArmPose.ATTACKING;
         }
         return VillagerUnitModel.ArmPose.CROSSED;
+    }
+
+    private VillagerUnitModel.ArmPose fromIllagerArmPose(AbstractIllager.IllagerArmPose armPose) {
+        return switch (armPose) {
+            case ATTACKING -> VillagerUnitModel.ArmPose.ATTACKING;
+            case SPELLCASTING -> VillagerUnitModel.ArmPose.SPELLCASTING;
+            case BOW_AND_ARROW -> VillagerUnitModel.ArmPose.BOW_AND_ARROW;
+            case CROSSBOW_HOLD -> VillagerUnitModel.ArmPose.CROSSBOW_HOLD;
+            case CROSSBOW_CHARGE -> VillagerUnitModel.ArmPose.CROSSBOW_CHARGE;
+            default -> VillagerUnitModel.ArmPose.CROSSED;
+        };
     }
 
     @Override

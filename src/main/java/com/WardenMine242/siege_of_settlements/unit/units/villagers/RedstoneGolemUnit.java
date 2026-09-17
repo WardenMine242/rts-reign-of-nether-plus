@@ -2,14 +2,16 @@ package com.WardenMine242.siege_of_settlements.unit.units.villagers;
 
 import com.solegendary.siege_of_settlements.ability.Abilities;
 import com.solegendary.siege_of_settlements.ability.abilities.Minefield;
-import com.solegendary.siege_of_settlements.config.SiegeOfSettlementsCommonConfigs;
 import com.solegendary.siege_of_settlements.keybinds.Keybindings;
+import com.solegendary.siege_of_settlements.registrars.MobEffectRegistrar;
+import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.IronGolemUnit;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -38,18 +40,15 @@ public class RedstoneGolemUnit extends IronGolemUnit implements GeoEntity {
         ABILITIES.add(new Minefield(), Keybindings.keyQ);
     }
 
-    public static final float DEFAULT_MOVEMENT_SPEED = 0.25F; // HUD shows this as 25
-    public static final float DEFAULT_ATTACKS_PER_SECOND = 0.6F;
-    public static final float DEFAULT_ATTACK_DAMAGE = 20.0F;
-    public static final float DEFAULT_MAX_HEALTH = 450.0F;
-    public static final float DEFAULT_ARMOR = 0.0F;
-    public static final float DEFAULT_ATTACK_RANGE = 3.0F;
-    public static final float DEFAULT_AGGRO_RANGE = 10.0F;
-    public static final double DEFAULT_ATTACK_KNOCKBACK = 1.5D;
-    public static final double DEFAULT_KNOCKBACK_RESISTANCE = 1.0D;
-    private static final double LEGACY_ATTACK_DAMAGE = 10.0D;
-    private static final double LEGACY_CONFIG_ATTACK_DAMAGE = 40.0D;
-    private static final double LEGACY_MAX_HEALTH = 140.0D;
+    public static float STAT_ATTACK_DAMAGE = 60.0F;
+    public static float STAT_ATTACKS_PER_SECOND = 0.6F;
+    public static float STAT_MAX_HEALTH = 900.0F;
+    public static float STAT_ARMOR = 0.0F;
+    public static float STAT_MOVEMENT_SPEED = 0.25F; // HUD shows this as 25
+    public static float STAT_ATTACK_RANGE = 3.0F;
+    public static float STAT_AGGRO_RANGE = 10.0F;
+    public static double STAT_ATTACK_KNOCKBACK = 1.5D;
+    public static double STAT_KNOCKBACK_RESISTANCE = 1.0D;
     private static final double ATTACK_ANIMATION_SPEED = 0.7D;
     private static final int ATTACK_ANIM_TICKS = 15;
     private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
@@ -81,6 +80,14 @@ public class RedstoneGolemUnit extends IronGolemUnit implements GeoEntity {
     }
 
     @Override
+    public boolean canBeAffected(MobEffectInstance effectInstance) {
+        if (effectInstance.getEffect() == MobEffectRegistrar.AUROMANCER_AURA.get()) {
+            return true;
+        }
+        return super.canBeAffected(effectInstance);
+    }
+
+    @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(ATTACK_SWING_INDEX, 0);
@@ -102,7 +109,7 @@ public class RedstoneGolemUnit extends IronGolemUnit implements GeoEntity {
             return PlayState.CONTINUE;
         }
         if (state.isMoving()) {
-            double walkSpeedMultiplier = getConfiguredMovementSpeed() / IronGolemUnit.movementSpeed;
+            double walkSpeedMultiplier = STAT_MOVEMENT_SPEED / IronGolemUnit.movementSpeed;
             state.getController().setAnimationSpeed(walkSpeedMultiplier);
             state.setAndContinue(WALK_ANIM);
             return PlayState.CONTINUE;
@@ -113,51 +120,49 @@ public class RedstoneGolemUnit extends IronGolemUnit implements GeoEntity {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        // Attribute registration runs before Forge config is fully loaded in dev env.
-        // Use safe defaults here; runtime sync in tick() will apply configured values.
         return Mob.createMobAttributes()
-                .add(Attributes.MOVEMENT_SPEED, DEFAULT_MOVEMENT_SPEED)
-                .add(Attributes.ATTACK_DAMAGE, DEFAULT_ATTACK_DAMAGE)
-                .add(Attributes.ARMOR, DEFAULT_ARMOR)
-                .add(Attributes.MAX_HEALTH, DEFAULT_MAX_HEALTH)
-                .add(Attributes.FOLLOW_RANGE, com.solegendary.siege_of_settlements.unit.interfaces.Unit.getFollowRange())
-                .add(Attributes.ATTACK_KNOCKBACK, DEFAULT_ATTACK_KNOCKBACK)
-                .add(Attributes.KNOCKBACK_RESISTANCE, DEFAULT_KNOCKBACK_RESISTANCE);
+                .add(Attributes.MOVEMENT_SPEED, STAT_MOVEMENT_SPEED)
+                .add(Attributes.ATTACK_DAMAGE, STAT_ATTACK_DAMAGE)
+                .add(Attributes.ARMOR, STAT_ARMOR)
+                .add(Attributes.MAX_HEALTH, STAT_MAX_HEALTH)
+                .add(Attributes.FOLLOW_RANGE, Unit.getFollowRange())
+                .add(Attributes.ATTACK_KNOCKBACK, STAT_ATTACK_KNOCKBACK)
+                .add(Attributes.KNOCKBACK_RESISTANCE, STAT_KNOCKBACK_RESISTANCE);
     }
 
     @Override
     public float getMovementSpeed() {
-        return getConfiguredMovementSpeed();
+        return STAT_MOVEMENT_SPEED;
     }
 
     @Override
     public float getAttackCooldown() {
-        return (20.0F / getConfiguredAttacksPerSecond()) * getAttackCooldownMultiplier();
+        return (20.0F / STAT_ATTACKS_PER_SECOND) * getAttackCooldownMultiplier();
     }
 
     @Override
     public float getBaseAttacksPerSecond() {
-        return getConfiguredAttacksPerSecond();
+        return STAT_ATTACKS_PER_SECOND;
     }
 
     @Override
     public float getUnitAttackDamage() {
-        return getConfiguredAttackDamage();
+        return STAT_ATTACK_DAMAGE;
     }
 
     @Override
     public float getUnitMaxHealth() {
-        return getConfiguredMaxHealth();
+        return STAT_MAX_HEALTH;
     }
 
     @Override
     public float getAttackRange() {
-        return getConfiguredAttackRange();
+        return STAT_ATTACK_RANGE;
     }
 
     @Override
     public float getAggroRange() {
-        return getConfiguredAggroRange();
+        return STAT_AGGRO_RANGE;
     }
 
     @Override
@@ -178,7 +183,6 @@ public class RedstoneGolemUnit extends IronGolemUnit implements GeoEntity {
     @Override
     public void tick() {
         super.tick();
-        syncConfiguredAttributes();
         lockFacingToAttackTarget();
 
         int swingIndex = this.entityData.get(ATTACK_SWING_INDEX);
@@ -234,7 +238,7 @@ public class RedstoneGolemUnit extends IronGolemUnit implements GeoEntity {
     }
 
     private boolean hurtTargetWithConfiguredDamage(Entity target) {
-        boolean hurt = target.hurt(this.damageSources().mobAttack(this), getUnitAttackDamage());
+        boolean hurt = target.hurt(this.damageSources().mobAttack(this), getAttributeAttackDamage());
         if (hurt) {
             double knockback = this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
             if (knockback > 0.0D && target instanceof LivingEntity livingTarget) {
@@ -247,108 +251,12 @@ public class RedstoneGolemUnit extends IronGolemUnit implements GeoEntity {
         return hurt;
     }
 
+    private float getAttributeAttackDamage() {
+        return (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
+    }
+
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return geoCache;
-    }
-
-    private static float getConfiguredMovementSpeed() {
-        try {
-            return (float) SiegeOfSettlementsCommonConfigs.RedstoneGolemStats.MOVEMENT_SPEED.get().doubleValue();
-        } catch (IllegalStateException ignored) {
-            return DEFAULT_MOVEMENT_SPEED;
-        }
-    }
-
-    private static float getConfiguredAttackDamage() {
-        try {
-            double configured = SiegeOfSettlementsCommonConfigs.RedstoneGolemStats.ATTACK_DAMAGE.get().doubleValue();
-            if (Math.abs(configured - LEGACY_ATTACK_DAMAGE) < 1.0E-6D ||
-                    Math.abs(configured - LEGACY_CONFIG_ATTACK_DAMAGE) < 1.0E-6D) {
-                return DEFAULT_ATTACK_DAMAGE;
-            }
-            return (float) configured;
-        } catch (IllegalStateException ignored) {
-            return DEFAULT_ATTACK_DAMAGE;
-        }
-    }
-
-    private static float getConfiguredMaxHealth() {
-        try {
-            double configured = SiegeOfSettlementsCommonConfigs.RedstoneGolemStats.MAX_HEALTH.get().doubleValue();
-            if (Math.abs(configured - LEGACY_MAX_HEALTH) < 1.0E-6D) {
-                return DEFAULT_MAX_HEALTH;
-            }
-            return (float) configured;
-        } catch (IllegalStateException ignored) {
-            return DEFAULT_MAX_HEALTH;
-        }
-    }
-
-    private static float getConfiguredArmor() {
-        try {
-            return (float) SiegeOfSettlementsCommonConfigs.RedstoneGolemStats.ARMOR.get().doubleValue();
-        } catch (IllegalStateException ignored) {
-            return DEFAULT_ARMOR;
-        }
-    }
-
-    private static float getConfiguredAttacksPerSecond() {
-        try {
-            return (float) Math.max(0.01D, SiegeOfSettlementsCommonConfigs.RedstoneGolemStats.ATTACKS_PER_SECOND.get().doubleValue());
-        } catch (IllegalStateException ignored) {
-            return DEFAULT_ATTACKS_PER_SECOND;
-        }
-    }
-
-    private static float getConfiguredAttackRange() {
-        try {
-            return (float) SiegeOfSettlementsCommonConfigs.RedstoneGolemStats.ATTACK_RANGE.get().doubleValue();
-        } catch (IllegalStateException ignored) {
-            return DEFAULT_ATTACK_RANGE;
-        }
-    }
-
-    private static float getConfiguredAggroRange() {
-        try {
-            return (float) SiegeOfSettlementsCommonConfigs.RedstoneGolemStats.AGGRO_RANGE.get().doubleValue();
-        } catch (IllegalStateException ignored) {
-            return DEFAULT_AGGRO_RANGE;
-        }
-    }
-
-    private static double getConfiguredKnockbackResistance() {
-        try {
-            return SiegeOfSettlementsCommonConfigs.RedstoneGolemStats.KNOCKBACK_RESISTANCE.get();
-        } catch (IllegalStateException ignored) {
-            return DEFAULT_KNOCKBACK_RESISTANCE;
-        }
-    }
-
-    private static double getConfiguredAttackKnockback() {
-        try {
-            return SiegeOfSettlementsCommonConfigs.RedstoneGolemStats.ATTACK_KNOCKBACK.get();
-        } catch (IllegalStateException ignored) {
-            return DEFAULT_ATTACK_KNOCKBACK;
-        }
-    }
-
-    private void syncConfiguredAttributes() {
-        applyConfiguredAttribute(Attributes.MOVEMENT_SPEED, getConfiguredMovementSpeed());
-        applyConfiguredAttribute(Attributes.ATTACK_DAMAGE, getConfiguredAttackDamage());
-        applyConfiguredAttribute(Attributes.MAX_HEALTH, getConfiguredMaxHealth());
-        applyConfiguredAttribute(Attributes.ARMOR, getConfiguredArmor());
-        applyConfiguredAttribute(Attributes.ATTACK_KNOCKBACK, getConfiguredAttackKnockback());
-        applyConfiguredAttribute(Attributes.KNOCKBACK_RESISTANCE, getConfiguredKnockbackResistance());
-
-        if (this.getHealth() > this.getMaxHealth()) {
-            this.setHealth(this.getMaxHealth());
-        }
-    }
-
-    private void applyConfiguredAttribute(net.minecraft.world.entity.ai.attributes.Attribute attribute, double value) {
-        if (this.getAttribute(attribute) != null && Math.abs(this.getAttribute(attribute).getBaseValue() - value) > 1.0E-6D) {
-            this.getAttribute(attribute).setBaseValue(value);
-        }
     }
 }

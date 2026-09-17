@@ -41,6 +41,10 @@ public class BuildingBlockData {
     }
 
     public static ArrayList<BuildingBlock> getBuildingBlocksFromNbt(CompoundTag nbt) {
+        if (nbt == null) {
+            SiegeOfSettlements.LOGGER.error("Attempted to get building blocks from null NBT!");
+            return new ArrayList<>();
+        }
         ArrayList<BuildingBlock> blocks = new ArrayList<>();
 
         // load in blocks (list of blockPos and their palette index)

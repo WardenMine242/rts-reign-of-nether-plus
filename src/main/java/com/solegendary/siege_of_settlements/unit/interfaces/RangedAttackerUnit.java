@@ -2,6 +2,7 @@ package com.solegendary.siege_of_settlements.unit.interfaces;
 
 import com.solegendary.siege_of_settlements.unit.goals.RangedFlyingAttackGroundGoal;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 public interface RangedAttackerUnit {
 
@@ -13,10 +14,8 @@ public interface RangedAttackerUnit {
     default RangedFlyingAttackGroundGoal<?> getRangedAttackGroundGoal() { return null; }
 
     default void performUnitRangedAttack(LivingEntity pTarget, float velocity) {
-        double x = pTarget.getX();
-        double y = pTarget.getY();
-        double z = pTarget.getZ();
-        performUnitRangedAttack(x, y, z, velocity);
+        Vec3 targetPos = ((Unit)this).getLeadingTargetPosition(pTarget, velocity);
+        performUnitRangedAttack(targetPos.x, targetPos.y, targetPos.z, velocity);
     }
 
     // attack ground

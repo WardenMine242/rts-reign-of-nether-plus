@@ -3,6 +3,7 @@ package com.solegendary.siege_of_settlements.player;
 import com.solegendary.siege_of_settlements.registrars.PacketHandler;
 import com.solegendary.siege_of_settlements.faction.Faction;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
@@ -24,8 +25,18 @@ public class PlayerClientboundPacket {
                 new PlayerClientboundPacket(PlayerAction.ADD_RTS_PLAYER, playerName, id, startPosColorId, faction));
     }
 
+    public static void addRTSPlayer(ServerPlayer player, String playerName, Faction faction, Long id, int startPosColorId) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new PlayerClientboundPacket(PlayerAction.ADD_RTS_PLAYER, playerName, id, startPosColorId, faction));
+    }
+
     public static void removeRTSPlayer(String playerName) {
         PacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(),
+                new PlayerClientboundPacket(PlayerAction.REMOVE_RTS_PLAYER, playerName, 0L, 0, Faction.NONE));
+    }
+
+    public static void removeRTSPlayer(ServerPlayer player, String playerName) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
                 new PlayerClientboundPacket(PlayerAction.REMOVE_RTS_PLAYER, playerName, 0L, 0, Faction.NONE));
     }
 
@@ -54,9 +65,19 @@ public class PlayerClientboundPacket {
                 new PlayerClientboundPacket(PlayerAction.SYNC_RTS_GAME_TIME, "", rtsGameTicks, 0, Faction.NONE));
     }
 
+    public static void syncRtsGameTime(ServerPlayer player, Long rtsGameTicks) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new PlayerClientboundPacket(PlayerAction.SYNC_RTS_GAME_TIME, "", rtsGameTicks, 0, Faction.NONE));
+    }
+
     public static void lockRTS(String playerName) {
         PacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(),
                 new PlayerClientboundPacket(PlayerAction.LOCK_RTS, playerName, 0L, 0, Faction.NONE));
+    }
+
+    public static void lockRTS(ServerPlayer player) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new PlayerClientboundPacket(PlayerAction.LOCK_RTS, "", 0L, 0, Faction.NONE));
     }
 
     public static void unlockRTS(String playerName) {
@@ -64,18 +85,39 @@ public class PlayerClientboundPacket {
                 new PlayerClientboundPacket(PlayerAction.UNLOCK_RTS, playerName, 0L, 0, Faction.NONE));
     }
 
+    public static void unlockRTS(ServerPlayer player) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new PlayerClientboundPacket(PlayerAction.UNLOCK_RTS, "", 0L, 0, Faction.NONE));
+    }
+
     // prevent one particular player from joining the match
     public static void disableStartRTS(String playerName) {
         PacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(),
                 new PlayerClientboundPacket(PlayerAction.DISABLE_START_RTS, playerName, 0L, 0, Faction.NONE));
     }
+
+    public static void disableStartRTS(ServerPlayer player) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new PlayerClientboundPacket(PlayerAction.DISABLE_START_RTS, "", 0L, 0, Faction.NONE));
+    }
+
     public static void enableStartRTS(String playerName) {
         PacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(),
                 new PlayerClientboundPacket(PlayerAction.ENABLE_START_RTS, playerName, 0L, 0, Faction.NONE));
     }
 
+    public static void enableStartRTS(ServerPlayer player) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new PlayerClientboundPacket(PlayerAction.ENABLE_START_RTS, "", 0L, 0, Faction.NONE));
+    }
+
     public static void syncBeaconOwnerTicks(String playerName, long ticks) {
         PacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(),
+                new PlayerClientboundPacket(PlayerAction.SYNC_BEACON_OWNER_TICKS, playerName, ticks, 0, Faction.NONE));
+    }
+
+    public static void syncBeaconOwnerTicks(ServerPlayer player, String playerName, long ticks) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
                 new PlayerClientboundPacket(PlayerAction.SYNC_BEACON_OWNER_TICKS, playerName, ticks, 0, Faction.NONE));
     }
 

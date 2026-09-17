@@ -1,33 +1,32 @@
 package com.WardenMine242.siege_of_settlements.unit.units.villagers;
 
+import com.solegendary.siege_of_settlements.ability.Abilities;
+import com.solegendary.siege_of_settlements.ability.abilities.UpgradeToElite;
 import com.solegendary.siege_of_settlements.resources.ResourceCost;
 import com.solegendary.siege_of_settlements.resources.ResourceCosts;
-import com.solegendary.siege_of_settlements.registrars.ItemRegistrar;
-import com.solegendary.siege_of_settlements.unit.units.villagers.VindicatorUnit;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Vindicator;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
-
-public class ArmoredVindicatorUnit extends VindicatorUnit {
-
-    public static float STAT_ATTACK_DAMAGE = VindicatorUnit.attackDamage;
-    public static float STAT_MOVEMENT_SPEED = VindicatorUnit.movementSpeed;
-    public static float STAT_ATTACKS_PER_SECOND = VindicatorUnit.attacksPerSecond;
-    public static float STAT_MAX_HEALTH = VindicatorUnit.maxHealth;
-    public static float STAT_ARMOR = VindicatorUnit.armorValue;
-    public static float STAT_ATTACK_RANGE = VindicatorUnit.attackRange;
-    public static float STAT_AGGRO_RANGE = VindicatorUnit.aggroRange;
-    public static float STAT_RANGED_DAMAGE_RESIST = VindicatorUnit.rangedDamageResist;
+public class ArmoredVindicatorUnit extends EliteArmoredVindicatorUnit {
+    public static float STAT_ATTACK_DAMAGE = 10.0f;
+    public static float STAT_MAX_HEALTH = 170.0f;
+    public static float STAT_ARMOR = 10.0f;
+    public static float STAT_MOVEMENT_SPEED = EliteArmoredVindicatorUnit.STAT_MOVEMENT_SPEED;
 
     public ArmoredVindicatorUnit(EntityType<? extends Vindicator> entityType, Level level) {
         super(entityType, level);
+    }
+
+    @Override
+    public void updateAbilityButtons() {
+        super.updateAbilityButtons();
+        abilities.add(new UpgradeToElite());
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -46,33 +45,19 @@ public class ArmoredVindicatorUnit extends VindicatorUnit {
     }
 
     @Override
-    public float getAttackCooldown() {
-        return (20.0F / STAT_ATTACKS_PER_SECOND) * getAttackCooldownMultiplier();
-    }
-
-    @Override
-    public float getAttacksPerSecond() {
-        return STAT_ATTACKS_PER_SECOND / getAttackCooldownMultiplier();
-    }
-
-    @Override
-    public float getBaseAttacksPerSecond() {
-        return STAT_ATTACKS_PER_SECOND;
-    }
-
-    @Override
-    public float getAggroRange() {
-        return STAT_AGGRO_RANGE;
-    }
-
-    @Override
-    public float getAttackRange() {
-        return STAT_ATTACK_RANGE;
-    }
-
-    @Override
     public float getMovementSpeed() {
         return STAT_MOVEMENT_SPEED;
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (!this.level().isClientSide()) {
+            AttributeInstance movementSpeed = this.getAttribute(Attributes.MOVEMENT_SPEED);
+            if (movementSpeed != null && Math.abs(movementSpeed.getBaseValue() - STAT_MOVEMENT_SPEED) > 1.0E-6D) {
+                movementSpeed.setBaseValue(STAT_MOVEMENT_SPEED);
+            }
+        }
     }
 
     @Override
@@ -83,31 +68,5 @@ public class ArmoredVindicatorUnit extends VindicatorUnit {
     @Override
     public float getUnitMaxHealth() {
         return STAT_MAX_HEALTH;
-    }
-
-    @Override
-    public double getUnitRangedArmorPercentage() {
-        return STAT_RANGED_DAMAGE_RESIST;
-    }
-
-    @Override
-    public void tick() {
-        ensureDoubleAxeEquippedServer();
-        super.tick();
-    }
-
-    @Override
-    public void setupEquipmentAndUpgradesServer() {
-        ensureDoubleAxeEquippedServer();
-    }
-
-    private void ensureDoubleAxeEquippedServer() {
-        if (this.level().isClientSide()) {
-            return;
-        }
-        ItemStack mainHand = this.getItemBySlot(EquipmentSlot.MAINHAND);
-        if (mainHand.isEmpty() || mainHand.getItem() != ItemRegistrar.DOUBLE_AXE.get()) {
-            this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ItemRegistrar.DOUBLE_AXE.get()));
-        }
     }
 }

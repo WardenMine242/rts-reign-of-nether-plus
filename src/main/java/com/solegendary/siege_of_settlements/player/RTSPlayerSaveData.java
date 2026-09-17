@@ -9,12 +9,17 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.saveddata.SavedData;
 
+import net.minecraft.world.level.GameType;
+
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RTSPlayerSaveData extends SavedData {
 
     public final ArrayList<RTSPlayer> rtsPlayers = new ArrayList<>();
+    public final Map<String, GameType> playerDefaultGameModes = new HashMap<>();
 
     private static RTSPlayerSaveData create() {
         return new RTSPlayerSaveData();
@@ -45,14 +50,26 @@ public class RTSPlayerSaveData extends SavedData {
                 int id = ptag.getInt("id");
                 int ticksWithoutCapitol = ptag.getInt("ticksWithoutCapitol");
                 int beaconOwnerTicks = ptag.getInt("beaconOwnerTicks");
+                int startPosColorId = ptag.getInt("startPosColorId");
                 Faction faction = Faction.valueOf(ptag.getString("faction"));
-                int[] scores = ptag.contains("sources") ? ptag.getIntArray("scores") : new RTSPlayerScores().getScoreListAsArray();
+                int[] scores = ptag.contains("scores") ? ptag.getIntArray("scores") : new RTSPlayerScores().getScoreListAsArray();
 
-                data.rtsPlayers.add(RTSPlayer.getFromSave(name, id, ticksWithoutCapitol, faction, beaconOwnerTicks, scores));
+                data.rtsPlayers.add(RTSPlayer.getFromSave(name, id, ticksWithoutCapitol, faction, beaconOwnerTicks, scores, startPosColorId));
 
                 SiegeOfSettlements.LOGGER.info("RTSPlayerSaveData.load: " + name + "|" + id + "|" + faction);
             }
         }
+
+        CompoundTag modesTag = tag.getCompound("playerDefaultGameModes");
+        for (String name : modesTag.getAllKeys()) {
+            try {
+                GameType mode = GameType.byName(modesTag.getString(name));
+                data.playerDefaultGameModes.put(name, mode);
+            } catch (Exception e) {
+                SiegeOfSettlements.LOGGER.warn("Failed to load default game mode for player " + name);
+            }
+        }
+
         return data;
     }
 
@@ -67,6 +84,7 @@ public class RTSPlayerSaveData extends SavedData {
             cTag.putInt("id", p.id);
             cTag.putInt("ticksWithoutCapitol", p.ticksWithoutCapitol);
             cTag.putInt("beaconOwnerTicks", p.beaconOwnerTicks);
+            cTag.putInt("startPosColorId", p.startPosColorId);
             cTag.putString("faction", p.faction.name());
             cTag.putIntArray("scores", p.scores.getScoreListAsArray());
             list.add(cTag);
@@ -74,6 +92,13 @@ public class RTSPlayerSaveData extends SavedData {
             //SiegeOfSettlements.LOGGER.info("RTSPlayerSaveData.save: " + p.name + "|" + p.id + "|" + p.faction);
         });
         tag.put("rtsplayers", list);
+
+        CompoundTag modesTag = new CompoundTag();
+        this.playerDefaultGameModes.forEach((name, mode) -> {
+            modesTag.putString(name, mode.getName());
+        });
+        tag.put("playerDefaultGameModes", modesTag);
+
         return tag;
     }
 

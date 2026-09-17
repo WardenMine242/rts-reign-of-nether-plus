@@ -357,6 +357,11 @@ public class HorseUnit extends Horse implements Unit {
         moveFunction.accept(passenger, this.getX(), riderY, this.getZ());
 
         if (passenger instanceof LivingEntity living && !(passenger instanceof Player)) {
+            if (living instanceof Unit unit && unit.getTargetGoal().getTarget() != null) {
+                // Non-player riders should keep a clean forward-facing seated look,
+                // except when they have an active combat target, allowing them to face it independently.
+                return;
+            }
             // Non-player riders should keep a clean forward-facing seated look.
             float mountYaw = this.getYRot();
             living.setYBodyRot(mountYaw);

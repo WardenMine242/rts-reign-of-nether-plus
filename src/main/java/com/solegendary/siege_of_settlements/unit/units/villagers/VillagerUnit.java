@@ -26,6 +26,11 @@ import com.solegendary.siege_of_settlements.unit.packets.UnitConvertClientboundP
 import com.solegendary.siege_of_settlements.unit.packets.UnitSyncClientboundPacket;
 import com.solegendary.siege_of_settlements.faction.Faction;
 import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeTrader;
+import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeFarmer;
+import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeLumberjack;
+import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeMiner;
+import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeMason;
+import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeHunter;
 import net.minecraft.client.resources.language.I18n;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraft.core.BlockPos;
@@ -77,6 +82,11 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
     public static final Abilities ABILITIES = new Abilities();
     static {
         ABILITIES.add(new CallToArmsUnit(), Keybindings.keyQ);
+        ABILITIES.add(new VillagerBecomeHunter(), null);
+        ABILITIES.add(new VillagerBecomeFarmer(), null);
+        ABILITIES.add(new VillagerBecomeLumberjack(), null);
+        ABILITIES.add(new VillagerBecomeMiner(), null);
+        ABILITIES.add(new VillagerBecomeMason(), null);
         ABILITIES.add(new VillagerBecomeTrader(), Keybindings.keyX);
     }
 
@@ -230,10 +240,7 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
     public int farmerExp = 0; // farm food blocks gathered
     public void incrementFarmerExp() {
         farmerExp += hasSpeedCheat() ? 10 : 1;
-        if (farmerExp >= (FARMER_EXP_REQ / 2) && !hasUnitProfession()) {
-            setProfession(VillagerProfession.FARMER);
-        }
-        else if (farmerExp >= FARMER_EXP_REQ && !isVeteran && getUnitProfession() == FARMER)
+        if (farmerExp >= FARMER_EXP_REQ && !isVeteran && getUnitProfession() == FARMER)
             makeVeteran();
     }
 
@@ -244,9 +251,7 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
     public int lumberjackExp = 0;
     public void incrementLumberjackExp() {
         lumberjackExp += hasSpeedCheat() ? 10 : 1;
-        if (lumberjackExp >= (LUMBERJACK_EXP_REQ / 2) && !hasUnitProfession())
-            setProfession(VillagerProfession.FLETCHER);
-        else if (lumberjackExp >= LUMBERJACK_EXP_REQ && !isVeteran && getUnitProfession() == LUMBERJACK)
+        if (lumberjackExp >= LUMBERJACK_EXP_REQ && !isVeteran && getUnitProfession() == LUMBERJACK)
             makeVeteran();
     }
 
@@ -257,9 +262,7 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
     public int minerExp = 0; // ore blocks gathered
     public void incrementMinerExp() {
         minerExp += hasSpeedCheat() ? 10 : 1;
-        if (minerExp >= (MINER_EXP_REQ / 2) && !hasUnitProfession())
-            setProfession(VillagerProfession.TOOLSMITH);
-        else if (minerExp >= MINER_EXP_REQ && !isVeteran && getUnitProfession() == MINER)
+        if (minerExp >= MINER_EXP_REQ && !isVeteran && getUnitProfession() == MINER)
             makeVeteran();
     }
 
@@ -270,9 +273,7 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
     public int masonExp = 0;
     public void incrementMasonExp() {
         masonExp += hasSpeedCheat() ? 10 : 1;
-        if (masonExp >= (MASON_EXP_REQ / 2) && !hasUnitProfession())
-            setProfession(VillagerProfession.MASON);
-        else if (masonExp >= MASON_EXP_REQ && !isVeteran && getUnitProfession() == MASON)
+        if (masonExp >= MASON_EXP_REQ && !isVeteran && getUnitProfession() == MASON)
             makeVeteran();
     }
 

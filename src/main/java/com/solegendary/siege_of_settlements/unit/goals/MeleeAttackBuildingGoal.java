@@ -2,6 +2,7 @@ package com.solegendary.siege_of_settlements.unit.goals;
 
 import com.solegendary.siege_of_settlements.building.BuildingPlacement;
 import com.solegendary.siege_of_settlements.building.BuildingUtils;
+import com.solegendary.siege_of_settlements.registrars.MobEffectRegistrar;
 import com.solegendary.siege_of_settlements.unit.UnitAnimationAction;
 import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
@@ -89,7 +90,8 @@ public class MeleeAttackBuildingGoal extends MoveToTargetBlockGoal {
 
         AttackerUnit unit = (AttackerUnit) mob;
         ticksToNextBlockBreak = (int) unit.getAttackCooldown();
-        double damageFloat = unit.getUnitAttackDamage() * buildingTarget.getMeleeDamageMult();
+        double auraDamageBonus = mob.hasEffect(MobEffectRegistrar.AUROMANCER_AURA.get()) ? 3.0D : 0.0D;
+        double damageFloat = (unit.getUnitAttackDamage() + auraDamageBonus) * buildingTarget.getMeleeDamageMult();
         damageFloat *= unit.getBuildingDamageMultiplier();
 
         double damageFloor = Math.floor(damageFloat);

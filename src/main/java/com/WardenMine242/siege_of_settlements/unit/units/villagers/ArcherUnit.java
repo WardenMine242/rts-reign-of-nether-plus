@@ -2,7 +2,11 @@ package com.WardenMine242.siege_of_settlements.unit.units.villagers;
 
 import com.solegendary.siege_of_settlements.resources.ResourceCost;
 import com.solegendary.siege_of_settlements.resources.ResourceCosts;
+import com.WardenMine242.siege_of_settlements.ability.abilities.UpgradeArcherToElite;
+import com.solegendary.siege_of_settlements.ability.Abilities;
+import com.solegendary.siege_of_settlements.keybinds.Keybindings;
 import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
+import com.solegendary.siege_of_settlements.unit.interfaces.ConvertableUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
 import net.minecraft.world.entity.EntityType;
@@ -26,7 +30,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
 
-public class ArcherUnit extends PillagerUnit implements GeoEntity {
+public class ArcherUnit extends PillagerUnit implements GeoEntity, ConvertableUnit {
 
     public static float STAT_ATTACK_DAMAGE = 4.0F;
     public static float STAT_MOVEMENT_SPEED = 0.26F;
@@ -39,7 +43,7 @@ public class ArcherUnit extends PillagerUnit implements GeoEntity {
 
     private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
     private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
-    private static final RawAnimation ATTACK_ANIM = RawAnimation.begin().thenPlay("attack");
+    private static final RawAnimation ATTACK_ANIM = RawAnimation.begin().thenPlay("attack2");
     private static final double ATTACK_ANIMATION_SPEED = 1.0D / 3.0D;
     private static final int ATTACK_ANIM_TICKS = 63;
 
@@ -51,6 +55,18 @@ public class ArcherUnit extends PillagerUnit implements GeoEntity {
 
     public ArcherUnit(EntityType<? extends Pillager> entityType, Level level) {
         super(entityType, level);
+        updateAbilityButtons();
+    }
+
+    @Override
+    public Abilities getAbilities() {
+        return abilities;
+    }
+
+    @Override
+    public void updateAbilityButtons() {
+        super.updateAbilityButtons();
+        abilities.add(new UpgradeArcherToElite(), Keybindings.keyE);
     }
 
     public static AttributeSupplier.Builder createAttributes() {

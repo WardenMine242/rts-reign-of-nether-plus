@@ -425,10 +425,15 @@ public class UnitServerEvents {
             //forcedUnitChunks.removeIf(p -> p.getFirst() == entity.getId());
         }
 
-        // if a player has no more units, then they are defeated
-        synchronized (allUnits) {
-            try {
-                if (evt.getEntity() instanceof Unit unit) {
+        // EntityLeaveLevelEvent is also fired while a world is unloading.  Only a unit
+        // that actually died may cause its owner to be defeated; otherwise leaving a
+        // world could remove the owner after the building registry has been saved.
+        if (!evt.getLevel().isClientSide
+                && evt.getEntity() instanceof Unit unit
+                && evt.getEntity() instanceof LivingEntity entity
+                && entity.getHealth() <= 0.0F) {
+            synchronized (allUnits) {
+                try {
                     var unitsOwned = 0;
                     for (LivingEntity u : allUnits) {
                         if ((u instanceof Unit unit1 && unit1.getOwnerName().equals(unit.getOwnerName()))) unitsOwned++;
@@ -438,9 +443,9 @@ public class UnitServerEvents {
                             && BuildingUtils.getTotalCompletedBuildingsOwned(false, unit.getOwnerName()) == 0) {
                         PlayerServerEvents.defeat(unit.getOwnerName(), Component.translatable("server.siege_of_settlements.lost_all").getString());
                     }
+                } catch (ConcurrentModificationException e) {
+                    System.out.println("Caught ConcurrentModificationException in UnitServerEvents EntityLeaveLevelEvent: " + e.getMessage());
                 }
-            } catch (ConcurrentModificationException e) {
-                System.out.println("Caught ConcurrentModificationException in UnitServerEvents EntityLeaveLevelEvent: " + e.getMessage());
             }
         }
     }

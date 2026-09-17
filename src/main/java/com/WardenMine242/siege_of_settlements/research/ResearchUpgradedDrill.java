@@ -50,7 +50,7 @@ public class ResearchUpgradedDrill extends ProductionItem {
                 hotkey,
                 () -> ProductionItems.RESEARCH_UPGRADED_DRILL.itemIsBeingProduced(prodBuilding.ownerName)
                         || ResearchClient.hasResearch(ProductionItems.RESEARCH_UPGRADED_DRILL),
-                () -> BuildingClientEvents.hasFinishedBuilding(Buildings.TOWN_CENTRE) ||
+                () -> (BuildingClientEvents.hasFinishedBuilding(Buildings.TOWN_CENTRE)) ||
                         ResearchClient.hasCheat("modifythephasevariance"),
                 List.of(FormattedCharSequence.forward(I18n.get("research.siege_of_settlements.upgraded_drill"),
                                 Style.EMPTY.withBold(true)

@@ -63,8 +63,8 @@ public class ArmoredPillagerProd extends ProductionItem {
                 itemName,
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/armored_pillager.png"),
                 hotkey,
-                () -> !(prodBuilding instanceof BarracksPlacement) || prodBuilding.getUpgradeLevel() < 2,
-                () -> prodBuilding instanceof BarracksPlacement && prodBuilding.getUpgradeLevel() >= 2,
+                () -> prodBuilding instanceof BarracksPlacement && prodBuilding.getUpgradeLevel() < 2,
+                () -> !(prodBuilding instanceof BarracksPlacement) || prodBuilding.getUpgradeLevel() >= 2,
                 tooltipLines,
                 this
         );

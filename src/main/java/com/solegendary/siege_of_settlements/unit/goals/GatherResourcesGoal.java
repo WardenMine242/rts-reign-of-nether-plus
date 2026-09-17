@@ -278,9 +278,9 @@ public class GatherResourcesGoal extends MoveToTargetBlockGoal {
                     float ticksToProgress;
 
                     if (ResearchServerEvents.playerHasCheat(((Unit) mob).getOwnerName(), "operationcwal"))
-                        ticksToProgress = (TICK_CD / 2) * 10;
+                        ticksToProgress = (TICK_CD / 16) * 10;
                     else
-                        ticksToProgress = (TICK_CD / 2);
+                        ticksToProgress = (TICK_CD / 16);
 
                     if (mob instanceof VillagerUnit vUnit) {
                         if (ResourceSources.getBlockResourceName(getGatherTarget(), mob.level()) == ResourceName.WOOD &&

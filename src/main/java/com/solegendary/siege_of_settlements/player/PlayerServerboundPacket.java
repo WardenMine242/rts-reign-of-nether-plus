@@ -223,6 +223,19 @@ public class PlayerServerboundPacket {
         ));
     }
 
+    public static void requestSessionSync() {
+        Minecraft MC = Minecraft.getInstance();
+        if (MC.player != null) {
+            PacketHandler.INSTANCE.sendToServer(new PlayerServerboundPacket(
+                    PlayerAction.REQUEST_SESSION_SYNC,
+                    MC.player.getId(),
+                    0d,
+                    0d,
+                    0d
+            ));
+        }
+    }
+
     // packet-handler functions
     public PlayerServerboundPacket(PlayerAction action, int playerId, Double x, Double y, Double z) {
         this.action = action;
@@ -288,6 +301,7 @@ public class PlayerServerboundPacket {
                 case UNLOCK_RTS -> PlayerServerEvents.setRTSLock(false);
                 case ENABLE_RTS_SYNCING -> PlayerServerEvents.setRTSSyncingEnabled(true);
                 case DISABLE_RTS_SYNCING -> PlayerServerEvents.setRTSSyncingEnabled(false);
+                case REQUEST_SESSION_SYNC -> PlayerServerEvents.handleSessionSyncRequest(player);
             }
             success.set(true);
         });

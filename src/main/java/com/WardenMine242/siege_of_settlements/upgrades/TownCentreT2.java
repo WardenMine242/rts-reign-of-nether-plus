@@ -22,7 +22,7 @@ import java.util.List;
 public class TownCentreT2 extends ProductionItem {
     public static final String itemName = "Town Centre Tier II";
     // use existing villager house research cost as a placeholder until a dedicated cost is added to configs
-    public static final ResourceCost cost = ResourceCosts.RESEARCH_VILLAGER_HOUSE_T2;
+    public static final ResourceCost cost = ResourceCosts.RESEARCH_TOWN_CENTRE_T2;
 
     public TownCentreT2() {
         super(cost, ProdDupeRule.DISALLOW_FOR_BUILDING);

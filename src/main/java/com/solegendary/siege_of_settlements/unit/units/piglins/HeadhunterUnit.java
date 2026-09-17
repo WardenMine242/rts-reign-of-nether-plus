@@ -44,6 +44,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -261,9 +262,10 @@ public class HeadhunterUnit extends PiglinBrute implements Unit, AttackerUnit, R
     @Override
     public void performUnitRangedAttack(LivingEntity pTarget, float velocity) {
         ThrownTrident $$2 = new ThrownTrident(this.level(), this, new ItemStack(Items.TRIDENT));
-        double $$3 = pTarget.getX() - this.getX();
-        double $$4 = pTarget.getY(0.3333333333333333) - $$2.getY();
-        double $$5 = pTarget.getZ() - this.getZ();
+        Vec3 targetPos = getLeadingTargetPosition(pTarget, 1.6f);
+        double $$3 = targetPos.x - this.getX();
+        double $$4 = targetPos.y + pTarget.getBbHeight() * 0.3333333333333333 - $$2.getY();
+        double $$5 = targetPos.z - this.getZ();
         double $$6 = Math.sqrt($$3 * $$3 + $$5 * $$5);
 
         if (pTarget.getEyeHeight() <= 1.0f)

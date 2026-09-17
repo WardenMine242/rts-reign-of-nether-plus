@@ -31,9 +31,9 @@ public class ArmoredRavagerUnit extends RavagerUnit implements GeoEntity {
     private static final EntityDataAccessor<Integer> ATTACK_ANIMATION_INDEX =
             SynchedEntityData.defineId(ArmoredRavagerUnit.class, EntityDataSerializers.INT);
 
-    public static final float DEFAULT_ATTACK_DAMAGE = 20.0F;
+    public static final float DEFAULT_ATTACK_DAMAGE = 40.0F;
     public static final float DEFAULT_ATTACKS_PER_SECOND = 0.6F;
-    public static final float DEFAULT_MAX_HEALTH = 350.0F;
+    public static final float DEFAULT_MAX_HEALTH = 700.0F;
     public static final float DEFAULT_ARMOR = 30.0F;
     public static final float DEFAULT_MOVEMENT_SPEED = 0.25F;
     public static final float DEFAULT_ATTACK_RANGE = 2.0F;

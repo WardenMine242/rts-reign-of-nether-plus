@@ -39,6 +39,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -287,9 +288,11 @@ public class StrayUnit extends Stray implements Unit, AttackerUnit, RangedAttack
         if (this.getMainHandItem().getItem() instanceof BowItem) {
             abstractarrow = ((BowItem)this.getMainHandItem().getItem()).customArrow(abstractarrow);
         }
-        double d0 = pTarget.getX() - this.getX();
-        double d1 = pTarget.getY(0.3333333333333333) - abstractarrow.getY();
-        double d2 = pTarget.getZ() - this.getZ();
+
+        Vec3 targetPos = getLeadingTargetPosition(pTarget, 1.6f);
+        double d0 = targetPos.x - this.getX();
+        double d1 = targetPos.y + pTarget.getBbHeight() * 0.3333333333333333 - abstractarrow.getY();
+        double d2 = targetPos.z - this.getZ();
         double d3 = Math.sqrt(d0 * d0 + d2 * d2);
 
         if (pTarget.getEyeHeight() <= 1.0f)

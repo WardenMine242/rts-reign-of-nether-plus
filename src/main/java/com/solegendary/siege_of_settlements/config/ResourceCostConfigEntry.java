@@ -75,10 +75,46 @@ public class ResourceCostConfigEntry {
         builder.pop();
     }
 
-    public Integer getFood() {return this.FOOD.get();}
-    public Integer getWood() {return this.WOOD.get();}
-    public Integer getOre() {return this.ORE.get();}
-    public Integer getEmerald() {return this.EMERALD.get();}
-    public Integer getSeconds() {return this.SECONDS.get();}
-    public Integer getPopulation() {return this.POPULATION.get();}
+    public Integer getFood() {
+        try {
+            return this.FOOD != null ? this.FOOD.get() : this.default_food;
+        } catch (IllegalStateException e) {
+            return this.default_food;
+        }
+    }
+    public Integer getWood() {
+        try {
+            return this.WOOD != null ? this.WOOD.get() : this.default_wood;
+        } catch (IllegalStateException e) {
+            return this.default_wood;
+        }
+    }
+    public Integer getOre() {
+        try {
+            return this.ORE != null ? this.ORE.get() : this.default_ore;
+        } catch (IllegalStateException e) {
+            return this.default_ore;
+        }
+    }
+    public Integer getEmerald() {
+        try {
+            return this.EMERALD != null ? this.EMERALD.get() : this.default_emerald;
+        } catch (IllegalStateException e) {
+            return this.default_emerald;
+        }
+    }
+    public Integer getSeconds() {
+        try {
+            return this.SECONDS != null ? this.SECONDS.get() : this.default_seconds;
+        } catch (IllegalStateException e) {
+            return this.default_seconds;
+        }
+    }
+    public Integer getPopulation() {
+        try {
+            return this.POPULATION != null ? this.POPULATION.get() : this.default_population;
+        } catch (IllegalStateException e) {
+            return this.default_population;
+        }
+    }
 }

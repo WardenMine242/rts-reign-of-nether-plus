@@ -9,6 +9,7 @@ import com.solegendary.siege_of_settlements.building.buildings.neutral.Beacon;
 import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
 import com.solegendary.siege_of_settlements.gamemode.GameMode;
 import com.solegendary.siege_of_settlements.gamemode.GameModeClientboundPacket;
+import com.solegendary.siege_of_settlements.gamemode.GameModeServerEvents;
 import com.solegendary.siege_of_settlements.guiscreen.TopdownGuiContainer;
 import com.solegendary.siege_of_settlements.hero.HeroClientboundPacket;
 import com.solegendary.siege_of_settlements.hero.HeroServerEvents;
@@ -18,10 +19,13 @@ import com.solegendary.siege_of_settlements.research.ResearchClientboundPacket;
 import com.solegendary.siege_of_settlements.research.ResearchServerEvents;
 import com.solegendary.siege_of_settlements.resources.ResourceCost;
 import com.solegendary.siege_of_settlements.resources.Resources;
+import com.solegendary.siege_of_settlements.resources.ResourcesClientboundPacket;
 import com.solegendary.siege_of_settlements.resources.ResourcesServerEvents;
 import com.solegendary.siege_of_settlements.sandbox.SandboxServer;
 import com.solegendary.siege_of_settlements.startpos.StartPosServerEvents;
+import com.solegendary.siege_of_settlements.survival.SurvivalClientboundPacket;
 import com.solegendary.siege_of_settlements.survival.SurvivalServerEvents;
+import com.solegendary.siege_of_settlements.survival.Wave;
 import com.solegendary.siege_of_settlements.time.TimeServerEvents;
 import com.solegendary.siege_of_settlements.time.TimeUtils;
 import com.solegendary.siege_of_settlements.tutorial.TutorialServerEvents;
@@ -31,14 +35,17 @@ import com.solegendary.siege_of_settlements.unit.interfaces.HeroUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.interfaces.WorkerUnit;
 import com.solegendary.siege_of_settlements.unit.packets.UnitSyncClientboundPacket;
+import com.solegendary.siege_of_settlements.building.buildings.villagers.TownCentre;
 import com.solegendary.siege_of_settlements.faction.Faction;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheCenterPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
@@ -56,6 +63,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.phys.Vec3;
@@ -136,6 +144,8 @@ public class PlayerServerEvents {
         RTSPlayerSaveData data = RTSPlayerSaveData.getInstance(serverLevel);
         data.rtsPlayers.clear();
         data.rtsPlayers.addAll(rtsPlayers);
+        data.playerDefaultGameModes.clear();
+        data.playerDefaultGameModes.putAll(playerDefaultGameModes);
         data.save();
         serverLevel.getDataStorage().save();
     }
@@ -145,15 +155,22 @@ public class PlayerServerEvents {
         ServerLevel level = evt.getServer().getLevel(Level.OVERWORLD);
 
         if (level != null) {
+            serverLevel = level;
             RTSPlayerSaveData data = RTSPlayerSaveData.getInstance(level);
 
             rtsPlayers.clear();
             rtsPlayers.addAll(data.rtsPlayers);
+            playerDefaultGameModes.clear();
+            playerDefaultGameModes.putAll(data.playerDefaultGameModes);
 
             for (RTSPlayer rtsPlayer : rtsPlayers) {
                 if (rtsPlayer.faction == Faction.NONE) {
                     GameModeClientboundPacket.setAndLockAllClientGameModes(GameMode.SANDBOX);
-                    enableAllCheats(rtsPlayer.name);
+                    for (String cheatName : singleWordCheats) {
+                        if (cheatName.equals("medievalman")) continue;
+                        ResearchServerEvents.addCheat(rtsPlayer.name, cheatName);
+                        ResearchClientboundPacket.addCheat(rtsPlayer.name, cheatName);
+                    }
                     break;
                 }
             }
@@ -223,6 +240,47 @@ public class PlayerServerEvents {
     }
 
     @SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        Player player = event.getEntity();
+        if (player instanceof ServerPlayer serverPlayer) {
+            BuildingPlacement closestTownCentre = BuildingUtils.findClosestBuilding(
+                    false,
+                    serverPlayer.position(),
+                    b -> b.getBuilding() instanceof TownCentre && b.isBuilt && b.ownerName.equals(serverPlayer.getName().getString())
+            );
+
+            if (closestTownCentre != null) {
+                BlockPos respawnPos = closestTownCentre.originPos.offset(5, 3, 5);
+                serverPlayer.teleportTo(respawnPos.getX() + 0.5, respawnPos.getY(), respawnPos.getZ() + 0.5);
+
+                ServerLevel level = serverPlayer.serverLevel();
+                double x = respawnPos.getX() + 0.5;
+                double y = respawnPos.getY() + 0.5;
+                double z = respawnPos.getZ() + 0.5;
+
+                for (int i = 0; i < 15; i++) {
+                    double angle = level.getRandom().nextDouble() * Math.PI * 2;
+                    double speed = 0.15;
+                    double motionX = Math.cos(angle) * speed;
+                    double motionZ = Math.sin(angle) * speed;
+                    double motionY = 0.05;
+
+                    level.sendParticles(
+                            ParticleTypes.POOF,
+                            x, y, z,
+                            0,
+                            motionX, motionY, motionZ,
+                            1.0
+                    );
+                }
+            } else {
+                BlockPos worldSpawn = serverPlayer.serverLevel().getSharedSpawnPos();
+                serverPlayer.teleportTo(worldSpawn.getX() + 0.5, worldSpawn.getY(), worldSpawn.getZ() + 0.5);
+            }
+        }
+    }
+
+    @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent evt) {
         serverLevel = evt.getServer().getLevel(Level.OVERWORLD);
 
@@ -243,6 +301,9 @@ public class PlayerServerEvents {
                     rtsGameTicks += 1;
                     if (rtsGameTicks % 200 == 0) {
                         PlayerClientboundPacket.syncRtsGameTime(rtsGameTicks);
+                        for (ServerPlayer sp : players) {
+                            syncPlayerSession(sp);
+                        }
                     }
                     if (rtsGameTicks % 20 == 0) {
                         for (RTSPlayer rtsPlayer : rtsPlayers) {
@@ -354,6 +415,136 @@ public class PlayerServerEvents {
         player.connection.send(new ClientboundSetChunkCacheRadiusPacket(viewDistance));
     }
 
+    private static void syncUnitsForPlayer(ServerPlayer player) {
+        for (LivingEntity entity : UnitServerEvents.getAllUnits()) {
+            if (entity instanceof Unit unit) {
+                UnitSyncClientboundPacket.sendSyncOwnerNamePacket(player, unit);
+                UnitSyncClientboundPacket.sendSyncResourcesPacket(unit);
+                UnitSyncClientboundPacket.sendSyncAnchorPosPacket(entity, unit.getAnchor());
+            }
+            if (entity instanceof HeroUnit hero) {
+                HeroClientboundPacket.setExperience(entity.getId(), hero.getExperience());
+                HeroClientboundPacket.setSkillPoints(entity.getId(), hero.getSkillPoints());
+                HeroClientboundPacket.setCharges(entity.getId(), hero.getChargesForSaveData());
+                List<HeroAbility> abls = hero.getHeroAbilities();
+                if (abls.size() > 0)
+                    HeroClientboundPacket.setAbilityRank(entity.getId(), abls.get(0).getRank(hero), 0);
+                if (abls.size() > 1)
+                    HeroClientboundPacket.setAbilityRank(entity.getId(), abls.get(1).getRank(hero), 1);
+                if (abls.size() > 2)
+                    HeroClientboundPacket.setAbilityRank(entity.getId(), abls.get(2).getRank(hero), 2);
+                if (abls.size() > 3)
+                    HeroClientboundPacket.setAbilityRank(entity.getId(), abls.get(3).getRank(hero), 3);
+            }
+        }
+    }
+
+    /**
+     * Repairs saves made by affected versions: a server shutdown could remove the
+     * RTS player record after the buildings had already been saved.  A completed,
+     * faction building is sufficient evidence that the named player still owns a
+     * Classic base; this does not run for Sandbox or Survival.
+     */
+    private static void restoreClassicPlayerFromOwnedBuildings(ServerPlayer serverPlayer) {
+        String playerName = serverPlayer.getName().getString();
+        if (SurvivalServerEvents.isEnabled()
+                || SandboxServer.isSandboxPlayer(playerName)
+                || getRTSPlayer(playerName) != null) {
+            return;
+        }
+
+        Faction faction = null;
+        for (BuildingPlacement building : BuildingServerEvents.getBuildings()) {
+            if (building.isBuilt
+                    && building.ownerName.equals(playerName)
+                    && building.getFaction() != Faction.NONE) {
+                faction = building.getFaction();
+                break;
+            }
+        }
+        if (faction == null) {
+            return;
+        }
+
+        rtsPlayers.add(RTSPlayer.getNewPlayer(playerName, faction, serverPlayer.getId(), 0));
+
+        // Older damaged saves can also contain units whose owner was cleared by
+        // the erroneous defeat.  This recovery only runs after finding that
+        // player's completed faction building.
+        for (LivingEntity entity : UnitServerEvents.getAllUnits()) {
+            if (entity instanceof Unit unit
+                    && unit.getOwnerName().isBlank()
+                    && unit.getFaction() == faction) {
+                unit.setOwnerName(playerName);
+            }
+        }
+
+        saveRTSPlayers();
+        SiegeOfSettlements.LOGGER.warn("Restored missing Classic RTS player data for {}", playerName);
+    }
+
+    public static void syncPlayerSession(ServerPlayer serverPlayer) {
+        String playerName = serverPlayer.getName().getString();
+
+        restoreClassicPlayerFromOwnedBuildings(serverPlayer);
+
+        if (SurvivalServerEvents.isEnabled() && getRTSPlayer(playerName) == null) {
+            addRTSPlayer(serverPlayer, Faction.VILLAGERS, (long) serverPlayer.getId(), PlayerColors.COLOR_RED.id);
+        }
+
+        RTSPlayer localRtsPlayer = getRTSPlayer(playerName);
+
+        for (RTSPlayer rtsPlayer : rtsPlayers) {
+            PlayerClientboundPacket.addRTSPlayer(serverPlayer, rtsPlayer.name, rtsPlayer.faction, (long) rtsPlayer.id, rtsPlayer.startPosColorId);
+            PlayerClientboundPacket.syncBeaconOwnerTicks(serverPlayer, rtsPlayer.name, rtsPlayer.beaconOwnerTicks);
+        }
+
+        if (localRtsPlayer == null) {
+            PlayerClientboundPacket.removeRTSPlayer(serverPlayer, playerName);
+        } else {
+            // Already synced above, but kept localRtsPlayer for the following logic
+        }
+
+        if (rtsLocked) {
+            PlayerClientboundPacket.lockRTS(serverPlayer);
+        } else {
+            PlayerClientboundPacket.unlockRTS(serverPlayer);
+        }
+
+        if (rtsSyncingEnabled) {
+            if (localRtsPlayer != null) {
+                PlayerClientboundPacket.disableStartRTS(serverPlayer);
+            } else {
+                PlayerClientboundPacket.enableStartRTS(serverPlayer);
+            }
+            syncUnitsForPlayer(serverPlayer);
+            BuildingServerEvents.syncBuildingsForPlayer(serverPlayer);
+        } else {
+            PlayerClientboundPacket.disableStartRTS(serverPlayer);
+        }
+
+        if (!rtsPlayers.isEmpty()) {
+            PlayerClientboundPacket.syncRtsGameTime(serverPlayer, rtsGameTicks);
+            GameModeServerEvents.syncGameModeForPlayer(serverPlayer);
+        }
+
+        if (SurvivalServerEvents.isEnabled()) {
+            SurvivalClientboundPacket.enableAndSetDifficulty(serverPlayer, SurvivalServerEvents.getDifficulty());
+            SurvivalClientboundPacket.setWaveNumber(serverPlayer, SurvivalServerEvents.nextWave.number);
+            SurvivalClientboundPacket.setWaveRandomSeed(serverPlayer, Wave.randomSeed);
+        }
+
+        ResourcesClientboundPacket.syncResources(ResourcesServerEvents.resourcesList);
+
+        ServerLevel level = serverPlayer.serverLevel();
+        if (level != null) {
+            serverPlayer.connection.send(new ClientboundSetTimePacket(
+                    level.getGameTime(),
+                    level.getDayTime(),
+                    level.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)));
+        }
+    }
+
     private static void syncUnits() {
         for (LivingEntity entity : UnitServerEvents.getAllUnits()) {
             if (entity instanceof Unit unit) {
@@ -404,6 +595,14 @@ public class PlayerServerEvents {
         String playerName = serverPlayer.getName().getString();
         SiegeOfSettlements.LOGGER.info("Player logged in: " + playerName + ", id: " + serverPlayer.getId());
 
+        // Update player ID if they are an RTS player
+        RTSPlayer rtsPlayer = getRTSPlayer(playerName);
+        if (rtsPlayer != null) {
+            rtsPlayer.id = serverPlayer.getId();
+            // Broadcast the updated ID to all players
+            PlayerClientboundPacket.addRTSPlayer(rtsPlayer.name, rtsPlayer.faction, (long) rtsPlayer.id, rtsPlayer.startPosColorId);
+        }
+
         // if a player is looking directly at a frozenchunk on login, they may load in the real blocks before
         // they are frozen so move them away then BuildingClientEvents.placeBuilding moves them to their base later
         // don't do this if they don't own any buildings
@@ -418,21 +617,25 @@ public class PlayerServerEvents {
         }
          */
         if (rtsSyncingEnabled) {
+            syncPlayerSession(serverPlayer);
             MinecraftServer server = evt.getEntity().level().getServer();
-            if (server == null || !server.isDedicatedServer()) {
-                CompletableFuture.delayedExecutor(1000, TimeUnit.MILLISECONDS).execute(PlayerServerEvents::syncUnits);
-            } else {
-                syncUnits();
+            if (server != null) {
+                CompletableFuture.delayedExecutor(1000, TimeUnit.MILLISECONDS).execute(() -> syncPlayerSession(serverPlayer));
+                CompletableFuture.delayedExecutor(3000, TimeUnit.MILLISECONDS).execute(() -> syncPlayerSession(serverPlayer));
+                CompletableFuture.delayedExecutor(6000, TimeUnit.MILLISECONDS).execute(() -> syncPlayerSession(serverPlayer));
             }
             ResearchServerEvents.syncResearch(playerName);
             ResearchServerEvents.syncCheats(playerName);
         }
-        for (ServerPlayer orthoviewPlayer : orthoviewPlayers) {
-            if (orthoviewPlayer.getId() != evt.getEntity().getId()) continue;
-            orthoviewPlayers.add((ServerPlayer) evt.getEntity());
+
+        // Restore default gamemode if player was stuck in spectator from a previous orthoview session
+        if (playerDefaultGameModes.containsKey(playerName) &&
+                serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) {
+            serverPlayer.setGameMode(playerDefaultGameModes.get(playerName));
         }
+
         if (!TutorialServerEvents.isEnabled()) {
-            if (!isRTSPlayer(serverPlayer.getId())) {
+            if (!isRTSPlayer(playerName)) {
                 serverPlayer.sendSystemMessage(Component.translatable("tutorial.siege_of_settlements.welcome")
                     .withStyle(Style.EMPTY.withBold(true)));
                 serverPlayer.sendSystemMessage(Component.translatable("tutorial.siege_of_settlements.join"));
@@ -461,24 +664,15 @@ public class PlayerServerEvents {
                 serverPlayer.sendSystemMessage(Component.literal(""));
             }
         }
-        if (getRTSPlayer(playerName) == null) {
-            PlayerClientboundPacket.removeRTSPlayer(playerName);
-        }
-        for (RTSPlayer rtsPlayer : rtsPlayers) {
-            PlayerClientboundPacket.addRTSPlayer(rtsPlayer.name, rtsPlayer.faction, (long) rtsPlayer.id, rtsPlayer.startPosColorId);
-        }
+    }
 
-        if (rtsLocked) {
-            PlayerClientboundPacket.lockRTS(playerName);
-        } else {
-            PlayerClientboundPacket.unlockRTS(playerName);
+    public static void handleSessionSyncRequest(ServerPlayer serverPlayer) {
+        if (!rtsSyncingEnabled) {
+            return;
         }
-
-        if (rtsSyncingEnabled) {
-            PlayerClientboundPacket.enableStartRTS(playerName);
-        } else {
-            PlayerClientboundPacket.disableStartRTS(playerName);
-        }
+        syncPlayerSession(serverPlayer);
+        ResearchServerEvents.syncResearch(serverPlayer.getName().getString());
+        ResearchServerEvents.syncCheats(serverPlayer.getName().getString());
     }
 
     @SubscribeEvent
@@ -527,7 +721,13 @@ public class PlayerServerEvents {
                     && !serverPlayer.hasPermissions(2)) {
                 return;
             }
-            if (isRTSPlayer(serverPlayer.getId())) {
+            if (isRTSPlayer(serverPlayer.getName().getString())) {
+                String existingPlayerName = serverPlayer.getName().getString();
+                RTSPlayer existingPlayer = getRTSPlayer(existingPlayerName);
+                if (existingPlayer != null) {
+                    existingPlayer.id = serverPlayer.getId();
+                    PlayerClientboundPacket.addRTSPlayer(existingPlayerName, existingPlayer.faction, (long) serverPlayer.getId(), existingPlayer.startPosColorId);
+                }
                 serverPlayer.sendSystemMessage(Component.literal(""));
                 serverPlayer.sendSystemMessage(Component.translatable("server.siege_of_settlements.already_started"));
                 serverPlayer.sendSystemMessage(Component.literal(""));
@@ -583,7 +783,11 @@ public class PlayerServerEvents {
                 }
                 ResearchServerEvents.removeAllCheatsFor(playerName);
             } else {
-                enableAllCheats(playerName);
+                for (String cheatName : singleWordCheats) {
+                    if (cheatName.equals("medievalman")) continue;
+                    ResearchServerEvents.addCheat(playerName, cheatName);
+                    ResearchClientboundPacket.addCheat(playerName, cheatName);
+                }
             }
             ResourcesServerEvents.resetResources(playerName);
 
@@ -1207,10 +1411,13 @@ public class PlayerServerEvents {
         }
         HeroServerEvents.fallenHeroes.clear();
         if (!isSandbox) {
-            for (ServerPlayer player : serverLevel.players())
-                player.setGameMode(GameType.SPECTATOR);
-
-            playerDefaultGameModes.replaceAll((key, oldValue) -> GameType.SPECTATOR);
+            for (ServerPlayer player : serverLevel.players()) {
+                String name = player.getName().getString();
+                if (isRTSPlayer(name) || postGameRtsPlayers.stream().anyMatch(p -> p.name.equals(name))) {
+                    player.setGameMode(GameType.SPECTATOR);
+                    playerDefaultGameModes.put(name, GameType.SPECTATOR);
+                }
+            }
         }
         AlliancesServerEvents.playersWithAlliedControl.clear();
         TimeServerEvents.resetBloodMoon();
@@ -1244,6 +1451,18 @@ public class PlayerServerEvents {
             sendMessageToAllPlayers("server.siege_of_settlements.sync_enabled");
         } else {
             sendMessageToAllPlayers("server.siege_of_settlements.sync_disabled");
+        }
+    }
+
+    public static void addRTSPlayer(ServerPlayer serverPlayer, Faction faction, Long id, int startPosColorId) {
+        synchronized (rtsPlayers) {
+            String playerName = serverPlayer.getName().getString();
+            if (getRTSPlayer(playerName) == null) {
+                rtsPlayers.add(RTSPlayer.getNewPlayer(playerName, faction, serverPlayer.getId(), startPosColorId));
+                ResourcesServerEvents.assignResources(playerName);
+                PlayerClientboundPacket.addRTSPlayer(playerName, faction, (long) serverPlayer.getId(), startPosColorId);
+                saveRTSPlayers();
+            }
         }
     }
 }

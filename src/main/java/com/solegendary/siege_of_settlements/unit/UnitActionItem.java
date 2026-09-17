@@ -288,8 +288,8 @@ public class UnitActionItem {
                     }
                 }
                 case ATTACK_MOVE -> {
-                    // if the unit can't actually attack just treat this as a move action
-                    if (unit instanceof AttackerUnit attackerUnit) {
+                    // Traders are not combat units - treat attack move as regular move
+                    if (unit instanceof AttackerUnit attackerUnit && !(unit instanceof TraderUnit)) {
                         MiscUtil.addUnitCheckpoint(unit, preselectedBlockPos, false);
                         attackerUnit.setAttackMoveTarget(preselectedBlockPos);
                     } else {
@@ -302,8 +302,8 @@ public class UnitActionItem {
                         // Redstone mines are not valid attack targets.
                         continue;
                     }
-                    // if the unit can't actually attack just treat this as a follow action
-                    if (unit instanceof AttackerUnit attackerUnit) {
+                    // Traders are not combat units - treat attack as follow action
+                    if (unit instanceof AttackerUnit attackerUnit && !(unit instanceof TraderUnit)) {
                         if (attackTarget == null || !isFriendlyUnitTarget(unit, attackTarget, level.isClientSide())) {
                             attackerUnit.setUnitAttackTargetForced(attackTarget);
                         }
@@ -315,8 +315,8 @@ public class UnitActionItem {
                     }
                 }
                 case ATTACK_BUILDING -> {
-                    // if the unit can't actually attack just treat this as a move action
-                    if (unit instanceof AttackerUnit attackerUnit) {
+                    // Traders are not combat units - treat attack building as move action
+                    if (unit instanceof AttackerUnit attackerUnit && !(unit instanceof TraderUnit)) {
                         attackerUnit.setAttackBuildingTarget(preselectedBlockPos);
                     } else {
                         unit.setMoveTarget(preselectedBlockPos);

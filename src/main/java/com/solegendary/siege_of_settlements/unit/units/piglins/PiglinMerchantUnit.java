@@ -534,7 +534,8 @@ public class PiglinMerchantUnit extends Piglin implements Unit, AttackerUnit, He
             if (u instanceof Unit unit &&
                 unit.getOwnerName().equals(this.getOwnerName()) &&
                 unit instanceof AttackerUnit &&
-                !(unit instanceof GhastUnit)) {
+                !(unit instanceof GhastUnit) &&
+                !(unit instanceof com.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit)) {
                 list.add(u);
             }
         }

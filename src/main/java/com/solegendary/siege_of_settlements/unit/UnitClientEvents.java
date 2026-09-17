@@ -37,6 +37,7 @@ import com.solegendary.siege_of_settlements.unit.packets.UnitActionServerboundPa
 import com.solegendary.siege_of_settlements.unit.packets.UnitSyncServerboundPacket;
 import com.solegendary.siege_of_settlements.unit.units.monsters.CreeperUnit;
 import com.solegendary.siege_of_settlements.unit.units.monsters.PhantomSummon;
+import com.solegendary.siege_of_settlements.unit.units.monsters.SpiderUnit;
 import com.solegendary.siege_of_settlements.unit.units.monsters.WardenUnit;
 import com.solegendary.siege_of_settlements.unit.units.monsters.ZoglinUnit;
 import com.solegendary.siege_of_settlements.unit.units.piglins.*;
@@ -61,6 +62,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -113,6 +115,8 @@ public class UnitClientEvents {
     private static boolean sortedSelectedUnitsChanged = true;
     // tracking of all existing units
     private static final ArrayList<LivingEntity> allUnits = new ArrayList<>();
+    // Owner sync packets can arrive before the corresponding entity spawn packet on reconnect.
+    private static final Map<Integer, String> syncedOwnerNames = new HashMap<>();
 
     @Nullable
     private static UnitActionItem lastClientUAIActioned = null;
@@ -384,6 +388,9 @@ public class UnitClientEvents {
     }
 
     public static void syncOwnerName(int entityId, String ownerName) {
+        syncedOwnerNames.put(entityId, ownerName);
+        if (MC.level != null && MC.level.getEntity(entityId) instanceof Unit unit)
+            unit.setOwnerName(ownerName);
         for (LivingEntity entity : allUnits)
             if (entity.getId() == entityId && MC.level != null)
                 if (entity instanceof Unit unit)
@@ -395,6 +402,9 @@ public class UnitClientEvents {
      * Only try to update health and pos if out of view
      */
     public static void syncUnitStats(int entityId, float health, float absorb, Vec3 pos, String ownerName) {
+        syncedOwnerNames.put(entityId, ownerName);
+        if (MC.level != null && MC.level.getEntity(entityId) instanceof Unit unit)
+            unit.setOwnerName(ownerName);
         for (LivingEntity entity : allUnits) {
             if (entity.getId() == entityId && MC.level != null) {
                 boolean isLoadedClientside = MC.level.getEntity(entityId) != null;
@@ -403,6 +413,10 @@ public class UnitClientEvents {
                     entity.setPos(pos);
                 }
                 entity.setAbsorptionAmount(absorb);
+                // The initial owner packet can arrive before this entity is registered after
+                // reconnecting. Stats are synced continuously and carry the authoritative owner.
+                if (entity instanceof Unit unit)
+                    unit.setOwnerName(ownerName);
                 MinimapClientEvents.removeMinimapUnit(entityId);
                 return;
             }
@@ -545,6 +559,7 @@ public class UnitClientEvents {
      * Therefore, only remove entities if they leave serverside via UnitClientboundPacket.
      */
     public static void onEntityLeave(int entityId) {
+        syncedOwnerNames.remove(entityId);
         selectedUnits.removeIf(e -> e.getId() == entityId);
         //System.out.println("selectedUnits removed entity: " + entityId);
         preselectedUnits.removeIf(e -> e.getId() == entityId);
@@ -575,6 +590,10 @@ public class UnitClientEvents {
             unit.initialiseGoals(); // for clientside data tracking - server automatically does this via registerGoals();
             unit.setupEquipmentAndUpgradesClient();
 
+            String syncedOwnerName = syncedOwnerNames.get(entity.getId());
+            if (syncedOwnerName != null)
+                unit.setOwnerName(syncedOwnerName);
+
             addUnitPoofs(evt.getLevel(), entity);
 
             UnitSyncServerboundPacket.requestSyncAbilities(entity.getId());
@@ -585,6 +604,11 @@ public class UnitClientEvents {
         if (entity instanceof LivingEntity le && (ResourceSources.isHuntableAnimal(le) || le instanceof PhantomSummon))
             addUnitPoofs(evt.getLevel(), entity);
         markSelectedUnitsChanged();
+    }
+
+    /** Clears owner data tied to entity IDs from the previous client world. */
+    public static void clearSyncedOwnerNames() {
+        syncedOwnerNames.clear();
     }
 
     @SuppressWarnings("SequencedCollectionMethodCanBeUsed")
@@ -718,7 +742,7 @@ public class UnitClientEvents {
                         sendUnitCommand(UnitAction.MOUNT_HORSE);
                     if (hudSelectedEntity instanceof HeadhunterUnit && getPreselectedUnits().get(0) instanceof HoglinUnit)
                         sendUnitCommand(UnitAction.MOUNT_HOGLIN);
-                    if (hudSelectedEntity instanceof Unit && hudSelectedEntity instanceof Skeleton && getPreselectedUnits().get(0) instanceof RavagerUnit)
+                    if (hudSelectedEntity instanceof Unit && hudSelectedEntity instanceof Skeleton && getPreselectedUnits().get(0) instanceof SpiderUnit)
                         sendUnitCommand(UnitAction.MOUNT_SPIDER);
                 }
                 // right click -> garrison friendly building
@@ -1231,6 +1255,25 @@ public class UnitClientEvents {
                 vUnit.isVeteran = true;
     }
 
+    public static void setVillagerProfession(int unitId, String professionName) {
+        for (LivingEntity entity : getAllUnits())
+            if (entity instanceof VillagerUnit vUnit && unitId == entity.getId()) {
+                try {
+                    VillagerProfession profession = BuiltInRegistries.VILLAGER_PROFESSION.get(
+                        net.minecraft.resources.ResourceLocation.tryParse(professionName)
+                    );
+                    if (profession != null) {
+                        vUnit.setProfession(profession);
+                    }
+                } catch (Exception e) {
+                    // If profession lookup fails, just sync current profession
+                    vUnit.setProfession(vUnit.getProfession());
+                }
+                vUnit.updateAbilityButtons();
+                addUnitPoofs(entity.level(), entity);
+            }
+    }
+
     // used only for right click mounting shortcut
     public static boolean canMountUnit(LivingEntity passenger, LivingEntity vehicle) {
         if (!(passenger instanceof Unit) || !(vehicle instanceof Unit))
@@ -1245,7 +1288,7 @@ public class UnitClientEvents {
         if (hudSelectedEntity instanceof HeadhunterUnit && getPreselectedUnits().get(0) instanceof HoglinUnit &&
             ResearchClient.hasResearch(ProductionItems.RESEARCH_HOGLIN_CAVALRY))
             return true;
-        if (hudSelectedEntity instanceof Unit && hudSelectedEntity instanceof Skeleton && getPreselectedUnits().get(0) instanceof RavagerUnit &&
+        if (hudSelectedEntity instanceof Unit && hudSelectedEntity instanceof Skeleton && getPreselectedUnits().get(0) instanceof SpiderUnit &&
             ResearchClient.hasResearch(ProductionItems.RESEARCH_SPIDER_JOCKEYS))
             return true;
         return false;

@@ -73,8 +73,6 @@ public class Blacksmith extends ProductionBuilding {
 
         this.productions.add(ProductionItems.IRON_GOLEM, Keybindings.keyQ);
         this.productions.add(ProductionItems.REDSTONE_GOLEM, Keybindings.keyF);
-        this.productions.add(ProductionItems.RESEARCH_GOLEM_SMITHING, Keybindings.keyW);
-        this.productions.add(ProductionItems.RESEARCH_MILITIA_BOWS, Keybindings.keyE);
         this.productions.add(ProductionItems.BLACKSMITH_T2, Keybindings.keyR);
         this.productions.add(ProductionItems.BLACKSMITH_T3, Keybindings.keyR);
     }

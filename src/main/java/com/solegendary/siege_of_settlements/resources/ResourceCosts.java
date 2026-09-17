@@ -32,10 +32,12 @@ public class ResourceCosts {
     public static final ResourceCost REDSTONE_MINE = new ResourceCost(ID, "REDSTONE_MINE");
     public static final ResourceCost PILLAGER = new ResourceCost(ID, "PILLAGER");
     public static final ResourceCost ARCHER = new ResourceCost(ID, "ARCHER");
-    public static final ResourceCost ARMORED_PILLAGER = new ResourceCost(ID, "ARMORED_PILLAGER");
+    public static final ResourceCost ELITE_ARMORED_PILLAGER = new ResourceCost(ID, "elite_armored_pillager");
+    public static final ResourceCost ARMORED_PILLAGER = new ResourceCost(ID, "armored_pillager");
     public static final ResourceCost VINDICATOR = new ResourceCost(ID, "VINDICATOR");
     public static final ResourceCost ELITE_VINDICATOR = new ResourceCost(ID, "ELITE_VINDICATOR");
-    public static final ResourceCost ARMORED_VINDICATOR = new ResourceCost(ID, "ARMORED_VINDICATOR");
+    public static final ResourceCost ELITE_ARMORED_VINDICATOR = new ResourceCost(ID, "elite_armored_vindicator");
+    public static final ResourceCost ARMORED_VINDICATOR = new ResourceCost(ID, "armored_vindicator");
     public static final ResourceCost ELITE_ARCHER = new ResourceCost(ID, "ELITE_ARCHER");
     public static final ResourceCost WITCH = new ResourceCost(ID, "WITCH");
     public static final ResourceCost EVOKER = new ResourceCost(ID, "EVOKER");
@@ -188,12 +190,16 @@ public class ResourceCosts {
     public static final ResourceCost RESEARCH_BEACON = new ResourceCost(ID, "RESEARCH_BEACON");
     public static final ResourceCost RESEARCH_TRADER = new ResourceCost(ID, "RESEARCH_TRADER");
     public static final ResourceCost RESEARCH_MARKETPLACE = new ResourceCost(ID, "RESEARCH_MARKETPLACE");
+    public static final ResourceCost RESEARCH_PROFESSIONS = new ResourceCost(ID, "RESEARCH_PROFESSIONS");
+    public static final ResourceCost RESEARCH_ELITE_TRADER = new ResourceCost(ID, "RESEARCH_ELITE_TRADER");
+    public static final ResourceCost RESEARCH_ELITE_TRAINING = new ResourceCost(ID, "RESEARCH_ELITE_TRAININGТ");
     public static final ResourceCost RESEARCH_UPGRADED_BARRACKS = new ResourceCost(ID, "RESEARCH_UPGRADED_BARRACKS");
     public static final ResourceCost RESEARCH_UPGRADED_DRILL = new ResourceCost(ID, "RESEARCH_UPGRADED_DRILL");
     public static final ResourceCost RESEARCH_ADVANCED_DRILL = new ResourceCost(ID, "RESEARCH_ADVANCED_DRILL");
     public static final ResourceCost RESEARCH_ADVANCED_BLACKSMITH = new ResourceCost(ID, "RESEARCH_ADVANCED_BLACKSMITH");
     public static final ResourceCost RESEARCH_BIG_HOUSE = new ResourceCost(ID, "RESEARCH_BIG_HOUSE");
     public static final ResourceCost RESEARCH_POWERFUL_ARCANE_TOWER = new ResourceCost(ID, "RESEARCH_POWERFUL_ARCANE_TOWER");
+
     // ABILITIES
 
     public static final ResourceCost ENCHANT_MAIMING = new ResourceCost(ID, "ENCHANT_MAIMING");
@@ -218,7 +224,16 @@ public class ResourceCosts {
     public static final ResourceCost EQUIP_ARROWS = new ResourceCost(ID, "EQUIP_ARROWS");
     public static final ResourceCost EQUIP_RAVAGER_ARMOR = new ResourceCost(ID, "EQUIP_RAVAGER_ARMOR");
     public static final ResourceCost BECOME_TRADER = new ResourceCost(ID, "BECOME_TRADER");
+    public static final ResourceCost BECOME_FARMER = new ResourceCost(ID, "BECOME_FARMER");
+    public static final ResourceCost BECOME_LUMBERJACK = new ResourceCost(ID, "BECOME_LUMBERJACK");
+    public static final ResourceCost BECOME_MINER = new ResourceCost(ID, "BECOME_MINER");
+    public static final ResourceCost BECOME_MASON = new ResourceCost(ID, "BECOME_MASON");
+    public static final ResourceCost BECOME_HUNTER = new ResourceCost(ID, "BECOME_HUNTER");
     public static final ResourceCost BERSERK = new ResourceCost(ID, "BERSERK");
+    public static final ResourceCost UPGRADE_TRADER_TO_ELITE = new ResourceCost(ID, "UPGRADE_TRADER_TO_ELITE");
+    public static final ResourceCost UPGRADE_ARCHER_TO_ELITE = new ResourceCost(ID, "UPGRADE_ARCHER_TO_ELITE");
+    public static final ResourceCost UPGRADE_ARMORED_VINDICATOR_TO_ELITE = new ResourceCost(ID, "UPGRADE_ARMORED_VINDICATOR_TO_ELITE");
+    public static final ResourceCost UPGRADE_ARMORED_PILLAGER_TO_ELITE = new ResourceCost(ID, "UPGRADE_ARMORED_PILLAGER_TO_ELITE");
 
 
 
@@ -244,12 +259,24 @@ public class ResourceCosts {
         return FormattedCharSequence.forward(str, MyRenderer.iconStyle);
     }
     public static FormattedCharSequence getFormattedPopAndTime(ResourceCost resCost) {
+        if (resCost.id != null && resCost.id.contains("RESEARCH") && 
+            !resCost.id.equals("RESEARCH_TOWN_CENTRE_T2") && 
+            !resCost.id.equals("RESEARCH_GRAND_LIBRARY") && 
+            !resCost.id.equals("RESEARCH_VILLAGER_HOUSE_T2")) {
+            return getFormattedPop(resCost);
+        }
         return FormattedCharSequence.forward("\uE003  " + resCost.population + "     \uE004  " + resCost.ticks/ResourceCost.TICKS_PER_SECOND + "s", MyRenderer.iconStyle);
     }
     public static FormattedCharSequence getFormattedPop(ResourceCost resCost) {
         return FormattedCharSequence.forward("\uE003  " + resCost.population, MyRenderer.iconStyle);
     }
     public static FormattedCharSequence getFormattedTime(ResourceCost resCost) {
+        if (resCost.id != null && resCost.id.contains("RESEARCH") && 
+            !resCost.id.equals("RESEARCH_TOWN_CENTRE_T2") && 
+            !resCost.id.equals("RESEARCH_GRAND_LIBRARY") && 
+            !resCost.id.equals("RESEARCH_VILLAGER_HOUSE_T2")) {
+            return FormattedCharSequence.forward("", MyRenderer.iconStyle);
+        }
         return FormattedCharSequence.forward("\uE004  " + resCost.ticks/ResourceCost.TICKS_PER_SECOND + "s", MyRenderer.iconStyle);
     }
 
@@ -287,9 +314,11 @@ public class ResourceCosts {
         REDSTONE_MINE.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.REDSTONE_MINE);
         PILLAGER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.PILLAGER);
         ARCHER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ARCHER);
+        ELITE_ARMORED_PILLAGER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ELITE_ARMORED_PILLAGER);
         ARMORED_PILLAGER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ARMORED_PILLAGER);
         VINDICATOR.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.VINDICATOR);
         ELITE_VINDICATOR.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ELITE_VINDICATOR);
+        ELITE_ARMORED_VINDICATOR.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ELITE_ARMORED_VINDICATOR);
         ARMORED_VINDICATOR.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ARMORED_VINDICATOR);
         ELITE_ARCHER.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.ELITE_ARCHER);
         WITCH.bakeValues(SiegeOfSettlementsCommonConfigs.UnitCosts.WITCH);
@@ -428,6 +457,9 @@ public class ResourceCosts {
         RESEARCH_BEACON.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_BEACON);
         RESEARCH_TRADER.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_TRADER);
         RESEARCH_MARKETPLACE.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_MARKETPLACE);
+        RESEARCH_PROFESSIONS.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_PROFESSIONS);
+        RESEARCH_ELITE_TRADER.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_ELITE_TRADER);
+        RESEARCH_ELITE_TRAINING.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_ELITE_TRAINING);
         RESEARCH_UPGRADED_BARRACKS.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_UPGRADED_BARRACKS);
         RESEARCH_UPGRADED_DRILL.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_UPGRADED_DRILL);
         RESEARCH_ADVANCED_DRILL.bakeValues(SiegeOfSettlementsCommonConfigs.ResearchCosts.RESEARCH_ADVANCED_DRILL);
@@ -466,6 +498,15 @@ public class ResourceCosts {
         EQUIP_ARROWS.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_ARROWS);
         EQUIP_RAVAGER_ARMOR.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.EQUIP_RAVAGER_ARMOR);
         BECOME_TRADER.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.BECOME_TRADER);
+        BECOME_FARMER.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.BECOME_FARMER);
+        BECOME_LUMBERJACK.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.BECOME_LUMBERJACK);
+        BECOME_MINER.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.BECOME_MINER);
+        BECOME_MASON.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.BECOME_MASON);
+        BECOME_HUNTER.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.BECOME_HUNTER);
         BERSERK.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.BERSERK);
+        UPGRADE_TRADER_TO_ELITE.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.UPGRADE_TRADER_TO_ELITE);
+        UPGRADE_ARCHER_TO_ELITE.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.UPGRADE_ARCHER_TO_ELITE);
+        UPGRADE_ARMORED_VINDICATOR_TO_ELITE.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.UPGRADE_ARMORED_VINDICATOR_TO_ELITE);
+        UPGRADE_ARMORED_PILLAGER_TO_ELITE.bakeValues(SiegeOfSettlementsCommonConfigs.AbilityCosts.UPGRADE_ARMORED_PILLAGER_TO_ELITE);
     }
 }

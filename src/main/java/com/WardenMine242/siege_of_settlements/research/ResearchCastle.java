@@ -50,7 +50,7 @@ public class ResearchCastle extends ProductionItem {
                 hotkey,
                 () -> ProductionItems.RESEARCH_CASTLE.itemIsBeingProduced(prodBuilding.ownerName)
                         || ResearchClient.hasResearch(ProductionItems.RESEARCH_CASTLE),
-                () -> BuildingClientEvents.hasFinishedBuilding(Buildings.TOWN_CENTRE) ||
+                () -> (BuildingClientEvents.hasFinishedBuilding(Buildings.TOWN_CENTRE) && ResearchClient.hasResearch(ProductionItems.RESEARCH_UPGRADED_BARRACKS)) ||
                         ResearchClient.hasCheat("modifythephasevariance"),
                 List.of(FormattedCharSequence.forward(I18n.get("buildings.villagers.siege_of_settlements.castle"),
                                 Style.EMPTY.withBold(true)
@@ -62,7 +62,9 @@ public class ResearchCastle extends ProductionItem {
                                 Style.EMPTY
                         ),
                         FormattedCharSequence.forward(I18n.get("buildings.villagers.siege_of_settlements.castle.tooltip2"), Style.EMPTY
-                        )
+                        ),
+                        FormattedCharSequence.forward("", Style.EMPTY),
+                        FormattedCharSequence.forward(I18n.get("research.siege_of_settlements.requires.research"), Style.EMPTY)
 
                 ),
                 this

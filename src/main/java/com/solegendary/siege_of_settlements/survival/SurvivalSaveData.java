@@ -12,6 +12,7 @@ public class SurvivalSaveData extends SavedData {
 
     public boolean isEnabled;
     public int waveNumber;
+    public int currentWaveNumber;
     public WaveDifficulty difficulty;
     public long randomSeed;
 
@@ -34,6 +35,7 @@ public class SurvivalSaveData extends SavedData {
         SurvivalSaveData data = create();
         data.isEnabled = tag.getBoolean("isEnabled");
         data.waveNumber = tag.getInt("waveNumber");
+        data.currentWaveNumber = tag.getInt("currentWaveNumber");
         data.difficulty = WaveDifficulty.valueOf(tag.getString("difficulty"));
         data.randomSeed = tag.getLong("randomSeed");
         SiegeOfSettlements.LOGGER.info("SurvivalSaveData.load: wave number: " + data.waveNumber);
@@ -45,6 +47,7 @@ public class SurvivalSaveData extends SavedData {
         //SiegeOfSettlements.LOGGER.info("SurvivalSaveData.save: " + waveNumber);
         tag.putBoolean("isEnabled", this.isEnabled);
         tag.putInt("waveNumber", this.waveNumber);
+        tag.putInt("currentWaveNumber", this.currentWaveNumber);
         tag.putString("difficulty", this.difficulty.name());
         tag.putLong("randomSeed", this.randomSeed);
         return tag;

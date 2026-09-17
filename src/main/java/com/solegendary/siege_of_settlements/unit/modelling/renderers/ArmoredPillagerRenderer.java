@@ -2,7 +2,7 @@ package com.solegendary.siege_of_settlements.unit.modelling.renderers;
 
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredPillagerUnit;
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
-import com.solegendary.siege_of_settlements.unit.modelling.models.ArmoredPillagerModel;
+import com.solegendary.siege_of_settlements.unit.modelling.models.EliteArmoredPillagerModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
@@ -16,7 +16,7 @@ public class ArmoredPillagerRenderer extends AbstractVillagerUnitRenderer<Armore
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/entities/armored_pillager.png");
 
     public ArmoredPillagerRenderer(EntityRendererProvider.Context context) {
-        super(context, new ArmoredPillagerModel<>(context.bakeLayer(ArmoredPillagerModel.LAYER_LOCATION)), 0.5F);
+        super(context, new EliteArmoredPillagerModel<>(context.bakeLayer(EliteArmoredPillagerModel.LAYER_LOCATION)), 0.5F);
         this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
     }
 

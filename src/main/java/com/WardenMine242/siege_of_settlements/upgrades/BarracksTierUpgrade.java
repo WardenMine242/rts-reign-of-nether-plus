@@ -5,9 +5,11 @@ import com.solegendary.siege_of_settlements.building.buildings.placements.Barrac
 import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
 import com.solegendary.siege_of_settlements.building.production.ProdDupeRule;
 import com.solegendary.siege_of_settlements.building.production.ProductionItem;
+import com.solegendary.siege_of_settlements.building.production.ProductionItems;
 import com.solegendary.siege_of_settlements.building.production.StartProductionButton;
 import com.solegendary.siege_of_settlements.building.production.StopProductionButton;
 import com.solegendary.siege_of_settlements.keybinds.Keybinding;
+import com.solegendary.siege_of_settlements.research.ResearchClient;
 import com.solegendary.siege_of_settlements.resources.ResourceCost;
 import com.solegendary.siege_of_settlements.resources.ResourceCosts;
 import net.minecraft.client.resources.language.I18n;
@@ -73,18 +75,29 @@ public class BarracksTierUpgrade extends ProductionItem {
                 hotkey,
                 () -> hideStart.test(prodBuilding),
                 () -> prodBuilding instanceof BarracksPlacement
-                        && prodBuilding.getUpgradeLevel() == requiredUpgradeLevelBefore,
+                        && prodBuilding.getUpgradeLevel() == requiredUpgradeLevelBefore
+                        && researchOk(),
                 List.of(
                         FormattedCharSequence.forward(I18n.get(titleLangKey), Style.EMPTY.withBold(true)),
                         ResourceCosts.getFormattedCost(resourceCost),
                         ResourceCosts.getFormattedTime(resourceCost),
                         FormattedCharSequence.forward("", Style.EMPTY),
                         FormattedCharSequence.forward(I18n.get(tooltip1LangKey), Style.EMPTY),
-                        FormattedCharSequence.forward(I18n.get(tooltip2LangKey), Style.EMPTY)
+                        FormattedCharSequence.forward(I18n.get(tooltip2LangKey), Style.EMPTY),
+                        FormattedCharSequence.forward("", Style.EMPTY),
+                        FormattedCharSequence.forward(I18n.get("research.siege_of_settlements.requires.research"), Style.EMPTY)
                 ),
                 this
         );
     }
+
+    private boolean researchOk() {
+        if (ResearchClient.hasCheat("modifythephasevariance")) {
+            return true;
+        }
+        return ResearchClient.hasResearch(ProductionItems.RESEARCH_UPGRADED_BARRACKS);
+    }
+
 
     @Override
     public StopProductionButton getCancelButton(ProductionPlacement prodBuilding, boolean first) {

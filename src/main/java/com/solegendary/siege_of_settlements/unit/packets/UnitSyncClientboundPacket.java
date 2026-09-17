@@ -7,8 +7,11 @@ import com.solegendary.siege_of_settlements.unit.UnitClientEvents;
 import com.solegendary.siege_of_settlements.unit.UnitSyncAction;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -48,6 +51,13 @@ public class UnitSyncClientboundPacket {
         );
     }
 
+    public static void sendSyncOwnerNamePacket(ServerPlayer player, Unit unit) {
+        PacketHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new UnitSyncClientboundPacket(UnitSyncAction.SYNC_OWNERNAME,
+                        ((LivingEntity) unit).getId(),0,0,0,0,0,0,0,0,0,0, unit.getOwnerName())
+        );
+    }
+
     public static void sendSyncStatsPacket(LivingEntity entity) {
         boolean isBuilding = false;
         ResourceName gatherTarget = ResourceName.NONE;
@@ -81,6 +91,15 @@ public class UnitSyncClientboundPacket {
                         UnitSyncAction.MAKE_VILLAGER_VETERAN,
                         entity.getId(), 0,
                         0, 0,0,0,0,0,0,0,0, "")
+        );
+    }
+
+    public static void setVillagerProfession(LivingEntity entity, VillagerProfession profession) {
+        PacketHandler.INSTANCE.send(PacketDistributor.ALL.noArg(),
+                new UnitSyncClientboundPacket(
+                        UnitSyncAction.SET_VILLAGER_PROFESSION,
+                        entity.getId(), 0,
+                        0, 0,0,0,0,0,0,0,0, BuiltInRegistries.VILLAGER_PROFESSION.getKey(profession).toString())
         );
     }
 
@@ -188,6 +207,7 @@ public class UnitSyncClientboundPacket {
                                 new Resources("", this.food, this.wood, this.ore, this.emerald)
                         );
                         case MAKE_VILLAGER_VETERAN -> UnitClientEvents.makeVillagerVeteran(this.entityId);
+                        case SET_VILLAGER_PROFESSION -> UnitClientEvents.setVillagerProfession(this.entityId, this.ownerName);
                         case SYNC_ANCHOR_POS -> UnitClientEvents.syncAnchorPos(
                                 this.entityId,
                                 new BlockPos((int) this.posX, (int) this.posY, (int) this.posZ)

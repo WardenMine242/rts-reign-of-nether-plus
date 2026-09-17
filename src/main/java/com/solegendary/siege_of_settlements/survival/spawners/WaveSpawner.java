@@ -111,59 +111,67 @@ public class WaveSpawner {
     }
 
     public static List<BlockPos> getValidSpawnPointsForOwner(int amount, Level level, boolean allowLiquid, int flatnessRadius, String ownerName) {
-        List<BuildingPlacement> buildings = new ArrayList<>();
+        List<BlockPos> basePositions = new ArrayList<>();
         for (BuildingPlacement buildingPlacement : BuildingServerEvents.getBuildings()) {
             if (!ENEMY_OWNER_NAME.equals(buildingPlacement.ownerName) && !buildingPlacement.ownerName.isBlank()) {
                 if (ownerName == null || ownerName.isBlank() || buildingPlacement.ownerName.equals(ownerName)) {
-                    buildings.add(buildingPlacement);
+                    basePositions.add(buildingPlacement.centrePos);
+                }
+            }
+        }
+
+        if (basePositions.isEmpty()) {
+            for (net.minecraft.server.level.ServerPlayer player : PlayerServerEvents.players) {
+                if (ownerName == null || ownerName.isBlank() || player.getName().getString().equals(ownerName)) {
+                    basePositions.add(player.blockPosition());
                 }
             }
         }
 
         Random random = new Random();
-        if (buildings.isEmpty())
+        if (basePositions.isEmpty())
             return List.of();
 
         Vec3 centroid = new Vec3(0,0,0);
 
-        for (BuildingPlacement building : buildings) {
-            centroid = centroid.add(Vec3.atCenterOf(building.centrePos));
+        for (BlockPos pos : basePositions) {
+            centroid = centroid.add(Vec3.atCenterOf(pos));
         }
-        double invBs = 1f / buildings.size();
+        double invBs = 1f / basePositions.size();
         final Vec3 fCentroid = centroid.multiply(new Vec3(invBs, invBs, invBs));
 
-        // calculate all valid buildings to spawn around based on distance from the centroid
-        buildings.sort(
-                Comparator.comparing((BuildingPlacement b) -> b.centrePos.distToCenterSqr(fCentroid.x, fCentroid.y, fCentroid.z)).reversed()
+        // calculate all valid points to spawn around based on distance from the centroid
+        basePositions.sort(
+                Comparator.comparing((BlockPos b) -> b.distToCenterSqr(fCentroid.x, fCentroid.y, fCentroid.z)).reversed()
         );
 
-        int numValidBuildings = (int) (MIN_VALID_BUILDINGS + (buildings.size() * PERCENT_VALID_BUILDINGS));
-        List<BuildingPlacement> validBuildings = buildings.subList(0, Math.min(buildings.size(), numValidBuildings));
+        int numValidPoints = (int) (MIN_VALID_BUILDINGS + (basePositions.size() * PERCENT_VALID_BUILDINGS));
+        List<BlockPos> validPoints = basePositions.subList(0, Math.min(basePositions.size(), numValidPoints));
 
-        int spawnAttemptsThisBuilding = 0;
+        int spawnAttemptsThisPoint = 0;
         BlockState spawnBs;
         BlockPos spawnBp;
         double distSqrToNearestBuilding = 999999;
         double distSqrToNearestEnemyBuilding = 999999;
-        int failedBuildings = 0;
+        int failedPoints = 0;
         ArrayList<BlockPos> validSpawns = new ArrayList<>();
 
         outerloop:
         do {
             do {
-                BuildingPlacement building = validBuildings.get(random.nextInt(validBuildings.size()));
+                BlockPos basePos = validPoints.get(random.nextInt(validPoints.size()));
 
-                int x = building.centrePos.getX() + random.nextInt(-MAX_SPAWN_RANGE, MAX_SPAWN_RANGE);
-                int z = building.centrePos.getZ() + random.nextInt(-MAX_SPAWN_RANGE, MAX_SPAWN_RANGE);
+                int x = basePos.getX() + random.nextInt(-MAX_SPAWN_RANGE, MAX_SPAWN_RANGE);
+                int z = basePos.getZ() + random.nextInt(-MAX_SPAWN_RANGE, MAX_SPAWN_RANGE);
                 int y = level.getChunkAt(new BlockPos(x, 0, z)).getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
 
                 spawnBp = MiscUtil.getHighestGroundBlock(level, new BlockPos(x, y, z));
                 spawnBs = level.getBlockState(spawnBp);
-                spawnAttemptsThisBuilding += 1;
-                if (spawnAttemptsThisBuilding > 100) {
+                spawnAttemptsThisPoint += 1;
+                if (spawnAttemptsThisPoint > 100) {
                     //SiegeOfSettlements.LOGGER.warn("Gave up trying to find a suitable spawn!");
-                    failedBuildings += 1;
-                    if (failedBuildings > MAX_FAILED_BUILDINGS)
+                    failedPoints += 1;
+                    if (failedPoints > MAX_FAILED_BUILDINGS)
                         break outerloop;
                     else
                         continue;
@@ -190,6 +198,7 @@ public class WaveSpawner {
             amount -= 1;
 
         } while(amount > 0);
+
 
         Collections.shuffle(validSpawns);
 

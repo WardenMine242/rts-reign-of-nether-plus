@@ -5,6 +5,7 @@ import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.RangedAttackerUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.piglins.GhastUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.HorseUnit;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -141,6 +142,8 @@ public class UnitBowAttackGoal<T extends net.minecraft.world.entity.Mob> extends
 
             double distToTarget = this.mob.distanceTo(target);
 
+            alignHorseWithTarget(target);
+
             // move towards the target until in range and target is visible
             // don't if the attacker is riding (eg. skeleton jockey) or it influences the vehicle movement
             // move to slightly closer than range so we can still chase and attack a moving target of the same speed
@@ -205,5 +208,44 @@ public class UnitBowAttackGoal<T extends net.minecraft.world.entity.Mob> extends
             flyingMoveGoal.setMoveTarget(target.getOnPos());
         else
             this.mob.getNavigation().moveTo(target, 1.0f);
+    }
+
+    private void alignHorseWithTarget(LivingEntity target) {
+        if (!(this.mob.getVehicle() instanceof HorseUnit horse)) {
+            return;
+        }
+
+        double dx = target.getX() - horse.getX();
+        double dz = target.getZ() - horse.getZ();
+        if (dx * dx + dz * dz < 1.0E-6D) {
+            return;
+        }
+
+        float yawToTarget = (float) (Math.atan2(dz, dx) * (180.0D / Math.PI)) - 90.0F;
+
+        // Rider ALWAYS faces the target during combat.
+        this.mob.setYRot(yawToTarget);
+        this.mob.yRotO = yawToTarget;
+        this.mob.setYBodyRot(yawToTarget);
+        this.mob.setYHeadRot(yawToTarget);
+        this.mob.yBodyRotO = yawToTarget;
+        this.mob.yHeadRotO = yawToTarget;
+
+        if (horse.getNavigation().isDone()) {
+            // Horse fully faces the target when idle.
+            horse.setYRot(yawToTarget);
+            horse.yRotO = yawToTarget;
+            horse.setYBodyRot(yawToTarget);
+            horse.setYHeadRot(yawToTarget);
+            horse.yBodyRotO = yawToTarget;
+            horse.yHeadRotO = yawToTarget;
+        } else {
+            // Horse body faces destination (controlled by navigation),
+            // but head and torso try to look at the target.
+            horse.setYHeadRot(yawToTarget);
+            horse.yHeadRotO = yawToTarget;
+            horse.setYBodyRot(yawToTarget);
+            horse.yBodyRotO = yawToTarget;
+        }
     }
 }

@@ -316,26 +316,41 @@ public class MiscUtil {
         Vector3d unitPosition = new Vector3d(unitMob.position().x, unitMob.position().y, unitMob.position().z);
         var pos = new Vec3(unitPosition.x, unitPosition.y, unitPosition.z);
         boolean neutralAggro = unitMob.level().getGameRules().getRule(GameRuleRegistrar.NEUTRAL_AGGRO).get();
-        AABB aabb = new AABB(
-                unitPosition.x - range,
-                unitPosition.y - range,
-                unitPosition.z - range,
-                unitPosition.x + range,
-                unitPosition.y + range,
-                unitPosition.z + range
-        );
+        boolean useHorizontalDistance = unitMob instanceof Unit unit && GarrisonableBuilding.getGarrison(unit) != null;
+        AABB aabb = useHorizontalDistance
+                ? new AABB(
+                        unitPosition.x - range,
+                        unitPosition.y - 64,
+                        unitPosition.z - range,
+                        unitPosition.x + range,
+                        unitPosition.y + 64,
+                        unitPosition.z + range)
+                : new AABB(
+                        unitPosition.x - range,
+                        unitPosition.y - range,
+                        unitPosition.z - range,
+                        unitPosition.x + range,
+                        unitPosition.y + range,
+                        unitPosition.z + range);
         var entities = level.getEntitiesOfClass(LivingEntity.class, aabb);
-        entities.sort(Comparator.comparingDouble(
-                it -> it.position().distanceTo(pos)
-        ));
+        entities.sort(Comparator.comparingDouble(entity -> getAggroDistance(unitMob, entity, useHorizontalDistance)));
         for (LivingEntity entity : entities) {
-            if (!(entity.position().distanceTo(new Vec3(unitPosition.x, unitPosition.y, unitPosition.z)) <= range) ||
+            if (getAggroDistance(unitMob, entity, useHorizontalDistance) > range ||
                 !entity.level().getWorldBorder().isWithinBounds(entity.blockPosition())) continue;
             if (isIdleOrMoveAttackable(unitMob, entity, neutralAggro) && hasLineOfSightForAttacks(unitMob, entity)) {
                 return entity;
             }
         }
         return null;
+    }
+
+    private static double getAggroDistance(Mob unitMob, LivingEntity entity, boolean horizontalOnly) {
+        if (horizontalOnly) {
+            double dx = entity.getX() - unitMob.getX();
+            double dz = entity.getZ() - unitMob.getZ();
+            return Math.sqrt(dx * dx + dz * dz);
+        }
+        return entity.position().distanceTo(unitMob.position());
     }
 
     // does not cover explicit attack commands
@@ -436,8 +451,17 @@ public class MiscUtil {
 
 
     private static boolean hasLineOfSightForAttacks(Mob mob, LivingEntity targetEntity) {
-        return mob.hasLineOfSight(targetEntity) || mob instanceof GhastUnit ||
-                (mob instanceof Unit unit && GarrisonableBuilding.getGarrison((Unit) mob) != null);
+        if (mob.hasLineOfSight(targetEntity) || mob instanceof GhastUnit) {
+            return true;
+        }
+        if (mob instanceof Unit unit) {
+            if (GarrisonableBuilding.getGarrison(unit) != null) {
+                return true;
+            }
+            // Match ranged-attack fallback when garrison lookup is delayed.
+            return BuildingUtils.isPosInsideAnyBuilding(mob.level().isClientSide(), mob.getOnPos().above());
+        }
+        return false;
     }
 
     public static <T extends Entity> List<T> getEntitiesWithinRange(Vec3 pos, float range, Class<T> entityType, Level level) {
@@ -831,6 +855,7 @@ public class MiscUtil {
                 EntityRegistrar.EVOKER_UNIT.get(),
                 EntityRegistrar.MILITIA_UNIT.get(),
                 EntityRegistrar.PILLAGER_UNIT.get(),
+                EntityRegistrar.ELITE_ARMORED_PILLAGER_UNIT.get(),
                 EntityRegistrar.ARMORED_PILLAGER_UNIT.get(),
                 EntityRegistrar.ZOMBIE_VILLAGER_UNIT.get(),
                 EntityRegistrar.ZOMBIE_UNIT.get(),

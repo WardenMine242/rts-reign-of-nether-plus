@@ -287,6 +287,7 @@ public class CursorClientEvents {
     // draw box selection rectangle
     @SubscribeEvent
     public static void renderOverlay(RenderGuiOverlayEvent.Post evt) {
+        if (MC.screen instanceof com.WardenMine242.siege_of_settlements.guiscreen.ResearchTreeScreen) return;
 
         if (leftClickDown && !Keybindings.altMod.isDown()) {
             evt.getGuiGraphics().fill( // x1,y1, x2,y2,
@@ -300,6 +301,7 @@ public class CursorClientEvents {
 
     @SubscribeEvent
     public static void onMouseClick(ScreenEvent.MouseButtonPressed.Post evt) {
+        if (MC.screen instanceof com.WardenMine242.siege_of_settlements.guiscreen.ResearchTreeScreen) return;
 
         if (!OrthoviewClientEvents.isEnabled() ||
                 MinimapClientEvents.isPointInsideMinimap(evt.getMouseX(), evt.getMouseY()) ||
@@ -319,6 +321,8 @@ public class CursorClientEvents {
 
     @SubscribeEvent
     public static void onMouseDrag(ScreenEvent.MouseDragged.Pre evt) {
+        if (MC.screen instanceof com.WardenMine242.siege_of_settlements.guiscreen.ResearchTreeScreen) return;
+
         if (!OrthoviewClientEvents.isEnabled() ||
                 (cursorLeftClickDownPos.x < 0 && cursorLeftClickDownPos.y < 0))
             return;
@@ -328,6 +332,8 @@ public class CursorClientEvents {
 
     @SubscribeEvent
     public static void onMouseRelease(ScreenEvent.MouseButtonReleased.Post evt) {
+        if (MC.screen instanceof com.WardenMine242.siege_of_settlements.guiscreen.ResearchTreeScreen) return;
+
         if (!OrthoviewClientEvents.isEnabled()) return;
 
         // select a moused over entity by left clicking it

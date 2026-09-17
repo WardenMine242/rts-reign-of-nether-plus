@@ -57,7 +57,7 @@ public class ResearchResourceCapacity extends ProductionItem {
 
     public StartProductionButton getStartButton(ProductionPlacement prodBuilding, Keybinding hotkey) {
         return new StartProductionButton(ResearchResourceCapacity.itemName,
-            ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/items/chest.png"),
+            ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/research/research_resource_capacity.png"),
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
             hotkey,
             () -> ProductionItems.RESEARCH_RESOURCE_CAPACITY.itemIsBeingProduced(prodBuilding.ownerName)

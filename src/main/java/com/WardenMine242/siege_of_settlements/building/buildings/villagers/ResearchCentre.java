@@ -1,5 +1,6 @@
 package com.WardenMine242.siege_of_settlements.building.buildings.villagers;
 
+import com.WardenMine242.siege_of_settlements.ability.abilities.ResearchTreeAbility;
 import com.solegendary.siege_of_settlements.api.SiegeOfSettlementsRegistries;
 import com.solegendary.siege_of_settlements.building.BuildingClientEvents;
 import com.solegendary.siege_of_settlements.building.BuildingPlaceButton;
@@ -41,20 +42,7 @@ public class ResearchCentre extends ProductionBuilding {
         this.startingBlockTypes.add(Blocks.STRIPPED_OAK_LOG);
         this.startingBlockTypes.add(Blocks.OAK_LOG);
 
-        this.productions.add(ProductionItems.RESEARCH_UPGRADED_DRILL, Keybindings.keyQ);
-        this.productions.add(ProductionItems.RESEARCH_ADVANCED_DRILL, Keybindings.keyQ);
-        this.productions.add(ProductionItems.RESEARCH_CASTLE, Keybindings.keyW);
-        this.productions.add(ProductionItems.RESEARCH_FIRE_WALLS, Keybindings.keyE);
-        this.productions.add(ProductionItems.RESEARCH_FIRE_WALLS2, Keybindings.keyE);
-        this.productions.add(ProductionItems.RESEARCH_TOWER_DAMAGE_1, Keybindings.keyR);
-        this.productions.add(ProductionItems.RESEARCH_TOWER_DAMAGE_2, Keybindings.keyR);
-        this.productions.add(ProductionItems.RESEARCH_UPGRADED_BARRACKS, Keybindings.keyT);
-        this.productions.add(ProductionItems.RESEARCH_ADVANCED_BLACKSMITH, Keybindings.keyY);
-        this.productions.add(ProductionItems.RESEARCH_BIG_HOUSE, Keybindings.keyU);
-        this.productions.add(ProductionItems.RESEARCH_POWERFUL_ARCANE_TOWER, Keybindings.keyI);
-
-
-        this.productions.add(ProductionItems.RESEARCH_BEACON, Keybindings.keyZ);
+        this.abilities.add(new ResearchTreeAbility(), Keybindings.keyQ);
     }
 
 

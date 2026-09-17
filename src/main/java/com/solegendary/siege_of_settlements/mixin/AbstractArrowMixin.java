@@ -1,12 +1,9 @@
 package com.solegendary.siege_of_settlements.mixin;
 
 import com.google.common.collect.Lists;
+import com.solegendary.siege_of_settlements.building.GarrisonProjectileCollision;
 import com.solegendary.siege_of_settlements.building.production.ProductionItems;
-import com.solegendary.siege_of_settlements.building.BuildingPlacement;
-import com.solegendary.siege_of_settlements.building.BuildingUtils;
-import com.solegendary.siege_of_settlements.building.GarrisonableBuilding;
 import com.solegendary.siege_of_settlements.research.ResearchServerEvents;
-import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.RavagerUnit;
@@ -39,7 +36,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,71 +49,8 @@ public abstract class AbstractArrowMixin extends Projectile {
 
     @Shadow public abstract boolean isNoPhysics();
     @Shadow private int life;
-    @Shadow protected EntityHitResult findHitEntity(Vec3 pStartVec, Vec3 pEndVec) {
-        return null;
-    }
 
-    private boolean isInsideBuildingAndNotForeignEntity(BuildingPlacement building) {
-        Vec3 vec32 = this.position();
-        Vec3 vec33 = vec32.add(getDeltaMovement());
-        EntityHitResult entityHitResult = this.findHitEntity(vec32, vec33);
-
-        boolean insideForeignEntity = entityHitResult != null && entityHitResult.getEntity() != getOwner();
-        if (entityHitResult != null && entityHitResult.getEntity() instanceof Unit unit1 && getOwner() instanceof Unit unit2 &&
-            GarrisonableBuilding.getGarrison(unit1) == GarrisonableBuilding.getGarrison(unit2))
-            insideForeignEntity = false;
-
-        return building.isPosInsideBuilding(this.blockPosition()) && !insideForeignEntity;
-    }
-
-    // prevent arrows from colliding with the building that a garrisoned unit is inside of
-    @Inject(
-            method = "isNoPhysics",
-            at = @At("HEAD"),
-            cancellable = true
-    )
-    public void isNoPhysics(CallbackInfoReturnable<Boolean> cir) {
-        if (this.getOwner() instanceof AttackerUnit aUnit) {
-            BuildingPlacement sourceBuilding = null;
-
-            // garrisoned unit -> ground
-            if (GarrisonableBuilding.getGarrison((Unit) aUnit) instanceof BuildingPlacement building) {
-                sourceBuilding = building;
-            } else if (this.getOwner() instanceof Unit) {
-                Entity ownerEntity = this.getOwner();
-                if (ownerEntity == null) {
-                    return;
-                }
-                // Fallback: if strict garrison lookup fails, still allow arrows to pass through
-                // the building that the shooter is physically inside.
-                BuildingPlacement building = BuildingUtils.findBuilding(this.level().isClientSide(), ownerEntity.getOnPos().above());
-                if (building != null && building.isPosInsideBuilding(ownerEntity.getOnPos().above())) {
-                    sourceBuilding = building;
-                }
-            }
-
-            if (sourceBuilding != null && isInsideBuildingAndNotForeignEntity(sourceBuilding)) {
-                cir.setReturnValue(true);
-            }
-
-            // ground -> garrisoned unit - allow through at 1/2 accuracy
-            // can't use random() here or the nophysics status will change every tick
-            /*
-            if (this.getId() % 2 == 0 &&
-                ((Unit) aUnit).getTargetGoal().getTarget() instanceof Unit tUnit) {
-                if (GarrisonableBuilding.getGarrison(tUnit) instanceof Building building &&
-                    isInsideTopOfBuilding(building)) {
-
-                    // nophysics all the time means they wouldn't collide with the actual target
-                    if (this.distanceToSqr((Entity) tUnit) > Math.pow(1.0d, 2))
-                         cir.setReturnValue(true);
-                }
-            }
-             */
-        }
-    }
-
-    // correct angle of nophysics arrows
+    // correct angle of nophysics arrows (vanilla/other sources)
     @Inject(
             method = "tick",
             at = @At("TAIL")
@@ -344,11 +277,28 @@ public abstract class AbstractArrowMixin extends Projectile {
         return !player.isCreative() && !player.isSpectator();
     }
 
+    @Unique
+    private void siege_of_settlements$advancePastBlock(BlockHitResult hit) {
+        Vec3 motion = this.getDeltaMovement();
+        if (motion.lengthSqr() < 1.0E-8D) {
+            return;
+        }
+        Vec3 advance = motion.normalize().scale(0.3D);
+        Vec3 newPos = hit.getLocation().add(advance);
+        this.setPos(newPos.x, newPos.y, newPos.z);
+    }
+
     @Inject(
             method = "onHitBlock",
-            at = @At("HEAD")
+            at = @At("HEAD"),
+            cancellable = true
     )
     protected void onHitBlock(BlockHitResult pResult, CallbackInfo ci) {
+        if (GarrisonProjectileCollision.shouldPassThrough(this.getOwner(), pResult, this.level())) {
+            siege_of_settlements$advancePastBlock(pResult);
+            ci.cancel();
+            return;
+        }
         if (siege_of_settlements$shouldExplodeMountedShot()) {
             this.level().explode(this.getOwner(), null, null,
                     pResult.getLocation().x,

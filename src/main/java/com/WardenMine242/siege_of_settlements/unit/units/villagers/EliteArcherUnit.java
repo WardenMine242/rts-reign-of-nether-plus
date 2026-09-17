@@ -1,11 +1,11 @@
 package com.WardenMine242.siege_of_settlements.unit.units.villagers;
 
+import com.WardenMine242.siege_of_settlements.ability.abilities.UpgradeArcherToElite;
+import com.solegendary.siege_of_settlements.ability.Abilities;
+import com.solegendary.siege_of_settlements.keybinds.Keybindings;
+import com.solegendary.siege_of_settlements.ability.abilities.MountRavager;
 import com.solegendary.siege_of_settlements.resources.ResourceCost;
 import com.solegendary.siege_of_settlements.resources.ResourceCosts;
-import com.solegendary.siege_of_settlements.resources.ResourceName;
-import com.solegendary.siege_of_settlements.resources.Resources;
-import com.solegendary.siege_of_settlements.resources.ResourcesClientboundPacket;
-import com.solegendary.siege_of_settlements.resources.ResourcesServerEvents;
 import com.solegendary.siege_of_settlements.unit.interfaces.AttackerUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
@@ -35,9 +35,9 @@ import org.jetbrains.annotations.NotNull;
 public class EliteArcherUnit extends PillagerUnit implements GeoEntity {
 
     // Editable combat stats for Elite Archer.
-    public static final float STAT_ATTACK_DAMAGE = 14.0F;
+    public static final float STAT_ATTACK_DAMAGE = 10.0F;
     public static final float STAT_ATTACKS_PER_SECOND = 0.6F;
-    public static final float STAT_MAX_HEALTH = 80.0F;
+    public static final float STAT_MAX_HEALTH = 180.0F;
     public static final float STAT_ARMOR = 0.0F;
     public static final float STAT_MOVEMENT_SPEED = 0.26F;
     public static final float STAT_ATTACK_RANGE = 16.0F;
@@ -45,22 +45,30 @@ public class EliteArcherUnit extends PillagerUnit implements GeoEntity {
 
     private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
     private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
-    private static final RawAnimation ATTACK_ANIM = RawAnimation.begin().thenPlay("attack");
+    private static final RawAnimation ATTACK_ANIM = RawAnimation.begin().thenPlay("attack2");
     private static final double ATTACK_ANIMATION_SPEED = 1.0D / 3.0D;
     private static final int ATTACK_ANIM_TICKS = 63; // 1.0417s * 20tps / (1/3) ~= 62.5
-    private static final int EMERALD_DRAIN_AMOUNT = 300;
-    private static final int EMERALD_DRAIN_INTERVAL_TICKS = 20 * 60 * 10; // 10 minutes
-    private static final String TAG_EMERALD_DRAIN_PROGRESS = "ronPlusEliteArcherEmeraldDrainProgress";
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
     private boolean wasUsingItemLastTick = false;
     private int forcedAttackTicks = 0;
     private int attackPoseTicks = -1;
     private boolean resetAttackAnimationPending = false;
-    private int emeraldDrainProgress = 0;
 
     public EliteArcherUnit(EntityType<? extends Pillager> entityType, Level level) {
         super(entityType, level);
+        updateAbilityButtons();
+    }
+
+    @Override
+    public void updateAbilityButtons() {
+        super.updateAbilityButtons();
+        abilities.add(new UpgradeArcherToElite(), Keybindings.keyE);
+    }
+
+    @Override
+    public Abilities getAbilities() {
+        return abilities;
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -124,9 +132,6 @@ public class EliteArcherUnit extends PillagerUnit implements GeoEntity {
     public void tick() {
         ensureCrossbowEquippedServer();
         super.tick();
-        if (!this.level().isClientSide()) {
-            tickEmeraldDrain();
-        }
 
         boolean isUsingItemNow = this.isUsingItem();
         if (isUsingItemNow && !wasUsingItemLastTick) {
@@ -231,48 +236,13 @@ public class EliteArcherUnit extends PillagerUnit implements GeoEntity {
         return this.attackPoseTicks >= 45;
     }
 
-    private void tickEmeraldDrain() {
-        String ownerName = getOwnerName();
-        if (ownerName == null || ownerName.isEmpty()) {
-            return;
-        }
-
-        emeraldDrainProgress += 1;
-        // First charge happens only after 10 minutes from spawn.
-        if (emeraldDrainProgress < EMERALD_DRAIN_INTERVAL_TICKS) {
-            return;
-        }
-        emeraldDrainProgress = 0;
-
-        if (!tryDrainOwnerEmeraldsInstantly(ownerName, EMERALD_DRAIN_AMOUNT)) {
-            this.discard();
-        }
-    }
-
-    private static boolean tryDrainOwnerEmeraldsInstantly(String ownerName, int amount) {
-        if (!ResourcesServerEvents.canAfford(ownerName, ResourceName.EMERALDS, amount)) {
-            return false;
-        }
-
-        for (Resources resources : ResourcesServerEvents.resourcesList) {
-            if (resources.ownerName.equals(ownerName)) {
-                resources.changeInstantly(0, 0, 0, -amount);
-                ResourcesClientboundPacket.addSubtractResourcesInstantly(new Resources(ownerName, 0, 0, 0, -amount));
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        compound.putInt(TAG_EMERALD_DRAIN_PROGRESS, emeraldDrainProgress);
     }
 
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        emeraldDrainProgress = Math.max(0, compound.getInt(TAG_EMERALD_DRAIN_PROGRESS));
     }
 }

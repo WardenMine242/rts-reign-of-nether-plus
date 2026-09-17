@@ -331,12 +331,42 @@ public class SandboxClientEvents {
         );
     }
 
+    public static Button getToggleAllResearchButton() {
+        Minecraft MC = Minecraft.getInstance();
+        if (MC.player == null)
+            return null;
+        boolean hasAllResearch = ResearchClient.hasCheat("medievalman");
+        String playerName = MC.player.getName().getString();
+        return new Button(
+                "Toggle All Research",
+                Button.itemIconSize,
+                hasAllResearch ?
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "textures/item/enchanted_book.png") :
+                        ResourceLocation.fromNamespaceAndPath("minecraft", "textures/item/book.png"),
+                (Keybinding) null,
+                () -> false,
+                () -> false,
+                () -> true,
+                () -> {
+                    if (hasAllResearch) {
+                        ResearchServerboundPacket.removeCheat(playerName, "medievalman");
+                    } else {
+                        ResearchServerboundPacket.addCheat(playerName, "medievalman");
+                    }
+                },
+                null,
+                List.of(hasAllResearch ? fcs(I18n.get("sandbox.siege_of_settlements.all_research_on")) :
+                                    fcs(I18n.get("sandbox.siege_of_settlements.all_research_off")),
+                                    fcs(I18n.get("sandbox.siege_of_settlements.all_research_tooltip"))
+                )
+        );
+    }
+
     public static Button getToggleUnitCheatsButton() {
         Minecraft MC = Minecraft.getInstance();
         if (MC.player == null)
             return null;
         boolean hasCheats = ResearchClient.hasCheat("operationcwal") &&
-                            ResearchClient.hasCheat("medievalman") &&
                             ResearchClient.hasCheat("foodforthought") &&
                             ResearchClient.hasCheat("slipslopslap");
         String playerName = Minecraft.getInstance().player.getName().getString();
@@ -353,12 +383,10 @@ public class SandboxClientEvents {
                 () -> {
                     if (hasCheats) {
                         ResearchServerboundPacket.removeCheat(playerName, "operationcwal");
-                        ResearchServerboundPacket.removeCheat(playerName, "medievalman");
                         ResearchServerboundPacket.removeCheat(playerName, "foodforthought");
                         ResearchServerboundPacket.removeCheat(playerName, "slipslopslap");
                     } else {
                         ResearchServerboundPacket.addCheat(playerName, "operationcwal");
-                        ResearchServerboundPacket.addCheat(playerName, "medievalman");
                         ResearchServerboundPacket.addCheat(playerName, "foodforthought");
                         ResearchServerboundPacket.addCheat(playerName, "slipslopslap");
                     }

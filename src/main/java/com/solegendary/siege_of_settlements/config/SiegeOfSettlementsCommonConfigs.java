@@ -1,7 +1,6 @@
 package com.solegendary.siege_of_settlements.config;
 
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredRavagerUnit;
-import com.WardenMine242.siege_of_settlements.unit.units.villagers.RedstoneGolemUnit;
 import com.solegendary.siege_of_settlements.resources.ResourceCosts;
 import net.minecraftforge.common.ForgeConfigSpec;
 
@@ -44,9 +43,11 @@ public class SiegeOfSettlementsCommonConfigs {
         UnitCosts.REDSTONE_MINE.define(BUILDER);
         UnitCosts.PILLAGER.define(BUILDER);
         UnitCosts.ARCHER.define(BUILDER);
+        UnitCosts.ELITE_ARMORED_PILLAGER.define(BUILDER);
         UnitCosts.ARMORED_PILLAGER.define(BUILDER);
         UnitCosts.VINDICATOR.define(BUILDER);
         UnitCosts.ELITE_VINDICATOR.define(BUILDER);
+        UnitCosts.ELITE_ARMORED_VINDICATOR.define(BUILDER);
         UnitCosts.ARMORED_VINDICATOR.define(BUILDER);
         UnitCosts.ELITE_ARCHER.define(BUILDER);
         UnitCosts.WITCH.define(BUILDER);
@@ -81,8 +82,6 @@ public class SiegeOfSettlementsCommonConfigs {
         UnitCosts.HERO_BASE_REVIVE_COST.define(BUILDER);
         UnitCosts.HERO_EXTRA_REVIVE_COST_PER_LEVEL.define(BUILDER);
 
-        BUILDER.comment("Redstone Golem stat configuration");
-        RedstoneGolemStats.define(BUILDER);
         BUILDER.comment("Armored Ravager stat configuration");
         ArmoredRavagerStats.define(BUILDER);
 
@@ -205,6 +204,9 @@ public class SiegeOfSettlementsCommonConfigs {
         ResearchCosts.RESEARCH_BEACON.define(BUILDER);
         ResearchCosts.RESEARCH_TRADER.define(BUILDER);
         ResearchCosts.RESEARCH_MARKETPLACE.define(BUILDER);
+        ResearchCosts.RESEARCH_PROFESSIONS.define(BUILDER);
+        ResearchCosts.RESEARCH_ELITE_TRADER.define(BUILDER);
+        ResearchCosts.RESEARCH_ELITE_TRAINING.define(BUILDER);
         ResearchCosts.RESEARCH_UPGRADED_BARRACKS.define(BUILDER);
         ResearchCosts.RESEARCH_UPGRADED_DRILL.define(BUILDER);
         ResearchCosts.RESEARCH_ADVANCED_DRILL.define(BUILDER);
@@ -239,6 +241,10 @@ public class SiegeOfSettlementsCommonConfigs {
         AbilityCosts.EQUIP_RAVAGER_ARMOR.define(BUILDER);
         AbilityCosts.BECOME_TRADER.define(BUILDER);
         AbilityCosts.BERSERK.define(BUILDER);
+        AbilityCosts.UPGRADE_TRADER_TO_ELITE.define(BUILDER);
+        AbilityCosts.UPGRADE_ARCHER_TO_ELITE.define(BUILDER);
+        AbilityCosts.UPGRADE_ARMORED_VINDICATOR_TO_ELITE.define(BUILDER);
+        AbilityCosts.UPGRADE_ARMORED_PILLAGER_TO_ELITE.define(BUILDER);
 
         SPEC = BUILDER.build();
     }
@@ -266,22 +272,25 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry VILLAGER = ResourceCostConfigEntry.Unit(75,0,0,0,15,1, ResourceCosts.VILLAGER, "Villager Config");
         public static final ResourceCostConfigEntry MILITIA = ResourceCostConfigEntry.Unit(75,0,0,0,15,1, ResourceCosts.MILITIA, "Militia Config");
         public static final ResourceCostConfigEntry IRON_GOLEM = ResourceCostConfigEntry.Unit(0,50,350,0,45,4, ResourceCosts.IRON_GOLEM, "Iron Golem Config");
-        public static final ResourceCostConfigEntry REDSTONE_GOLEM = ResourceCostConfigEntry.Unit(700,50,7000,500,45,8, ResourceCosts.REDSTONE_GOLEM, "Redstone Golem Config");
+        public static final ResourceCostConfigEntry REDSTONE_GOLEM = ResourceCostConfigEntry.Unit(700,50,1500,300,45,8, ResourceCosts.REDSTONE_GOLEM, "Redstone Golem Config");
         public static final ResourceCostConfigEntry REDSTONE_MINE = ResourceCostConfigEntry.Unit(0,0,25,0,8,1, ResourceCosts.REDSTONE_MINE, "Redstone Mine Config");
         public static final ResourceCostConfigEntry PILLAGER = ResourceCostConfigEntry.Unit(120,80,0,0,32,3, ResourceCosts.PILLAGER, "Pillager Config");
         public static final ResourceCostConfigEntry ARCHER = ResourceCostConfigEntry.Unit(120,80,0,0,32,3, ResourceCosts.ARCHER, "Archer Config");
-        public static final ResourceCostConfigEntry ARMORED_PILLAGER = ResourceCostConfigEntry.Unit(400,120,700,300,36,3, ResourceCosts.ARMORED_PILLAGER, "Armored Pillager Config");
+        public static final ResourceCostConfigEntry ELITE_ARMORED_PILLAGER = ResourceCostConfigEntry.Unit(400,120,700,300,36,3, ResourceCosts.ELITE_ARMORED_PILLAGER, "Elite Armored Pillager Config");
+        public static final ResourceCostConfigEntry ARMORED_PILLAGER = ResourceCostConfigEntry.Unit(400,150,400,200,40,4, ResourceCosts.ARMORED_PILLAGER, "Armored Pillager Config");
         public static final ResourceCostConfigEntry VINDICATOR = ResourceCostConfigEntry.Unit(170,0,0,0,32,3, ResourceCosts.VINDICATOR, "Vindicator Config");
-        public static final ResourceCostConfigEntry ELITE_VINDICATOR = ResourceCostConfigEntry.Unit(0,0,0,1000,120,1, ResourceCosts.ELITE_VINDICATOR, "Elite Vindicator Config");
-        public static final ResourceCostConfigEntry ARMORED_VINDICATOR = ResourceCostConfigEntry.Unit(430,50,800,400,36,3, ResourceCosts.ARMORED_VINDICATOR, "Armored Vindicator Config");
+        public static final ResourceCostConfigEntry ELITE_VINDICATOR = ResourceCostConfigEntry.Unit(200, 0, 0, 300, 100, 3, ResourceCosts.ELITE_VINDICATOR, "Elite Vindicator Config");
+        public static final ResourceCostConfigEntry ELITE_ARMORED_VINDICATOR = ResourceCostConfigEntry.Unit(300, 0, 0, 0, 1, 0, ResourceCosts.ELITE_ARMORED_VINDICATOR, "Elite Armored Vindicator Config");
+        public static final ResourceCostConfigEntry ARMORED_VINDICATOR = ResourceCostConfigEntry.Unit(300, 0, 450, 150, 45, 4, ResourceCosts.ARMORED_VINDICATOR, "Armored Vindicator Config");
+
         public static final ResourceCostConfigEntry ELITE_ARCHER = ResourceCostConfigEntry.Unit(0,0,0,1000,120,1, ResourceCosts.ELITE_ARCHER, "Elite Archer Config");
-        public static final ResourceCostConfigEntry WITCH = ResourceCostConfigEntry.Unit(90,90,90,0,35,3, ResourceCosts.WITCH, "Witch Config");
+        public static final ResourceCostConfigEntry WITCH = ResourceCostConfigEntry.Unit(100,90,90,0,35,3, ResourceCosts.WITCH, "Witch Config");
         public static final ResourceCostConfigEntry EVOKER = ResourceCostConfigEntry.Unit(300,0,400,0,35,3, ResourceCosts.EVOKER, "Evoker Config");
-        public static final ResourceCostConfigEntry ILLUSIONER = ResourceCostConfigEntry.Unit(1000,1500,300,0,30,3, ResourceCosts.ILLUSIONER, "Illusioner Config");
+        public static final ResourceCostConfigEntry ILLUSIONER = ResourceCostConfigEntry.Unit(1000,1000,300,0,30,3, ResourceCosts.ILLUSIONER, "Illusioner Config");
         public static final ResourceCostConfigEntry RAVAGER = ResourceCostConfigEntry.Unit(600,200,250,0,60,7, ResourceCosts.RAVAGER, "Ravager Config");
         public static final ResourceCostConfigEntry ROYAL_GUARD = ResourceCostConfigEntry.Unit(200,500,600,0,30, 5, ResourceCosts.ROYAL_GUARD, "Royal Guard Config");
         public static final ResourceCostConfigEntry ENCHANTER = ResourceCostConfigEntry.Unit(0,0,0,0,30, 5, ResourceCosts.ENCHANTER, "Enchanter Config");
-        public static final ResourceCostConfigEntry AUROMANCER = ResourceCostConfigEntry.Unit(400,600,700,80,120, 1, ResourceCosts.AUROMANCER, "Auromancer Config");
+        public static final ResourceCostConfigEntry AUROMANCER = ResourceCostConfigEntry.Unit(400,600,400,80,120, 1, ResourceCosts.AUROMANCER, "Auromancer Config");
         public static final ResourceCostConfigEntry HORSE = ResourceCostConfigEntry.Unit(300,100,50,0,60, 1, ResourceCosts.HORSE, "Horse Config");
 
         // Piglins
@@ -306,50 +315,6 @@ public class SiegeOfSettlementsCommonConfigs {
 
         public static final ResourceCostConfigEntry HERO_BASE_REVIVE_COST = ResourceCostConfigEntry.Unit(400,300,200,0,30, 5, ResourceCosts.HERO_BASE_REVIVE_COST, "Hero Base Revive Cost Config");
         public static final ResourceCostConfigEntry HERO_EXTRA_REVIVE_COST_PER_LEVEL = ResourceCostConfigEntry.Unit(50,30,50,0,5, 0, ResourceCosts.HERO_EXTRA_REVIVE_COST_PER_LEVEL, "Hero Extra Revive Cost Per Level Config");
-    }
-
-    public static class RedstoneGolemStats {
-        public static ForgeConfigSpec.DoubleValue ATTACK_DAMAGE;
-        public static ForgeConfigSpec.DoubleValue MAX_HEALTH;
-        public static ForgeConfigSpec.DoubleValue ARMOR;
-        public static ForgeConfigSpec.DoubleValue MOVEMENT_SPEED;
-        public static ForgeConfigSpec.DoubleValue ATTACKS_PER_SECOND;
-        public static ForgeConfigSpec.DoubleValue ATTACK_RANGE;
-        public static ForgeConfigSpec.DoubleValue AGGRO_RANGE;
-        public static ForgeConfigSpec.DoubleValue ATTACK_KNOCKBACK;
-        public static ForgeConfigSpec.DoubleValue KNOCKBACK_RESISTANCE;
-
-        public static void define(ForgeConfigSpec.Builder builder) {
-            builder.push("RedstoneGolemStats");
-            ATTACK_DAMAGE = builder
-                    .comment("Base melee damage of the Redstone Golem.")
-                    .defineInRange("attack_damage", (double) RedstoneGolemUnit.DEFAULT_ATTACK_DAMAGE, 0.0D, 2048.0D);
-            MAX_HEALTH = builder
-                    .comment("Base maximum health of the Redstone Golem.")
-                    .defineInRange("max_health", (double) RedstoneGolemUnit.DEFAULT_MAX_HEALTH, 1.0D, 4096.0D);
-            ARMOR = builder
-                    .comment("Base armor value of the Redstone Golem.")
-                    .defineInRange("armor", (double) RedstoneGolemUnit.DEFAULT_ARMOR, 0.0D, 200.0D);
-            MOVEMENT_SPEED = builder
-                    .comment("Movement speed of the Redstone Golem. HUD speed is this value multiplied by 100.")
-                    .defineInRange("movement_speed", (double) RedstoneGolemUnit.DEFAULT_MOVEMENT_SPEED, 0.0D, 4.0D);
-            ATTACKS_PER_SECOND = builder
-                    .comment("Attack speed of the Redstone Golem in attacks per second.")
-                    .defineInRange("attacks_per_second", (double) RedstoneGolemUnit.DEFAULT_ATTACKS_PER_SECOND, 0.01D, 20.0D);
-            ATTACK_RANGE = builder
-                    .comment("Melee attack range used by unit logic.")
-                    .defineInRange("attack_range", (double) RedstoneGolemUnit.DEFAULT_ATTACK_RANGE, 0.0D, 64.0D);
-            AGGRO_RANGE = builder
-                    .comment("Aggro range used when idle/retaliating.")
-                    .defineInRange("aggro_range", (double) RedstoneGolemUnit.DEFAULT_AGGRO_RANGE, 0.0D, 128.0D);
-            ATTACK_KNOCKBACK = builder
-                    .comment("Attack knockback of the Redstone Golem.")
-                    .defineInRange("attack_knockback", RedstoneGolemUnit.DEFAULT_ATTACK_KNOCKBACK, 0.0D, 32.0D);
-            KNOCKBACK_RESISTANCE = builder
-                    .comment("Knockback resistance of the Redstone Golem.")
-                    .defineInRange("knockback_resistance", RedstoneGolemUnit.DEFAULT_KNOCKBACK_RESISTANCE, 0.0D, 1.0D);
-            builder.pop();
-        }
     }
 
     public static class ArmoredRavagerStats {
@@ -423,20 +388,20 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry VILLAGER_HOUSE = ResourceCostConfigEntry.Building(0,500,200,0, 10, ResourceCosts.VILLAGER_HOUSE, "Villager House Config");
         public static final ResourceCostConfigEntry WHEAT_FARM = ResourceCostConfigEntry.Building(0,300,50,0, 0, ResourceCosts.WHEAT_FARM, "Wheat Farm Config");
         public static final ResourceCostConfigEntry BARRACKS = ResourceCostConfigEntry.Building(0,800,600,0, 0, ResourceCosts.BARRACKS, "Barracks Config");
-        public static final ResourceCostConfigEntry BLACKSMITH = ResourceCostConfigEntry.Building(0,1000,1200,0, 0, ResourceCosts.BLACKSMITH, "Blacksmith Config");
-        public static final ResourceCostConfigEntry ARCANE_TOWER = ResourceCostConfigEntry.Building(0,1200,1300,0, 0, ResourceCosts.ARCANE_TOWER, "Arcane Tower Config");
-        public static final ResourceCostConfigEntry LIBRARY = ResourceCostConfigEntry.Building(0,1200,1000,0, 0, ResourceCosts.LIBRARY, "Library Config");
+        public static final ResourceCostConfigEntry BLACKSMITH = ResourceCostConfigEntry.Building(0,900,800,0, 0, ResourceCosts.BLACKSMITH, "Blacksmith Config");
+        public static final ResourceCostConfigEntry ARCANE_TOWER = ResourceCostConfigEntry.Building(0,900,1000,0, 0, ResourceCosts.ARCANE_TOWER, "Arcane Tower Config");
+        public static final ResourceCostConfigEntry LIBRARY = ResourceCostConfigEntry.Building(0,500,600,0, 0, ResourceCosts.LIBRARY, "Library Config");
         public static final ResourceCostConfigEntry WATCHTOWER = ResourceCostConfigEntry.Building(0,200,275,0, 0, ResourceCosts.WATCHTOWER, "Watchtower Config");
-        public static final ResourceCostConfigEntry CASTLE = ResourceCostConfigEntry.Building(2000,5000,3000,0, 0, ResourceCosts.CASTLE, "Castle Config");
+        public static final ResourceCostConfigEntry CASTLE = ResourceCostConfigEntry.Building(1000,1100,1100,100, 0, ResourceCosts.CASTLE, "Castle Config");
         public static final ResourceCostConfigEntry IRON_GOLEM_BUILDING = ResourceCostConfigEntry.Building(0,50,250,0, 0, ResourceCosts.IRON_GOLEM_BUILDING, "Iron Golem Building Config");
         public static final ResourceCostConfigEntry SHRINE_OF_PROSPERITY = ResourceCostConfigEntry.Building(0,900,450,0, 0, ResourceCosts.SHRINE_OF_PROSPERITY, "Shrine of Prosperity Config");
         public static final ResourceCostConfigEntry DRILL = ResourceCostConfigEntry.Building(0,900,800,0, 0, ResourceCosts.DRILL, "Drill Config");
         public static final ResourceCostConfigEntry WALL = ResourceCostConfigEntry.Building(0,275,300,0, 0, ResourceCosts.WALL, "Wall Config");
         public static final ResourceCostConfigEntry GATE = ResourceCostConfigEntry.Building(0,275,275,0, 0, ResourceCosts.GATE, "Gate Config");
         public static final ResourceCostConfigEntry CORNER_WALL = ResourceCostConfigEntry.Building(0,325,350,0, 0, ResourceCosts.CORNER_WALL, "Corner Wall Config");
-        public static final ResourceCostConfigEntry RESEARCH_CENTRE = ResourceCostConfigEntry.Building(0,6000,3000,0, 0, ResourceCosts.RESEARCH_CENTRE, "Research Centre Config");
-        public static final ResourceCostConfigEntry MARKETPLACE = ResourceCostConfigEntry.Building(0,4000,2000,200, 0, ResourceCosts.MARKETPLACE, "Marketplace Config");
-        public static final ResourceCostConfigEntry STABLE = ResourceCostConfigEntry.Building(0,3000,2000,0, 0, ResourceCosts.STABLE, "Stable Config");
+        public static final ResourceCostConfigEntry RESEARCH_CENTRE = ResourceCostConfigEntry.Building(0,2000,1000,0, 0, ResourceCosts.RESEARCH_CENTRE, "Research Centre Config");
+        public static final ResourceCostConfigEntry MARKETPLACE = ResourceCostConfigEntry.Building(0,2000,2000,0, 0, ResourceCosts.MARKETPLACE, "Marketplace Config");
+        public static final ResourceCostConfigEntry STABLE = ResourceCostConfigEntry.Building(0,500,400,0, 0, ResourceCosts.STABLE, "Stable Config");
 
 
         // Piglins
@@ -453,77 +418,80 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry INFERNAL_PORTAL = ResourceCostConfigEntry.Building(0,125,50,0, 0, ResourceCosts.INFERNAL_PORTAL, "Infernal Portal Config");
     }
     public static class ResearchCosts implements Costs {
-        public static final ResourceCostConfigEntry RESEARCH_GOLEM_SMITHING = ResourceCostConfigEntry.Research(0, 150,200,0, 90, ResourceCosts.RESEARCH_GOLEM_SMITHING, "Golem Smithing Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_SUPERIOR_BLACKSMITH = ResourceCostConfigEntry.Research(0, 100,200,0, 90, ResourceCosts.RESEARCH_SUPERIOR_BLACKSMITH, "Superior Blacksmith Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_MILITIA_BOWS = ResourceCostConfigEntry.Research(250,500,0,0, 160, ResourceCosts.RESEARCH_MILITIA_BOWS, "Militia Bows Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_LAB_LIGHTNING_ROD = ResourceCostConfigEntry.Research(0,0,400,0, 120, ResourceCosts.RESEARCH_LAB_LIGHTNING_ROD, "Lightning Lab Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_RESOURCE_CAPACITY = ResourceCostConfigEntry.Research(200,200,0,0, 90, ResourceCosts.RESEARCH_RESOURCE_CAPACITY, "Stockpile Resource Capacity Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_SPIDER_JOCKEYS = ResourceCostConfigEntry.Research(300,250,0,0, 100, ResourceCosts.RESEARCH_SPIDER_JOCKEYS, "Spider Jockey Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_SPIDER_WEBS = ResourceCostConfigEntry.Research(0,300,300,0, 140, ResourceCosts.RESEARCH_SPIDER_WEBS, "Spider Webs Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_POISON_SPIDERS = ResourceCostConfigEntry.Research(400,0,250,0, 150, ResourceCosts.RESEARCH_POISON_SPIDERS, "Poison Spider Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_HUSKS = ResourceCostConfigEntry.Research(500,0,500,0, 200, ResourceCosts.RESEARCH_HUSKS, "Husk Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_DROWNED = ResourceCostConfigEntry.Research(500,0,500,0, 200, ResourceCosts.RESEARCH_DROWNED, "Drowned Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_STRAYS = ResourceCostConfigEntry.Research(500,500,0,0, 200, ResourceCosts.RESEARCH_STRAYS, "Stray Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_SLIME_CONVERSION = ResourceCostConfigEntry.Research(300,0,300,0, 140, ResourceCosts.RESEARCH_SLIME_CONVERSION, "Slime Conversion Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_LINGERING_POTIONS = ResourceCostConfigEntry.Research(0,250,250,0, 140, ResourceCosts.RESEARCH_LINGERING_POTIONS, "Extended Lingering Potion Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_HEALING_POTIONS = ResourceCostConfigEntry.Research(0,350,350,0, 180, ResourceCosts.RESEARCH_HEALING_POTIONS, "Healing Potion Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_WATER_POTIONS = ResourceCostConfigEntry.Research(0,250,250,0, 140, ResourceCosts.RESEARCH_WATER_POTIONS, "Water Potion Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_EVOKER_VEXES = ResourceCostConfigEntry.Research(500,0,300,0, 120, ResourceCosts.RESEARCH_EVOKER_VEXES, "Evoker Vex Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_CASTLE_FLAG = ResourceCostConfigEntry.Research(200,150,150,0, 90, ResourceCosts.RESEARCH_CASTLE_FLAG, "Captain Banner Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_GRAND_LIBRARY = ResourceCostConfigEntry.Research(0,500,300,0, 140, ResourceCosts.RESEARCH_GRAND_LIBRARY, "Grand Library Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_VILLAGER_HOUSE_T2 = ResourceCostConfigEntry.Research(0,600,400,0, 100, ResourceCosts.RESEARCH_VILLAGER_HOUSE_T2, "Villager House Tier 2 Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_GOLEM_SMITHING = ResourceCostConfigEntry.Research(0, 0,0,200, 0, ResourceCosts.RESEARCH_GOLEM_SMITHING, "Golem Smithing Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_SUPERIOR_BLACKSMITH = ResourceCostConfigEntry.Research(0, 0,0,0, 0, ResourceCosts.RESEARCH_SUPERIOR_BLACKSMITH, "Superior Blacksmith Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_MILITIA_BOWS = ResourceCostConfigEntry.Research(0,0,0,150, 200, ResourceCosts.RESEARCH_MILITIA_BOWS, "Militia Bows Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_LAB_LIGHTNING_ROD = ResourceCostConfigEntry.Research(0,0,0,0, 0, ResourceCosts.RESEARCH_LAB_LIGHTNING_ROD, "Lightning Lab Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_RESOURCE_CAPACITY = ResourceCostConfigEntry.Research(0,0,0,200, 0, ResourceCosts.RESEARCH_RESOURCE_CAPACITY, "Stockpile Resource Capacity Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_SPIDER_JOCKEYS = ResourceCostConfigEntry.Research(0,0,0,0, 0, ResourceCosts.RESEARCH_SPIDER_JOCKEYS, "Spider Jockey Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_SPIDER_WEBS = ResourceCostConfigEntry.Research(0,0,0,0, 0, ResourceCosts.RESEARCH_SPIDER_WEBS, "Spider Webs Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_POISON_SPIDERS = ResourceCostConfigEntry.Research(0,0,0,0, 0, ResourceCosts.RESEARCH_POISON_SPIDERS, "Poison Spider Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_HUSKS = ResourceCostConfigEntry.Research(0,0,0,0, 0, ResourceCosts.RESEARCH_HUSKS, "Husk Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_DROWNED = ResourceCostConfigEntry.Research(0,0,0,0, 0, ResourceCosts.RESEARCH_DROWNED, "Drowned Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_STRAYS = ResourceCostConfigEntry.Research(0,0,0,0, 0, ResourceCosts.RESEARCH_STRAYS, "Stray Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_SLIME_CONVERSION = ResourceCostConfigEntry.Research(0,0,0,0, 0, ResourceCosts.RESEARCH_SLIME_CONVERSION, "Slime Conversion Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_LINGERING_POTIONS = ResourceCostConfigEntry.Research(0,0,0,150, 0, ResourceCosts.RESEARCH_LINGERING_POTIONS, "Extended Lingering Potion Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_HEALING_POTIONS = ResourceCostConfigEntry.Research(0,0,0,200, 0, ResourceCosts.RESEARCH_HEALING_POTIONS, "Healing Potion Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_WATER_POTIONS = ResourceCostConfigEntry.Research(0,0,0,100, 0, ResourceCosts.RESEARCH_WATER_POTIONS, "Water Potion Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_EVOKER_VEXES = ResourceCostConfigEntry.Research(0,0,0,200, 0, ResourceCosts.RESEARCH_EVOKER_VEXES, "Evoker Vex Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_CASTLE_FLAG = ResourceCostConfigEntry.Research(0,2000,1500,200, 120, ResourceCosts.RESEARCH_CASTLE_FLAG, "Captain Banner Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_GRAND_LIBRARY = ResourceCostConfigEntry.Research(0,0,300,0, 120, ResourceCosts.RESEARCH_GRAND_LIBRARY, "Grand Library Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_VILLAGER_HOUSE_T2 = ResourceCostConfigEntry.Research(0,500,200,0, 50, ResourceCosts.RESEARCH_VILLAGER_HOUSE_T2, "Villager House Tier 2 Research Config");
         public static final ResourceCostConfigEntry ARCANE_TOWER_T2 = ResourceCostConfigEntry.Research(0,1200,900,0, 120, ResourceCosts.ARCANE_TOWER_T2, "Arcane Tower Tier 2 Config");
         public static final ResourceCostConfigEntry ARCANE_TOWER_T3 = ResourceCostConfigEntry.Research(0,2200,1800,0, 120, ResourceCosts.ARCANE_TOWER_T3, "Arcane Tower Tier 3 Config");
         public static final ResourceCostConfigEntry BLACKSMITH_T2 = ResourceCostConfigEntry.Research(0,1200,900,0, 120, ResourceCosts.BLACKSMITH_T2, "Blacksmith Tier 2 Config");
         public static final ResourceCostConfigEntry BLACKSMITH_T3 = ResourceCostConfigEntry.Research(0,2200,1800,0, 120, ResourceCosts.BLACKSMITH_T3, "Blacksmith Tier 3 Config");
-        public static final ResourceCostConfigEntry RESEARCH_SILVERFISH = ResourceCostConfigEntry.Research(0,300,300,0, 120, ResourceCosts.RESEARCH_SILVERFISH, "Silverfish Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_SCULK_AMPLIFIERS = ResourceCostConfigEntry.Research(0,200,400,0, 150, ResourceCosts.RESEARCH_SCULK_AMPLIFIERS, "Sculk Amplifier Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_RAVAGER_ARTILLERY = ResourceCostConfigEntry.Research(400,0,350,0, 140, ResourceCosts.RESEARCH_RAVAGER_ARTILLERY, "Ravager Artillery Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_BRUTE_SHIELDS = ResourceCostConfigEntry.Research(0,300,300,0, 150, ResourceCosts.RESEARCH_BRUTE_SHIELDS, "Brute Shields Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_HOGLIN_CAVALRY = ResourceCostConfigEntry.Research(350,300,0,0, 120, ResourceCosts.RESEARCH_HOGLIN_CAVALRY, "Hoglin Cavalry Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_HEAVY_TRIDENTS = ResourceCostConfigEntry.Research(0, 300, 300,0, 150, ResourceCosts.RESEARCH_HEAVY_TRIDENTS, "Heavy Tridents Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_CLEAVING_FLAILS = ResourceCostConfigEntry.Research(0, 350, 350,0, 160, ResourceCosts.RESEARCH_CLEAVING_FLAILS, "Cleaving Flails Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_BLAZE_FIRE_WALL = ResourceCostConfigEntry.Research(400, 0, 300,0, 150, ResourceCosts.RESEARCH_BLAZE_FIRE_WALL, "Blaze Fire Wall Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_FIRE_RESISTANCE = ResourceCostConfigEntry.Research(0, 200, 200,0, 100, ResourceCosts.RESEARCH_FIRE_RESISTANCE, "Fire Resistance Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_WITHER_CLOUDS = ResourceCostConfigEntry.Research(250, 0, 350,0, 150, ResourceCosts.RESEARCH_WITHER_CLOUDS, "Wither Clouds Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_BLOODLUST = ResourceCostConfigEntry.Research(250, 250, 250,0, 150, ResourceCosts.RESEARCH_BLOODLUST, "Bloodlust Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_ADVANCED_PORTALS = ResourceCostConfigEntry.Research(0, 300, 300,0, 150, ResourceCosts.RESEARCH_ADVANCED_PORTALS, "Advanced Portals Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_CIVILIAN_PORTAL = ResourceCostConfigEntry.Research(0, 75, 0,0, 20, ResourceCosts.RESEARCH_CIVILIAN_PORTAL, "Civilian Portal Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_MILITARY_PORTAL = ResourceCostConfigEntry.Research(0, 100, 0,0, 25, ResourceCosts.RESEARCH_MILITARY_PORTAL, "Military Portal Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_TRANSPORT_PORTAL = ResourceCostConfigEntry.Research(0, 175, 0,0, 30, ResourceCosts.RESEARCH_TRANSPORT_PORTAL, "Transport Portal Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_CUBE_MAGMA = ResourceCostConfigEntry.Research(300, 0, 300,0, 140, ResourceCosts.RESEARCH_CUBE_MAGMA, "Cube Magma Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_SOUL_FIREBALLS = ResourceCostConfigEntry.Research(0, 250, 250,0, 120, ResourceCosts.RESEARCH_SOUL_FIREBALLS, "Soul Fireballs Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_SILVERFISH = ResourceCostConfigEntry.Research(0,0,0,0, 0, ResourceCosts.RESEARCH_SILVERFISH, "Silverfish Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_SCULK_AMPLIFIERS = ResourceCostConfigEntry.Research(0,0,0,0, 0, ResourceCosts.RESEARCH_SCULK_AMPLIFIERS, "Sculk Amplifier Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_RAVAGER_ARTILLERY = ResourceCostConfigEntry.Research(0,0,0,350, 0, ResourceCosts.RESEARCH_RAVAGER_ARTILLERY, "Ravager Artillery Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_BRUTE_SHIELDS = ResourceCostConfigEntry.Research(0,0,0,0, 0, ResourceCosts.RESEARCH_BRUTE_SHIELDS, "Brute Shields Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_HOGLIN_CAVALRY = ResourceCostConfigEntry.Research(0,0,0,0, 0, ResourceCosts.RESEARCH_HOGLIN_CAVALRY, "Hoglin Cavalry Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_HEAVY_TRIDENTS = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_HEAVY_TRIDENTS, "Heavy Tridents Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_CLEAVING_FLAILS = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_CLEAVING_FLAILS, "Cleaving Flails Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_BLAZE_FIRE_WALL = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_BLAZE_FIRE_WALL, "Blaze Fire Wall Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_FIRE_RESISTANCE = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_FIRE_RESISTANCE, "Fire Resistance Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_WITHER_CLOUDS = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_WITHER_CLOUDS, "Wither Clouds Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_BLOODLUST = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_BLOODLUST, "Bloodlust Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_ADVANCED_PORTALS = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_ADVANCED_PORTALS, "Advanced Portals Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_CIVILIAN_PORTAL = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_CIVILIAN_PORTAL, "Civilian Portal Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_MILITARY_PORTAL = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_MILITARY_PORTAL, "Military Portal Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_TRANSPORT_PORTAL = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_TRANSPORT_PORTAL, "Transport Portal Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_CUBE_MAGMA = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_CUBE_MAGMA, "Cube Magma Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_SOUL_FIREBALLS = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_SOUL_FIREBALLS, "Soul Fireballs Research Config");
 
-        public static final ResourceCostConfigEntry RESEARCH_BEACON_LEVEL1 = ResourceCostConfigEntry.Research(0, 0, 1000,0, 60, ResourceCosts.RESEARCH_BEACON_LEVEL1, "Beacon Level 1 Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_BEACON_LEVEL2 = ResourceCostConfigEntry.Research(0, 0, 1000,0, 60, ResourceCosts.RESEARCH_BEACON_LEVEL2, "Beacon Level 2 Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_BEACON_LEVEL3 = ResourceCostConfigEntry.Research(0, 0, 1000,0, 60, ResourceCosts.RESEARCH_BEACON_LEVEL3, "Beacon Level 3 Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_BEACON_LEVEL4 = ResourceCostConfigEntry.Research(0, 0, 1000,0, 60, ResourceCosts.RESEARCH_BEACON_LEVEL4, "Beacon Level 4 Research Config");
-        public static final ResourceCostConfigEntry RESEARCH_BEACON_LEVEL5 = ResourceCostConfigEntry.Research(0, 0, 1500,0, 60, ResourceCosts.RESEARCH_BEACON_LEVEL5, "Beacon Level 5 Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_BEACON_LEVEL1 = ResourceCostConfigEntry.Research(0, 0, 1000,0, 0, ResourceCosts.RESEARCH_BEACON_LEVEL1, "Beacon Level 1 Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_BEACON_LEVEL2 = ResourceCostConfigEntry.Research(0, 0, 1000,0, 0, ResourceCosts.RESEARCH_BEACON_LEVEL2, "Beacon Level 2 Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_BEACON_LEVEL3 = ResourceCostConfigEntry.Research(0, 0, 1000,0, 0, ResourceCosts.RESEARCH_BEACON_LEVEL3, "Beacon Level 3 Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_BEACON_LEVEL4 = ResourceCostConfigEntry.Research(0, 0, 1000,0, 0, ResourceCosts.RESEARCH_BEACON_LEVEL4, "Beacon Level 4 Research Config");
+        public static final ResourceCostConfigEntry RESEARCH_BEACON_LEVEL5 = ResourceCostConfigEntry.Research(0, 0, 1500,0, 0, ResourceCosts.RESEARCH_BEACON_LEVEL5, "Beacon Level 5 Research Config");
 
         public static final ResourceCostConfigEntry TOGGLE_VILLAGER_GATE = ResourceCostConfigEntry.Research(0, 0, 0,0, 1, ResourceCosts.TOGGLE_VILLAGER_GATE, "Gate close/open Config");
-        public static final ResourceCostConfigEntry DRILL_T2 = ResourceCostConfigEntry.Research(0, 900, 800,0, 120, ResourceCosts.DRILL_T2, "Drill Tier 2 Config");
-        public static final ResourceCostConfigEntry DRILL_T3 = ResourceCostConfigEntry.Research(0, 1800, 1600,0, 120, ResourceCosts.DRILL_T3, "Drill Tier 3 Config");
-        public static final ResourceCostConfigEntry DRILL_T4 = ResourceCostConfigEntry.Research(0, 2700, 2400,0, 120, ResourceCosts.DRILL_T4, "Drill Tier 4 Config");
-        public static final ResourceCostConfigEntry DRILL_T5 = ResourceCostConfigEntry.Research(0, 3600, 3200,0, 120, ResourceCosts.DRILL_T5, "Drill Tier 5 Config");
-        public static final ResourceCostConfigEntry DRILL_T6 = ResourceCostConfigEntry.Research(0, 4500, 4000,0, 120, ResourceCosts.DRILL_T6, "Drill Tier 6 Config");
+        public static final ResourceCostConfigEntry DRILL_T2 = ResourceCostConfigEntry.Research(0, 900, 800,0, 80, ResourceCosts.DRILL_T2, "Drill Tier 2 Config");
+        public static final ResourceCostConfigEntry DRILL_T3 = ResourceCostConfigEntry.Research(0, 900, 800,0, 80, ResourceCosts.DRILL_T3, "Drill Tier 3 Config");
+        public static final ResourceCostConfigEntry DRILL_T4 = ResourceCostConfigEntry.Research(0, 900, 800,0, 80, ResourceCosts.DRILL_T4, "Drill Tier 4 Config");
+        public static final ResourceCostConfigEntry DRILL_T5 = ResourceCostConfigEntry.Research(0, 1200, 1000,0, 120, ResourceCosts.DRILL_T5, "Drill Tier 5 Config");
+        public static final ResourceCostConfigEntry DRILL_T6 = ResourceCostConfigEntry.Research(0, 1200, 1000,0, 120, ResourceCosts.DRILL_T6, "Drill Tier 6 Config");
         public static final ResourceCostConfigEntry BARRACKS_T2 = ResourceCostConfigEntry.Research(0, 1200, 900,0, 120, ResourceCosts.BARRACKS_T2, "Barracks Tier 2 Config");
         public static final ResourceCostConfigEntry BARRACKS_T3 = ResourceCostConfigEntry.Research(0, 2200, 1800,0, 120, ResourceCosts.BARRACKS_T3, "Barracks Tier 3 Config");
-        public static final ResourceCostConfigEntry RESEARCH_CASTLE = ResourceCostConfigEntry.Research(0, 3000, 2000,0, 120, ResourceCosts.RESEARCH_CASTLE, "Research Castle Config");
-        public static final ResourceCostConfigEntry RESEARCH_BLACKSMITH = ResourceCostConfigEntry.Research(0, 5000, 7500,0, 120, ResourceCosts.RESEARCH_BLACKSMITH, "Research Blacksmith Config");
-        public static final ResourceCostConfigEntry RESEARCH_FIRE_WALLS = ResourceCostConfigEntry.Research(0, 4500, 1200,0, 120, ResourceCosts.RESEARCH_FIRE_WALLS, "Research Fire Walls Config");
-        public static final ResourceCostConfigEntry RESEARCH_FIRE_WALLS2 = ResourceCostConfigEntry.Research(0, 10000, 7500,0, 120, ResourceCosts.RESEARCH_FIRE_WALLS2, "Research Fire Walls 2 Config");
-        public static final ResourceCostConfigEntry RESEARCH_TOWER_DAMAGE1 = ResourceCostConfigEntry.Research(0, 3500, 2400,0, 120, ResourceCosts.RESEARCH_TOWER_DAMAGE1, "Research Tower Damage 1 Config");
-        public static final ResourceCostConfigEntry RESEARCH_TOWER_DAMAGE2 = ResourceCostConfigEntry.Research(0, 6000, 7000,0, 120, ResourceCosts.RESEARCH_TOWER_DAMAGE2, "Research Tower Damage 2 Config");
-        public static final ResourceCostConfigEntry RESEARCH_BEACON = ResourceCostConfigEntry.Research(0, 5000, 5000,0, 120, ResourceCosts.RESEARCH_BEACON, "Research Beacon Config");
-        public static final ResourceCostConfigEntry RESEARCH_TRADER = ResourceCostConfigEntry.Research(0, 1500, 1000,0, 120, ResourceCosts.RESEARCH_TRADER, "Research Trader Config");
-        public static final ResourceCostConfigEntry RESEARCH_MARKETPLACE = ResourceCostConfigEntry.Research(0, 5000, 3000,0, 120, ResourceCosts.RESEARCH_MARKETPLACE, "Research Marketplace Config");
-        public static final ResourceCostConfigEntry RESEARCH_UPGRADED_BARRACKS = ResourceCostConfigEntry.Research(0, 5000, 3000,0, 120, ResourceCosts.RESEARCH_UPGRADED_BARRACKS, "Research Upgraded Barracks Config");
-        public static final ResourceCostConfigEntry RESEARCH_UPGRADED_DRILL = ResourceCostConfigEntry.Research(0, 5000, 3000,0, 120, ResourceCosts.RESEARCH_UPGRADED_DRILL, "Research Upgraded Drill Config");
-        public static final ResourceCostConfigEntry RESEARCH_ADVANCED_DRILL = ResourceCostConfigEntry.Research(0, 10000, 7000,0, 120, ResourceCosts.RESEARCH_ADVANCED_DRILL, "Research Advanced Drill Config");
-        public static final ResourceCostConfigEntry RESEARCH_ADVANCED_BLACKSMITH = ResourceCostConfigEntry.Research(0, 5000, 3000,0, 120, ResourceCosts.RESEARCH_ADVANCED_BLACKSMITH, "Research Advanced Blacksmith Config");
-        public static final ResourceCostConfigEntry RESEARCH_BIG_HOUSE = ResourceCostConfigEntry.Research(0, 3000, 2000,50, 100, ResourceCosts.RESEARCH_BIG_HOUSE, "Research Big House Config");
-        public static final ResourceCostConfigEntry RESEARCH_POWERFUL_ARCANE_TOWER = ResourceCostConfigEntry.Research(0, 5000, 6000,0, 120, ResourceCosts.RESEARCH_POWERFUL_ARCANE_TOWER, "Research Powerful Arcane Tower Config");
+        public static final ResourceCostConfigEntry RESEARCH_CASTLE = ResourceCostConfigEntry.Research(0, 0, 0,500, 0, ResourceCosts.RESEARCH_CASTLE, "Research Castle Config");
+        public static final ResourceCostConfigEntry RESEARCH_BLACKSMITH = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_BLACKSMITH, "Research Blacksmith Config");
+        public static final ResourceCostConfigEntry RESEARCH_FIRE_WALLS = ResourceCostConfigEntry.Research(0, 0, 0,450, 0, ResourceCosts.RESEARCH_FIRE_WALLS, "Research Fire Walls Config");
+        public static final ResourceCostConfigEntry RESEARCH_FIRE_WALLS2 = ResourceCostConfigEntry.Research(0, 0, 0,550, 0, ResourceCosts.RESEARCH_FIRE_WALLS2, "Research Fire Walls 2 Config");
+        public static final ResourceCostConfigEntry RESEARCH_TOWER_DAMAGE1 = ResourceCostConfigEntry.Research(0, 0, 0,300, 0, ResourceCosts.RESEARCH_TOWER_DAMAGE1, "Research Tower Damage 1 Config");
+        public static final ResourceCostConfigEntry RESEARCH_TOWER_DAMAGE2 = ResourceCostConfigEntry.Research(0, 0, 0,400, 0, ResourceCosts.RESEARCH_TOWER_DAMAGE2, "Research Tower Damage 2 Config");
+        public static final ResourceCostConfigEntry RESEARCH_BEACON = ResourceCostConfigEntry.Research(0, 0, 0,0, 0, ResourceCosts.RESEARCH_BEACON, "Research Beacon Config");
+        public static final ResourceCostConfigEntry RESEARCH_TRADER = ResourceCostConfigEntry.Research(0, 0, 0,150, 0, ResourceCosts.RESEARCH_TRADER, "Research Trader Config");
+        public static final ResourceCostConfigEntry RESEARCH_MARKETPLACE = ResourceCostConfigEntry.Research(0, 0, 0,200, 0, ResourceCosts.RESEARCH_MARKETPLACE, "Research Marketplace Config");
+        public static final ResourceCostConfigEntry RESEARCH_PROFESSIONS = ResourceCostConfigEntry.Research(0, 0, 0,300, 0, ResourceCosts.RESEARCH_PROFESSIONS, "Research Professions Config");
+        public static final ResourceCostConfigEntry RESEARCH_UPGRADED_BARRACKS = ResourceCostConfigEntry.Research(0, 0, 0,500, 0, ResourceCosts.RESEARCH_UPGRADED_BARRACKS, "Research Upgraded Barracks Config");
+        public static final ResourceCostConfigEntry RESEARCH_UPGRADED_DRILL = ResourceCostConfigEntry.Research(0, 0, 0,400, 0, ResourceCosts.RESEARCH_UPGRADED_DRILL, "Research Upgraded Drill Config");
+        public static final ResourceCostConfigEntry RESEARCH_ADVANCED_DRILL = ResourceCostConfigEntry.Research(0, 0, 0,400, 0, ResourceCosts.RESEARCH_ADVANCED_DRILL, "Research Advanced Drill Config");
+        public static final ResourceCostConfigEntry RESEARCH_ADVANCED_BLACKSMITH = ResourceCostConfigEntry.Research(0, 0, 0,650, 0, ResourceCosts.RESEARCH_ADVANCED_BLACKSMITH, "Research Advanced Blacksmith Config");
+        public static final ResourceCostConfigEntry RESEARCH_BIG_HOUSE = ResourceCostConfigEntry.Research(0, 0, 0,450, 0, ResourceCosts.RESEARCH_BIG_HOUSE, "Research Big House Config");
+        public static final ResourceCostConfigEntry RESEARCH_POWERFUL_ARCANE_TOWER = ResourceCostConfigEntry.Research(0, 0, 0,500, 0, ResourceCosts.RESEARCH_POWERFUL_ARCANE_TOWER, "Research Powerful Arcane Tower Config");
         public static final ResourceCostConfigEntry RESEARCH_TOWN_CENTRE_T2 = ResourceCostConfigEntry.Research(0, 1000, 2000,0, 120, ResourceCosts.RESEARCH_TOWN_CENTRE_T2, "Research Tower Centre t2 Config");
+        public static final ResourceCostConfigEntry RESEARCH_ELITE_TRADER = ResourceCostConfigEntry.Research(0, 0, 0,450, 0, ResourceCosts.RESEARCH_ELITE_TRADER, "Research Elite Trader Config");
+        public static final ResourceCostConfigEntry RESEARCH_ELITE_TRAINING = ResourceCostConfigEntry.Research(0, 0, 0,600, 0, ResourceCosts.RESEARCH_ELITE_TRAINING, "Research Elite Training Config");
 
     }
     public static class AbilityCosts implements Costs {
@@ -548,9 +516,18 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry EQUIP_BOW = ResourceCostConfigEntry.Ability(0,300, 200,0, ResourceCosts.EQUIP_BOW, "Bow Config");
         public static final ResourceCostConfigEntry EQUIP_ARROWS = ResourceCostConfigEntry.Ability(0,100, 50,0, ResourceCosts.EQUIP_ARROWS, "Arrows Config");
         public static final ResourceCostConfigEntry EQUIP_RAVAGER_ARMOR = ResourceCostConfigEntry.Ability(0,0, 3000,0, ResourceCosts.EQUIP_RAVAGER_ARMOR, "Equip Ravager Armor Config");
-        public static final ResourceCostConfigEntry BECOME_TRADER = ResourceCostConfigEntry.Ability(400,1300, 800,0, ResourceCosts.BECOME_TRADER, "Become Trader Config");
+        public static final ResourceCostConfigEntry BECOME_TRADER = ResourceCostConfigEntry.Ability(200,500, 300,0, ResourceCosts.BECOME_TRADER, "Become Trader Config");
+        public static final ResourceCostConfigEntry BECOME_FARMER = ResourceCostConfigEntry.Ability(200,50, 0,50, ResourceCosts.BECOME_FARMER, "Become Farmer Config");
+        public static final ResourceCostConfigEntry BECOME_LUMBERJACK = ResourceCostConfigEntry.Ability(100,250, 100,50, ResourceCosts.BECOME_LUMBERJACK, "Become Lumberjack Config");
+        public static final ResourceCostConfigEntry BECOME_MINER = ResourceCostConfigEntry.Ability(100,100, 250, 50, ResourceCosts.BECOME_MINER, "Become Miner Config");
+        public static final ResourceCostConfigEntry BECOME_MASON = ResourceCostConfigEntry.Ability(100,200, 150,50, ResourceCosts.BECOME_MASON, "Become Mason Config");
+        public static final ResourceCostConfigEntry BECOME_HUNTER = ResourceCostConfigEntry.Ability(50,0, 0,0, ResourceCosts.BECOME_HUNTER, "Become Hunter Config");
         public static final ResourceCostConfigEntry BERSERK = ResourceCostConfigEntry.Ability(1000,0, 0,0, ResourceCosts.BERSERK, "Elite Vindicator Berserk Config");
+        public static final ResourceCostConfigEntry UPGRADE_TRADER_TO_ELITE = ResourceCostConfigEntry.Ability(250, 400, 300, 50, ResourceCosts.UPGRADE_TRADER_TO_ELITE, "Upgrade Trader to Elite Config");
+        public static final ResourceCostConfigEntry UPGRADE_ARCHER_TO_ELITE = ResourceCostConfigEntry.Ability(400, 500, 400, 100, ResourceCosts.UPGRADE_ARCHER_TO_ELITE, "Upgrade Archer to Elite Config");
+        public static final ResourceCostConfigEntry UPGRADE_ARMORED_VINDICATOR_TO_ELITE = ResourceCostConfigEntry.Ability(500, 1000, 600, 200, ResourceCosts.UPGRADE_ARMORED_VINDICATOR_TO_ELITE, "Upgrade Armored Vindicator to Elite Config");
+        public static final ResourceCostConfigEntry UPGRADE_ARMORED_PILLAGER_TO_ELITE = ResourceCostConfigEntry.Ability(500, 1000, 500, 200, ResourceCosts.UPGRADE_ARMORED_PILLAGER_TO_ELITE, "Upgrade Armored Pillager to Elite Config");
 
-    }
+        }
     public interface Costs {}
 }

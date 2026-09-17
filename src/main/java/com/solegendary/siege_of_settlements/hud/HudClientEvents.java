@@ -62,6 +62,7 @@ import com.solegendary.siege_of_settlements.unit.units.villagers.RavagerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.VillagerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.VillagerUnitProfession;
 import com.solegendary.siege_of_settlements.util.MiscUtil;
+import com.solegendary.siege_of_settlements.util.MyMath;
 import com.solegendary.siege_of_settlements.util.MyRenderer;
 import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeTrader;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.AuromancerUnit;
@@ -162,12 +163,14 @@ public class HudClientEvents {
     private static final List<List<String>> VILLAGER_BUILD_PAGE_KEYS = List.of(
             List.of("town_centre", "villager_house", "oak_stockpile", "research_centre", "oak_bridge", "stable"),
             List.of("watchtower", "villager_gate_closed", "villager_wall", "villager_corner_wall"),
-            List.of("arcane_tower", "barracks", "castle", "iron_golem_building", "library", "shrine_of_prosperity", "marketplace"),
+            List.of("arcane_tower", "barracks", "castle", "iron_golem_building", "library", "marketplace"),
             List.of("wheat_farm", "blacksmith", "villager_drill")
     );
 
     private static int villagerBuildPage = 0;
     private static int villagerBuildLayoutUnitId = -1;
+    private static int villagerProfessionPage = 0;
+    private static int villagerProfessionLayoutUnitId = -1;
     private static final EnumMap<SandboxMenuType, Integer> sandboxMenuPages = new EnumMap<>(SandboxMenuType.class);
 
     public static final ArrayList<ControlGroup> controlGroups = new ArrayList<>(10);
@@ -352,12 +355,13 @@ public class HudClientEvents {
             if (!ownerName.equals(unit.getOwnerName()) || !entity.isAlive() || entity.isRemoved()) {
                 continue;
             }
-            if (entity instanceof EliteArcherUnit
+            // Add other mercenary units here if needed, but Elite Archer, Archer, and Auromancer are now excluded
+            /*if (entity instanceof EliteArcherUnit
                     || entity instanceof ArcherUnit
                     || entity instanceof EliteVindicatorUnit
                     || entity instanceof AuromancerUnit) {
                 count += 1;
-            }
+            }*/
         }
         return count;
     }
@@ -685,6 +689,7 @@ public class HudClientEvents {
 
                     List<AbilityButton> buildingAbilities = hudSelectedPlacement.getAbilityButtons()
                             .stream()
+                            .filter(Objects::nonNull)
                             .filter(b -> !b.isHidden.get())
                             .toList();
                     int abilityRows = 0;
@@ -697,6 +702,7 @@ public class HudClientEvents {
                     // production buttons on bottom row
                     if (hudSelectedPlacement instanceof ProductionPlacement selProdPlacement) {
                         List<Button> visibleProdButtons = selProdPlacement.productionButtons.stream()
+                                .filter(Objects::nonNull)
                                 .filter(b -> !b.isHidden.get())
                                 .toList();
                         ArrayList<Button> upgradeProdButtons = new ArrayList<>();
@@ -998,8 +1004,8 @@ public class HudClientEvents {
         // Unit sandbox buttons
         // ---------------------------
         if (SandboxClientEvents.isSandboxPlayer() && (hudSelectedEntity != null || hudSelectedPlacement != null)) {
-            blitX = 0;
-            blitY = screenHeight - iconFrameSize;
+            blitX = portraitRendererUnit.frameWidth + portraitRendererUnit.statsWidth + portraitRendererUnit.statsWidth + (int) (iconFrameSize * 4.5);
+            blitY = screenHeight - iconFrameSize + iconFrameSize;
 
             blitY -= iconFrameSize * buildingProdRows;
             if (hudSelectedEntity != null || !hudSelectedPlacement.getAbilities().isEmpty() || !hudSelectedPlacement.isBuilt) {
@@ -1042,7 +1048,7 @@ public class HudClientEvents {
 
             ArrayList<Button> actionButtons = new ArrayList<>();
 
-            if (hudSelectedEntity instanceof AttackerUnit) {
+            if (hudSelectedEntity instanceof AttackerUnit && !(hudSelectedEntity instanceof com.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit)) {
                 actionButtons.add(ActionButtons.attack);
             }
             if (hudSelectedEntity instanceof WorkerUnit) {
@@ -1117,17 +1123,25 @@ public class HudClientEvents {
                         b instanceof AbilityButton ab && ab.ability instanceof VillagerBecomeTrader
                 );
 
-                boolean villagerPagedBuildLayout = hudSelectedEntity instanceof VillagerUnit villagerUnit &&
-                        villagerUnit.getUnitProfession() == VillagerUnitProfession.NONE &&
+                boolean villagerPagedBuildLayout = hudSelectedEntity instanceof VillagerUnit &&
                         hasVillagerTraderAbility;
 
                 if (villagerPagedBuildLayout) {
                     ArrayList<BuildingPlaceButton> buildingAbilityButtons = new ArrayList<>();
+                    ArrayList<AbilityButton> professionButtons = new ArrayList<>();
                     ArrayList<Button> lowerAbilityButtons = new ArrayList<>();
 
                     for (Button button : unitAbilities) {
                         if (button instanceof BuildingPlaceButton buildingPlaceButton) {
                             buildingAbilityButtons.add(buildingPlaceButton);
+                        } else if (button instanceof AbilityButton ab && ab.ability != null) {
+                            String className = ab.ability.getClass().getName();
+                            boolean isProfession = className.contains("VillagerBecome");
+                            if (isProfession && !ab.isHidden.get()) {
+                                professionButtons.add(ab);
+                            } else {
+                                lowerAbilityButtons.add(button);
+                            }
                         } else {
                             lowerAbilityButtons.add(button);
                         }
@@ -1136,6 +1150,7 @@ public class HudClientEvents {
                     if (villagerBuildLayoutUnitId != hudSelectedEntity.getId()) {
                         villagerBuildLayoutUnitId = hudSelectedEntity.getId();
                         villagerBuildPage = 0;
+                        villagerProfessionPage = 0;
                     }
                     villagerBuildPage = Math.floorMod(villagerBuildPage, VILLAGER_BUILD_PAGE_COUNT);
 
@@ -1145,11 +1160,17 @@ public class HudClientEvents {
                                     .toList();
                     applyPagedHotkeys(currentPageButtons);
 
+                    // Пагинация профессий
+                    List<ProfessionPageManager.GuiSlot<AbilityButton>> professionSlots =
+                            ProfessionPageManager.getSlotsForPage(professionButtons, villagerProfessionPage);
+
                     int villagerRowsPerPage = getSandboxRowsPerPage(currentPageButtons.size());
                     int rowsUp = Math.max(0, villagerRowsPerPage - 1);
-                    if (!lowerAbilityButtons.isEmpty()) {
-                        rowsUp += 1; // reserve one row below buildings for non-building villager abilities
-                    }
+                    int lowerButtonCount = professionSlots.size() + (int) lowerAbilityButtons.stream()
+                            .filter(button -> !button.isHidden.get())
+                            .count();
+                    int lowerRows = Math.max(1, (int) Math.ceil((float) lowerButtonCount / MAX_BUTTONS_PER_ROW));
+                    rowsUp += lowerRows; // keep the lower menu row reserved, including before professions unlock
                     if (SandboxClientEvents.isSandboxPlayer() && (hudSelectedEntity != null || hudSelectedPlacement != null)) {
                         rowsUp += 1;
                     }
@@ -1212,6 +1233,7 @@ public class HudClientEvents {
                             0xFFFFFF
                     );
 
+                    // Рендер зданий
                     int buildingX = 0;
                     int buildingY = headerY + iconFrameSize;
                     int renderedBuildingCount = 0;
@@ -1226,9 +1248,83 @@ public class HudClientEvents {
                         }
                     }
 
+                    // Рендер профессий в нижней строке (где раньше были lowerAbilityButtons)
                     int lowerX = 0;
                     int lowerY = screenHeight - (iconFrameSize * 2);
                     int lowerCount = 0;
+                    
+                    if (!professionButtons.isEmpty()) {
+                        for (ProfessionPageManager.GuiSlot<AbilityButton> slot : professionSlots) {
+                            try {
+                                switch (slot.getType()) {
+                                    case PROFESSION -> {
+                                        AbilityButton button = slot.getProfession();
+                                        button.render(evt.getGuiGraphics(), lowerX, lowerY, mouseX, mouseY);
+                                        renderedButtons.add(button);
+                                        lowerX += iconFrameSize;
+                                        lowerCount += 1;
+                                        if (lowerCount % MAX_BUTTONS_PER_ROW == 0) {
+                                            lowerX = 0;
+                                            lowerY += iconFrameSize;
+                                        }
+                                    }
+                                    case BACK -> {
+                                        Button backButton = new Button(
+                                                "villager_profession_page_prev",
+                                                Button.itemIconSize,
+                                                null,
+                                                (Keybinding) null,
+                                                () -> false,
+                                                () -> false,
+                                                () -> true,
+                                                () -> { if (villagerProfessionPage > 0) villagerProfessionPage--; },
+                                                null,
+                                                List.of(fcs(I18n.get("hud.siege_of_settlements.villager_build_page.prev")))
+                                        );
+                                        backButton.frameResource = null;
+                                        backButton.render(evt.getGuiGraphics(), lowerX, lowerY, mouseX, mouseY);
+                                        renderedButtons.add(backButton);
+                                        renderVillagerBuildPageTriangle(evt.getGuiGraphics(), lowerX, lowerY, true);
+                                        lowerX += iconFrameSize;
+                                        lowerCount += 1;
+                                        if (lowerCount % MAX_BUTTONS_PER_ROW == 0) {
+                                            lowerX = 0;
+                                            lowerY += iconFrameSize;
+                                        }
+                                    }
+                                    case NEXT -> {
+                                        Button nextButton = new Button(
+                                                "villager_profession_page_next",
+                                                Button.itemIconSize,
+                                                null,
+                                                (Keybinding) null,
+                                                () -> false,
+                                                () -> false,
+                                                () -> true,
+                                                () -> villagerProfessionPage++,
+                                                null,
+                                                List.of(fcs(I18n.get("hud.siege_of_settlements.villager_build_page.next")))
+                                        );
+                                        nextButton.frameResource = null;
+                                        nextButton.render(evt.getGuiGraphics(), lowerX, lowerY, mouseX, mouseY);
+                                        renderedButtons.add(nextButton);
+                                        renderVillagerBuildPageTriangle(evt.getGuiGraphics(), lowerX, lowerY, false);
+                                        lowerX += iconFrameSize;
+                                        lowerCount += 1;
+                                        if (lowerCount % MAX_BUTTONS_PER_ROW == 0) {
+                                            lowerX = 0;
+                                            lowerY += iconFrameSize;
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                System.err.println("[DEBUG UI] ERROR rendering profession slot: " + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    
+                    // Рендер остальных способностей (CallToArms и т.д.)
                     for (Button button : lowerAbilityButtons) {
                         if (!button.isHidden.get()) {
                             lowerCount += 1;
@@ -1302,6 +1398,7 @@ public class HudClientEvents {
 
             if (SandboxClientEvents.sandboxMenuType == SandboxMenuType.UNITS) {
                 actionButtons.add(SandboxClientEvents.getToggleUnitCheatsButton());
+                actionButtons.add(SandboxClientEvents.getToggleAllResearchButton());
             } else {
                 actionButtons.add(SandboxClientEvents.getToggleBuildingCheatsButton());
             }
@@ -2409,6 +2506,16 @@ public class HudClientEvents {
     private static String getMobheadBaseName(LivingEntity entity) {
         if (entity == null) {
             return "";
+        }
+
+        // Check for villager profession icons
+        if (entity instanceof VillagerUnit villagerUnit) {
+            VillagerUnitProfession profession = villagerUnit.getUnitProfession();
+            if (profession == VillagerUnitProfession.FARMER) return "farmer";
+            if (profession == VillagerUnitProfession.LUMBERJACK) return "lumberjack";
+            if (profession == VillagerUnitProfession.MINER) return "miner";
+            if (profession == VillagerUnitProfession.MASON) return "mason";
+            if (profession == VillagerUnitProfession.HUNTER) return "hunter";
         }
 
         if (entity instanceof MilitiaUnit militiaUnit && militiaUnit.isUsingBow()) {

@@ -175,6 +175,7 @@ public interface AttackerUnit {
                     unit.getTargetGoal().getTarget() == null &&
                     (unit.getMoveGoal().getMoveTarget() == null || unit.getHoldPosition()) &&
                     unit.getFollowTarget() == null &&
+                    !unit.isMounting() &&
                     !isCasting) {
 
                 Entity lastDSEntity = unitMob.getLastDamageSource().getEntity();
@@ -197,9 +198,18 @@ public interface AttackerUnit {
                     attackerUnit.setUnitAttackTarget((LivingEntity) lastDSEntity);
                 }
             }
-            // enact aggression when idle
-            if (unit.isIdle() && !isCasting && attackerUnit.getAggressiveWhenIdle())
-                attackerUnit.attackClosestEnemy((ServerLevel) unitMob.level());
+
+            GarrisonableBuilding garr = GarrisonableBuilding.getGarrison(unit);
+
+            // Garrisoned units always auto-aggro enemies in range (towers/castles).
+            // Otherwise only idle units with aggressiveWhenIdle enabled will seek targets.
+            if (!isCasting) {
+                if (garr != null) {
+                    attackerUnit.attackClosestEnemy((ServerLevel) unitMob.level());
+                } else if (unit.isIdle() && attackerUnit.getAggressiveWhenIdle()) {
+                    attackerUnit.attackClosestEnemy((ServerLevel) unitMob.level());
+                }
+            }
 
             // if attacking another unit as melee, retarget the closest unit periodically
             // unless targeting a building or targeting a specific unit

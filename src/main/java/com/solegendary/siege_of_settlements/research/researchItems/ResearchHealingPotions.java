@@ -40,12 +40,13 @@ public class ResearchHealingPotions extends ProductionItem {
 
     public StartProductionButton getStartButton(ProductionPlacement prodBuilding, Keybinding hotkey) {
         return new StartProductionButton(ResearchHealingPotions.itemName,
-            ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/items/splash_potion_healing.png"),
+            ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/research/research_healing_potion.png"),
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
             hotkey,
             () -> ProductionItems.RESEARCH_HEALING_POTIONS.itemIsBeingProduced(prodBuilding.ownerName)
                 || ResearchClient.hasResearch(ProductionItems.RESEARCH_HEALING_POTIONS),
-            () -> true,
+                () -> (ResearchClient.hasResearch(ProductionItems.RESEARCH_LINGERING_POTIONS)) ||
+                        ResearchClient.hasCheat("modifythephasevariance"),
             List.of(FormattedCharSequence.forward(I18n.get("research.siege_of_settlements.healing_potions"),
                     Style.EMPTY.withBold(true)
                 ),

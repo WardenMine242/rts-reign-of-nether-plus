@@ -45,7 +45,7 @@ public class ResearchFireWalls extends ProductionItem {
 
     public StartProductionButton getStartButton(ProductionPlacement prodBuilding, Keybinding hotkey) {
         return new StartProductionButton(ResearchFireWalls.itemName,
-                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/blocks/fire.png"),
+                ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/research/research_fire_walls.png"),
                 ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
                 hotkey,
                 () -> ProductionItems.RESEARCH_FIRE_WALLS.itemIsBeingProduced(prodBuilding.ownerName)

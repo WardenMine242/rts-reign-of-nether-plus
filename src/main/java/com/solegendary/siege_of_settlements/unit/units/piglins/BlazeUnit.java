@@ -33,6 +33,7 @@ import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -239,9 +240,10 @@ public class BlazeUnit extends Blaze implements Unit, AttackerUnit, RangedAttack
 
         LivingEntity target = this.getTarget();
         if (target != null) {
-            double x = target.getX() - this.getX();
-            double y = target.getY(0.5) - this.getY(0.5);
-            double z = target.getZ() - this.getZ();
+            Vec3 targetPos = getLeadingTargetPosition(target, 1.6f);
+            double x = targetPos.x - this.getX();
+            double y = targetPos.y + target.getBbHeight() * 0.5 - this.getY(0.5);
+            double z = targetPos.z - this.getZ();
             double distSqr = this.distanceToSqr(target);
             double dist = Math.sqrt(Math.sqrt(distSqr)) * 0.5;
             BlazeUnitFireball fireball = new BlazeUnitFireball(this.level(), this,

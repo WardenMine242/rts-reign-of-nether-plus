@@ -13,6 +13,9 @@ import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.units.monsters.SkeletonUnit;
 import com.solegendary.siege_of_settlements.unit.units.monsters.StrayUnit;
 import com.solegendary.siege_of_settlements.unit.units.piglins.HeadhunterUnit;
+import com.solegendary.siege_of_settlements.building.production.ProductionItems;
+import com.solegendary.siege_of_settlements.research.ResearchClient;
+import com.solegendary.siege_of_settlements.research.ResearchServerEvents;
 import com.solegendary.siege_of_settlements.unit.units.villagers.PillagerUnit;
 import com.solegendary.siege_of_settlements.unit.units.villagers.RavagerUnit;
 import net.minecraft.client.resources.language.I18n;
@@ -38,7 +41,7 @@ public class MountRavager extends Ability {
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/ravager.png"),
             hotkey,
             () -> CursorClientEvents.getLeftClickAction() == UnitAction.MOUNT_RAVAGER,
-            () -> entity.isPassenger(),
+            () -> entity.isPassenger() || !ResearchClient.hasResearch(ProductionItems.RESEARCH_RAVAGER_CAVALRY),
             () -> true,
             () -> CursorClientEvents.setLeftClickAction(UnitAction.MOUNT_RAVAGER),
             () -> UnitClientEvents.sendUnitCommand(UnitAction.MOUNT_RAVAGER),
@@ -67,9 +70,19 @@ public class MountRavager extends Ability {
         return null;
     }
 
+    private boolean canUse(Level level, Unit unitUsing) {
+        if (level.isClientSide()) {
+            return true;
+        }
+        return ResearchServerEvents.playerHasResearch(unitUsing.getOwnerName(), ProductionItems.RESEARCH_RAVAGER_CAVALRY);
+    }
+
     // right click
     @Override
     public void use(Level level, Unit unitUsing, BlockPos targetBp) {
+        if (!canUse(level, unitUsing)) {
+            return;
+        }
         MountGoal mountGoal = getMountGoal((Entity) unitUsing);
         if (mountGoal != null) {
             mountGoal.setTargetType(MountGoal.TargetType.RAVAGER);
@@ -79,6 +92,9 @@ public class MountRavager extends Ability {
 
     @Override
     public void use(Level level, Unit unitUsing, LivingEntity targetEntity) {
+        if (!canUse(level, unitUsing)) {
+            return;
+        }
         MountGoal mountGoal = getMountGoal((Entity) unitUsing);
         if (mountGoal != null && targetEntity instanceof RavagerUnit) {
             mountGoal.setTargetType(MountGoal.TargetType.RAVAGER);

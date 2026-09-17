@@ -1,7 +1,9 @@
 package com.solegendary.siege_of_settlements.research.researchItems;
 
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
+import com.solegendary.siege_of_settlements.building.BuildingClientEvents;
 import com.solegendary.siege_of_settlements.building.BuildingServerboundPacket;
+import com.solegendary.siege_of_settlements.building.Buildings;
 import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
 import com.solegendary.siege_of_settlements.building.production.ProdDupeRule;
 import com.solegendary.siege_of_settlements.building.production.ProductionItem;
@@ -44,12 +46,13 @@ public class ResearchLingeringPotions extends ProductionItem {
 
     public StartProductionButton getStartButton(ProductionPlacement prodBuilding, Keybinding hotkey) {
         return new StartProductionButton(ResearchLingeringPotions.itemName,
-            ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/items/lingering_potion_regeneration.png"),
+            ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/icons/research/research_lingering_potion.png"),
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/hud/icon_frame_bronze.png"),
             hotkey,
             () -> ProductionItems.RESEARCH_LINGERING_POTIONS.itemIsBeingProduced(prodBuilding.ownerName)
                 || ResearchClient.hasResearch(ProductionItems.RESEARCH_LINGERING_POTIONS),
-            () -> true,
+                () -> (ResearchClient.hasResearch(ProductionItems.RESEARCH_WATER_POTIONS)) ||
+                        ResearchClient.hasCheat("modifythephasevariance"),
             List.of(FormattedCharSequence.forward(I18n.get("research.siege_of_settlements.lingering_potions"),
                     Style.EMPTY.withBold(true)
                 ),

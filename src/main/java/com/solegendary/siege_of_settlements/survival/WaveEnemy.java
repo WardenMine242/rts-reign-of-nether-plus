@@ -14,6 +14,7 @@ import com.solegendary.siege_of_settlements.unit.interfaces.RangedAttackerUnit;
 import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.unit.interfaces.WorkerUnit;
 import com.solegendary.siege_of_settlements.unit.units.monsters.CreeperUnit;
+import com.WardenMine242.siege_of_settlements.unit.units.villagers.TraderUnit;
 import com.solegendary.siege_of_settlements.unit.units.monsters.SpiderUnit;
 import com.solegendary.siege_of_settlements.unit.units.monsters.WardenUnit;
 import com.solegendary.siege_of_settlements.unit.units.piglins.BruteUnit;
@@ -169,6 +170,9 @@ public class WaveEnemy {
 
     // done if the unit didn't change position in X ticks
     public void idleCommand() {
+        // Traders are not combat units - skip attack commands
+        if (unit instanceof TraderUnit)
+            return;
         if (unit instanceof CreeperUnit ||
             (unit instanceof AttackerUnit aUnit && aUnit.canAttackBuildings()))
             attackMoveNearestBuilding();
@@ -253,7 +257,8 @@ public class WaveEnemy {
             targetBp = nearestBuilding.getClosestGroundPos(((Entity) unit).getOnPos(), 1);
 
         if (targetBp != null) {
-            if (unit instanceof AttackerUnit)
+            // Traders are not combat units - treat as move action
+            if (unit instanceof AttackerUnit && !(unit instanceof TraderUnit))
                 UnitServerEvents.addActionItem(unit.getOwnerName(), UnitAction.ATTACK_MOVE, -1,
                         new int[]{entity.getId()},  targetBp, new BlockPos(0,0,0));
             else
@@ -281,7 +286,8 @@ public class WaveEnemy {
 
 
         if (targetBp != null) {
-            if (unit instanceof AttackerUnit)
+            // Traders are not combat units - treat as move action
+            if (unit instanceof AttackerUnit && !(unit instanceof TraderUnit))
                 UnitServerEvents.addActionItem(unit.getOwnerName(), UnitAction.ATTACK_MOVE, -1,
                         new int[]{((Entity) unit).getId()},  targetBp, new BlockPos(0,0,0));
             else

@@ -2,7 +2,6 @@ package com.WardenMine242.siege_of_settlements.research;
 
 
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
-import com.solegendary.siege_of_settlements.building.BuildingClientEvents;
 import com.solegendary.siege_of_settlements.building.Buildings;
 import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
 import com.solegendary.siege_of_settlements.building.production.ProdDupeRule;
@@ -50,7 +49,7 @@ public class ResearchMarketplace extends ProductionItem {
                 hotkey,
                 () -> ProductionItems.RESEARCH_MARKETPLACE.itemIsBeingProduced(prodBuilding.ownerName)
                         || ResearchClient.hasResearch(ProductionItems.RESEARCH_MARKETPLACE),
-                () -> BuildingClientEvents.hasFinishedBuilding(Buildings.TOWN_CENTRE) ||
+                () -> (com.solegendary.siege_of_settlements.building.BuildingClientEvents.hasFinishedBuilding(Buildings.TOWN_CENTRE)) ||
                         ResearchClient.hasCheat("modifythephasevariance"),
                 List.of(FormattedCharSequence.forward(I18n.get("research.siege_of_settlements.research_marketplace"),
                                 Style.EMPTY.withBold(true)),
