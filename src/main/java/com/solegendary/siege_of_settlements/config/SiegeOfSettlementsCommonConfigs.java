@@ -85,6 +85,9 @@ public class SiegeOfSettlementsCommonConfigs {
         BUILDER.comment("Armored Ravager stat configuration");
         ArmoredRavagerStats.define(BUILDER);
 
+        BUILDER.comment("Blacksmith production time configuration");
+        BlacksmithProductionTimes.define(BUILDER);
+
         //*Buildings*
         BUILDER.comment("Building Cost Configurations");
         BuildingCosts.BEACON.define(BUILDER);
@@ -205,6 +208,7 @@ public class SiegeOfSettlementsCommonConfigs {
         ResearchCosts.RESEARCH_TRADER.define(BUILDER);
         ResearchCosts.RESEARCH_MARKETPLACE.define(BUILDER);
         ResearchCosts.RESEARCH_PROFESSIONS.define(BUILDER);
+        ResearchCosts.RESEARCH_BLACKSMITHS.define(BUILDER);
         ResearchCosts.RESEARCH_ELITE_TRADER.define(BUILDER);
         ResearchCosts.RESEARCH_ELITE_TRAINING.define(BUILDER);
         ResearchCosts.RESEARCH_UPGRADED_BARRACKS.define(BUILDER);
@@ -361,6 +365,26 @@ public class SiegeOfSettlementsCommonConfigs {
         }
     }
 
+    public static class BlacksmithProductionTimes {
+        public static ForgeConfigSpec.IntValue TIME_1_BLACKSMITH;
+        public static ForgeConfigSpec.IntValue TIME_2_BLACKSMITHS;
+        public static ForgeConfigSpec.IntValue TIME_3_BLACKSMITHS;
+
+        public static void define(ForgeConfigSpec.Builder builder) {
+            builder.push("BlacksmithProductionTimes");
+            TIME_1_BLACKSMITH = builder
+                    .comment("Production time in seconds with 1 blacksmith.")
+                    .defineInRange("time_1_blacksmith", 60, 1, 3600);
+            TIME_2_BLACKSMITHS = builder
+                    .comment("Production time in seconds with 2 blacksmiths.")
+                    .defineInRange("time_2_blacksmiths", 40, 1, 3600);
+            TIME_3_BLACKSMITHS = builder
+                    .comment("Production time in seconds with 3 blacksmiths.")
+                    .defineInRange("time_3_blacksmiths", 20, 1, 3600);
+            builder.pop();
+        }
+    }
+
     public static class BuildingCosts implements Costs {
         public static final ResourceCostConfigEntry BEACON = ResourceCostConfigEntry.Building(0,4000,5000,0, 0, ResourceCosts.BEACON, "Beacon Config");
 
@@ -483,6 +507,7 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry RESEARCH_TRADER = ResourceCostConfigEntry.Research(0, 0, 0,150, 0, ResourceCosts.RESEARCH_TRADER, "Research Trader Config");
         public static final ResourceCostConfigEntry RESEARCH_MARKETPLACE = ResourceCostConfigEntry.Research(0, 0, 0,200, 0, ResourceCosts.RESEARCH_MARKETPLACE, "Research Marketplace Config");
         public static final ResourceCostConfigEntry RESEARCH_PROFESSIONS = ResourceCostConfigEntry.Research(0, 0, 0,300, 0, ResourceCosts.RESEARCH_PROFESSIONS, "Research Professions Config");
+        public static final ResourceCostConfigEntry RESEARCH_BLACKSMITHS = ResourceCostConfigEntry.Research(0, 0, 0,200, 0, ResourceCosts.RESEARCH_BLACKSMITHS, "Research Blacksmiths Config");
         public static final ResourceCostConfigEntry RESEARCH_UPGRADED_BARRACKS = ResourceCostConfigEntry.Research(0, 0, 0,500, 0, ResourceCosts.RESEARCH_UPGRADED_BARRACKS, "Research Upgraded Barracks Config");
         public static final ResourceCostConfigEntry RESEARCH_UPGRADED_DRILL = ResourceCostConfigEntry.Research(0, 0, 0,400, 0, ResourceCosts.RESEARCH_UPGRADED_DRILL, "Research Upgraded Drill Config");
         public static final ResourceCostConfigEntry RESEARCH_ADVANCED_DRILL = ResourceCostConfigEntry.Research(0, 0, 0,400, 0, ResourceCosts.RESEARCH_ADVANCED_DRILL, "Research Advanced Drill Config");
@@ -500,28 +525,29 @@ public class SiegeOfSettlementsCommonConfigs {
         public static final ResourceCostConfigEntry ENCHANT_SHARPNESS = ResourceCostConfigEntry.Ability(0,300, 400,0, ResourceCosts.ENCHANT_SHARPNESS, "Sharpness Enchantment Config");
         public static final ResourceCostConfigEntry ENCHANT_MULTISHOT = ResourceCostConfigEntry.Ability(0,375, 100,0, ResourceCosts.ENCHANT_MULTISHOT, "Multishot Enchantment Config");
         public static final ResourceCostConfigEntry ENCHANT_VIGOR = ResourceCostConfigEntry.Ability(0,50, 50,0, ResourceCosts.ENCHANT_VIGOR, "Vigor Enchantment Config");
-        public static final ResourceCostConfigEntry EQUIP_LEATHER_ARMOR = ResourceCostConfigEntry.Ability(0,0, 100,0, ResourceCosts.EQUIP_LEATHER_ARMOR, "Equip Leather Armor Config");
-        public static final ResourceCostConfigEntry EQUIP_CHAINMAIL_ARMOR = ResourceCostConfigEntry.Ability(0,0, 200,0, ResourceCosts.EQUIP_CHAINMAIL_ARMOR, "Equip Chainmail Armor Config");
-        public static final ResourceCostConfigEntry EQUIP_IRON_ARMOR = ResourceCostConfigEntry.Ability(0,0, 300,0, ResourceCosts.EQUIP_IRON_ARMOR, "Equip Iron Armor Config");
-        public static final ResourceCostConfigEntry EQUIP_IRON_SWORD = ResourceCostConfigEntry.Ability(0,15, 130,0, ResourceCosts.EQUIP_IRON_SWORD, "Equip Iron Sword Config");
-        public static final ResourceCostConfigEntry EQUIP_IRON_PICKAXE = ResourceCostConfigEntry.Ability(0,30, 195,0, ResourceCosts.EQUIP_IRON_PICKAXE, "Equip Iron Pickaxe Config");
-        public static final ResourceCostConfigEntry EQUIP_IRON_AXE = ResourceCostConfigEntry.Ability(0,30, 195,0, ResourceCosts.EQUIP_IRON_AXE, "Equip Iron Axe Config");
-        public static final ResourceCostConfigEntry EQUIP_IRON_HOE = ResourceCostConfigEntry.Ability(0,30, 130,0, ResourceCosts.EQUIP_IRON_HOE, "Equip Iron Hoe Config");
-        public static final ResourceCostConfigEntry EQUIP_DIAMOND_ARMOR = ResourceCostConfigEntry.Ability(0,0, 1000,0, ResourceCosts.EQUIP_DIAMOND_ARMOR, "Equip Diamond Armor Config");
-        public static final ResourceCostConfigEntry EQUIP_DIAMOND_SWORD = ResourceCostConfigEntry.Ability(0,15, 300,0, ResourceCosts.EQUIP_DIAMOND_SWORD, "Equip Diamond Sword Config");
-        public static final ResourceCostConfigEntry EQUIP_DIAMOND_PICKAXE = ResourceCostConfigEntry.Ability(0,30, 900,0, ResourceCosts.EQUIP_DIAMOND_PICKAXE, "Equip Diamond Pickaxe Config");
-        public static final ResourceCostConfigEntry EQUIP_DIAMOND_AXE = ResourceCostConfigEntry.Ability(0,30, 400,0, ResourceCosts.EQUIP_DIAMOND_AXE, "Equip Diamond Axe Config");
-        public static final ResourceCostConfigEntry EQUIP_DIAMOND_HOE = ResourceCostConfigEntry.Ability(0,30, 250,0, ResourceCosts.EQUIP_DIAMOND_HOE, "Equip Diamond Hoe Config");
+        public static final ResourceCostConfigEntry EQUIP_LEATHER_ARMOR = ResourceCostConfigEntry.Ability(0,0, 100,0,120, ResourceCosts.EQUIP_LEATHER_ARMOR, "Equip Leather Armor Config");
+        public static final ResourceCostConfigEntry EQUIP_CHAINMAIL_ARMOR = ResourceCostConfigEntry.Ability(0,0, 200,0,120, ResourceCosts.EQUIP_CHAINMAIL_ARMOR, "Equip Chainmail Armor Config");
+        public static final ResourceCostConfigEntry EQUIP_IRON_ARMOR = ResourceCostConfigEntry.Ability(0,0, 300,0,120, ResourceCosts.EQUIP_IRON_ARMOR, "Equip Iron Armor Config");
+        public static final ResourceCostConfigEntry EQUIP_IRON_SWORD = ResourceCostConfigEntry.Ability(0,15, 130,0,120, ResourceCosts.EQUIP_IRON_SWORD, "Equip Iron Sword Config");
+        public static final ResourceCostConfigEntry EQUIP_IRON_PICKAXE = ResourceCostConfigEntry.Ability(0,30, 195,0,120, ResourceCosts.EQUIP_IRON_PICKAXE, "Equip Iron Pickaxe Config");
+        public static final ResourceCostConfigEntry EQUIP_IRON_AXE = ResourceCostConfigEntry.Ability(0,30, 195,0,120, ResourceCosts.EQUIP_IRON_AXE, "Equip Iron Axe Config");
+        public static final ResourceCostConfigEntry EQUIP_IRON_HOE = ResourceCostConfigEntry.Ability(0,30, 130,0,120, ResourceCosts.EQUIP_IRON_HOE, "Equip Iron Hoe Config");
+        public static final ResourceCostConfigEntry EQUIP_DIAMOND_ARMOR = ResourceCostConfigEntry.Ability(0,0, 1000,0,120, ResourceCosts.EQUIP_DIAMOND_ARMOR, "Equip Diamond Armor Config");
+        public static final ResourceCostConfigEntry EQUIP_DIAMOND_SWORD = ResourceCostConfigEntry.Ability(0,15, 300,0,120, ResourceCosts.EQUIP_DIAMOND_SWORD, "Equip Diamond Sword Config");
+        public static final ResourceCostConfigEntry EQUIP_DIAMOND_PICKAXE = ResourceCostConfigEntry.Ability(0,30, 900,0,120, ResourceCosts.EQUIP_DIAMOND_PICKAXE, "Equip Diamond Pickaxe Config");
+        public static final ResourceCostConfigEntry EQUIP_DIAMOND_AXE = ResourceCostConfigEntry.Ability(0,30, 400,0,120, ResourceCosts.EQUIP_DIAMOND_AXE, "Equip Diamond Axe Config");
+        public static final ResourceCostConfigEntry EQUIP_DIAMOND_HOE = ResourceCostConfigEntry.Ability(0,30, 250,0,120, ResourceCosts.EQUIP_DIAMOND_HOE, "Equip Diamond Hoe Config");
         public static final ResourceCostConfigEntry STEAK = ResourceCostConfigEntry.Ability(200,0, 0,0, ResourceCosts.STEAK, "Steak Config");
-        public static final ResourceCostConfigEntry EQUIP_BOW = ResourceCostConfigEntry.Ability(0,300, 200,0, ResourceCosts.EQUIP_BOW, "Bow Config");
-        public static final ResourceCostConfigEntry EQUIP_ARROWS = ResourceCostConfigEntry.Ability(0,100, 50,0, ResourceCosts.EQUIP_ARROWS, "Arrows Config");
-        public static final ResourceCostConfigEntry EQUIP_RAVAGER_ARMOR = ResourceCostConfigEntry.Ability(0,0, 3000,0, ResourceCosts.EQUIP_RAVAGER_ARMOR, "Equip Ravager Armor Config");
+        public static final ResourceCostConfigEntry EQUIP_BOW = ResourceCostConfigEntry.Ability(0,300, 200,0,120, ResourceCosts.EQUIP_BOW, "Bow Config");
+        public static final ResourceCostConfigEntry EQUIP_ARROWS = ResourceCostConfigEntry.Ability(0,100, 50,0,120, ResourceCosts.EQUIP_ARROWS, "Arrows Config");
+        public static final ResourceCostConfigEntry EQUIP_RAVAGER_ARMOR = ResourceCostConfigEntry.Ability(0,0, 3000,0,120, ResourceCosts.EQUIP_RAVAGER_ARMOR, "Equip Ravager Armor Config");
         public static final ResourceCostConfigEntry BECOME_TRADER = ResourceCostConfigEntry.Ability(200,500, 300,0, ResourceCosts.BECOME_TRADER, "Become Trader Config");
         public static final ResourceCostConfigEntry BECOME_FARMER = ResourceCostConfigEntry.Ability(200,50, 0,50, ResourceCosts.BECOME_FARMER, "Become Farmer Config");
         public static final ResourceCostConfigEntry BECOME_LUMBERJACK = ResourceCostConfigEntry.Ability(100,250, 100,50, ResourceCosts.BECOME_LUMBERJACK, "Become Lumberjack Config");
         public static final ResourceCostConfigEntry BECOME_MINER = ResourceCostConfigEntry.Ability(100,100, 250, 50, ResourceCosts.BECOME_MINER, "Become Miner Config");
         public static final ResourceCostConfigEntry BECOME_MASON = ResourceCostConfigEntry.Ability(100,200, 150,50, ResourceCosts.BECOME_MASON, "Become Mason Config");
         public static final ResourceCostConfigEntry BECOME_HUNTER = ResourceCostConfigEntry.Ability(50,0, 0,0, ResourceCosts.BECOME_HUNTER, "Become Hunter Config");
+        public static final ResourceCostConfigEntry BECOME_BLACKSMITH = ResourceCostConfigEntry.Ability(250,100, 350,50, ResourceCosts.BECOME_BLACKSMITH, "Become Blacksmith Config");
         public static final ResourceCostConfigEntry BERSERK = ResourceCostConfigEntry.Ability(1000,0, 0,0, ResourceCosts.BERSERK, "Elite Vindicator Berserk Config");
         public static final ResourceCostConfigEntry UPGRADE_TRADER_TO_ELITE = ResourceCostConfigEntry.Ability(250, 400, 300, 50, ResourceCosts.UPGRADE_TRADER_TO_ELITE, "Upgrade Trader to Elite Config");
         public static final ResourceCostConfigEntry UPGRADE_ARCHER_TO_ELITE = ResourceCostConfigEntry.Ability(400, 500, 400, 100, ResourceCosts.UPGRADE_ARCHER_TO_ELITE, "Upgrade Archer to Elite Config");

@@ -22,6 +22,21 @@ import com.solegendary.siege_of_settlements.unit.units.neutral.*;
 import com.solegendary.siege_of_settlements.unit.units.piglins.*;
 import com.solegendary.siege_of_settlements.unit.units.villagers.*;
 import com.WardenMine242.siege_of_settlements.building.production.ToggleGateProduction;
+import com.WardenMine242.siege_of_settlements.building.production.IronChestplateProd;
+import com.WardenMine242.siege_of_settlements.building.production.DiamondChestplateProd;
+import com.WardenMine242.siege_of_settlements.building.production.IronSwordProd;
+import com.WardenMine242.siege_of_settlements.building.production.IronPickaxeProd;
+import com.WardenMine242.siege_of_settlements.building.production.IronAxeProd;
+import com.WardenMine242.siege_of_settlements.building.production.IronHoeProd;
+import com.WardenMine242.siege_of_settlements.building.production.LeatherChestplateProd;
+import com.WardenMine242.siege_of_settlements.building.production.ChainmailChestplateProd;
+import com.WardenMine242.siege_of_settlements.building.production.DiamondSwordProd;
+import com.WardenMine242.siege_of_settlements.building.production.DiamondPickaxeProd;
+import com.WardenMine242.siege_of_settlements.building.production.DiamondAxeProd;
+import com.WardenMine242.siege_of_settlements.building.production.DiamondHoeProd;
+import com.WardenMine242.siege_of_settlements.building.production.RavagerArmorProd;
+import com.WardenMine242.siege_of_settlements.building.production.BowProd;
+import com.WardenMine242.siege_of_settlements.building.production.ArrowsProd;
 import com.WardenMine242.siege_of_settlements.research.*;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.EliteArmoredPillager;
 import com.WardenMine242.siege_of_settlements.unit.units.villagers.ArmoredPillagerProd;
@@ -137,6 +152,22 @@ public class ProductionItems {
     public static final ResearchSoulFireballs RESEARCH_SOUL_FIREBALLS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "soul_fireballs"), new ResearchSoulFireballs());
 
     public static final ProductionItem TOGGLE_GATE_PRODUCTION = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "toggle_gate_production"), new ToggleGateProduction());
+
+    public static final IronChestplateProd IRON_CHESTPLATE_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "iron_chestplate_prod"), new IronChestplateProd());
+    public static final DiamondChestplateProd DIAMOND_CHESTPLATE_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "diamond_chestplate_prod"), new DiamondChestplateProd());
+    public static final IronSwordProd IRON_SWORD_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "iron_sword_prod"), new IronSwordProd());
+    public static final IronPickaxeProd IRON_PICKAXE_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "iron_pickaxe_prod"), new IronPickaxeProd());
+    public static final IronAxeProd IRON_AXE_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "iron_axe_prod"), new IronAxeProd());
+    public static final IronHoeProd IRON_HOE_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "iron_hoe_prod"), new IronHoeProd());
+    public static final LeatherChestplateProd LEATHER_CHESTPLATE_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "leather_chestplate_prod"), new LeatherChestplateProd());
+    public static final ChainmailChestplateProd CHAINMAIL_CHESTPLATE_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "chainmail_chestplate_prod"), new ChainmailChestplateProd());
+    public static final DiamondSwordProd DIAMOND_SWORD_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "diamond_sword_prod"), new DiamondSwordProd());
+    public static final DiamondPickaxeProd DIAMOND_PICKAXE_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "diamond_pickaxe_prod"), new DiamondPickaxeProd());
+    public static final DiamondAxeProd DIAMOND_AXE_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "diamond_axe_prod"), new DiamondAxeProd());
+    public static final DiamondHoeProd DIAMOND_HOE_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "diamond_hoe_prod"), new DiamondHoeProd());
+    public static final RavagerArmorProd RAVAGER_ARMOR_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "ravager_armor_prod"), new RavagerArmorProd());
+    public static final BowProd BOW_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "bow_prod"), new BowProd());
+    public static final ArrowsProd ARROWS_PROD = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "arrows_prod"), new ArrowsProd());
 
     public static final DrillTierUpgrade DRILL_T2;
     public static final DrillTierUpgrade DRILL_T3;
@@ -335,6 +366,7 @@ public class ProductionItems {
     public static final ResearchTrader RESEARCH_TRADER = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_trader"), new ResearchTrader());
     public static final ResearchMarketplace RESEARCH_MARKETPLACE = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_marketplace"), new ResearchMarketplace());
     public static final ResearchProfessions RESEARCH_PROFESSIONS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_professions"), new ResearchProfessions());
+    public static final ResearchBlacksmiths RESEARCH_BLACKSMITHS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_blacksmiths"), new ResearchBlacksmiths());
     public static final ResearchUpgradedBarracks RESEARCH_UPGRADED_BARRACKS = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_upgraded_barracks"), new ResearchUpgradedBarracks());
     public static final ResearchUpgradedDrill RESEARCH_UPGRADED_DRILL = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_upgraded_drill"), new ResearchUpgradedDrill());
     public static final ResearchAdvancedDrill RESEARCH_ADVANCED_DRILL = register(ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "research_advanced_drill"), new ResearchAdvancedDrill());

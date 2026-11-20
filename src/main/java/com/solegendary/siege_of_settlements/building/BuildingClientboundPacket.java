@@ -178,7 +178,7 @@ public class BuildingClientboundPacket {
                             Rotation.NONE,
                             building.ownerName,
                             Math.round(production.ticksLeft),
-                            0,
+                            Math.round(production.totalTicks),
                             false,
                             0,
                             false,
@@ -427,7 +427,7 @@ public class BuildingClientboundPacket {
                         if (building instanceof ProductionPlacement productionBuilding) {
                             ProductionItem item = SiegeOfSettlementsRegistries.PRODUCTION_ITEM.get(itemKey);
                             if (item != null) {
-                                productionBuilding.productionQueue.add(new ActiveProduction(item, this.blocksPlaced, false));
+                                productionBuilding.productionQueue.add(new ActiveProduction(item, this.blocksPlaced, this.numQueuedBlocks, false));
                             }
                         }
                     }

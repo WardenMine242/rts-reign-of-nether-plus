@@ -64,14 +64,6 @@ public class GatherResourcesGoal extends MoveToTargetBlockGoal {
     private BlockPos lastOnPos = null;
     private BlockPos altSearchPos = null; // block search origin that may be used instead of the mob position
 
-    private static boolean isOreLike(ResourceName resourceName) {
-        return resourceName == ResourceName.ORE || resourceName == ResourceName.EMERALDS;
-    }
-
-    private static ResourceName normalizeTargetResource(ResourceName resourceName) {
-        return resourceName == ResourceName.EMERALDS ? ResourceName.ORE : resourceName;
-    }
-
     // whenever we attempt to assign a block as a target it must pass this test
     private final Predicate<BlockPos> BLOCK_CONDITION = bp -> {
         BlockState bs = mob.level().getBlockState(bp);
@@ -82,9 +74,7 @@ public class GatherResourcesGoal extends MoveToTargetBlockGoal {
             return false;
 
         // is a valid resource block and meets the target ResourceSource's blockstate condition
-        // allow workers in ORE mode to also target emerald ore nodes
-        if (resBlock == null || (!resBlock.resourceName.equals(data.targetResourceName) &&
-                !(data.targetResourceName == ResourceName.ORE && resBlock.resourceName == ResourceName.EMERALDS))) // || resBlock.name.equals("Leaves")
+        if (resBlock == null || resBlock.resourceName != data.targetResourceName) // || resBlock.name.equals("Leaves")
             return false;
         if (!resBlock.blockStateTest.test(bs))
             return false;
@@ -134,7 +124,7 @@ public class GatherResourcesGoal extends MoveToTargetBlockGoal {
     }
 
     public void syncFromServer(ResourceName gatherName, BlockPos gatherPos, int gatherTicks) {
-        this.data.targetResourceName = normalizeTargetResource(gatherName);
+        this.data.targetResourceName = gatherName;
         this.data.gatherTarget = gatherPos;
         this.gatherTicksLeft = gatherTicks;
         this.data.targetResourceSource = ResourceSources.getFromBlockPos(data.gatherTarget, mob.level());
@@ -278,9 +268,9 @@ public class GatherResourcesGoal extends MoveToTargetBlockGoal {
                     float ticksToProgress;
 
                     if (ResearchServerEvents.playerHasCheat(((Unit) mob).getOwnerName(), "operationcwal"))
-                        ticksToProgress = (TICK_CD / 16) * 10;
+                        ticksToProgress = (TICK_CD / 2) * 10;
                     else
-                        ticksToProgress = (TICK_CD / 16);
+                        ticksToProgress = (TICK_CD / 2);
 
                     if (mob instanceof VillagerUnit vUnit) {
                         if (ResourceSources.getBlockResourceName(getGatherTarget(), mob.level()) == ResourceName.WOOD &&
@@ -290,14 +280,22 @@ public class GatherResourcesGoal extends MoveToTargetBlockGoal {
                             else
                                 ticksToProgress *= VillagerUnit.LUMBERJACK_SPEED_MULT;
                         }
-                        else if (isOreLike(ResourceSources.getBlockResourceName(getGatherTarget(), mob.level())) &&
+                        else if (ResourceSources.getBlockResourceName(getGatherTarget(), mob.level()) == ResourceName.ORE &&
                                 vUnit.getUnitProfession() == VillagerUnitProfession.MINER) {
                             if (vUnit.isVeteran())
                                 ticksToProgress *= VillagerUnit.MINER_SPEED_MULT_VETERAN;
                             else
                                 ticksToProgress *= VillagerUnit.MINER_SPEED_MULT;
                         }
+                        else if (ResourceSources.getBlockResourceName(getGatherTarget(), mob.level()) == ResourceName.ORE) {
+                            // Non-miner villagers mine ore 2x slower
+                            ticksToProgress *= 0.5f;
+                        }
                         ticksToProgress *= CivilEnchantment.getEfficiencyMultiplier(vUnit);
+                    }
+                    else if (ResourceSources.getBlockResourceName(getGatherTarget(), mob.level()) == ResourceName.ORE) {
+                        // Non-villager units mine ore 2x slower
+                        ticksToProgress *= 0.5f;
                     }
 
                     this.gatherTicksLeft -= ticksToProgress;
@@ -317,7 +315,7 @@ public class GatherResourcesGoal extends MoveToTargetBlockGoal {
                             expName = ResourceName.FOOD;
                         else if (ResourceSources.getBlockResourceName(getGatherTarget(), mob.level()) == ResourceName.WOOD && (isLogBlock || isFallingLogBlock))
                             expName = ResourceName.WOOD;
-                        else if (isOreLike(ResourceSources.getBlockResourceName(getGatherTarget(), mob.level())) && bs.getBlock() != Blocks.POINTED_DRIPSTONE)
+                        else if (ResourceSources.getBlockResourceName(getGatherTarget(), mob.level()) == ResourceName.ORE && bs.getBlock() != Blocks.POINTED_DRIPSTONE)
                             expName = ResourceName.ORE;
 
                         if (mob.level().destroyBlock(data.gatherTarget, false)) {
@@ -332,7 +330,7 @@ public class GatherResourcesGoal extends MoveToTargetBlockGoal {
                             }
 
                             // replace workers' mine ores with cobble to prevent creating potholes
-                            if (data.targetResourceSource != null && isOreLike(data.targetResourceSource.resourceName) && bsTarget.getBlock() != Blocks.POINTED_DRIPSTONE) {
+                            if (data.targetResourceSource != null && data.targetResourceSource.resourceName == ResourceName.ORE && bsTarget.getBlock() != Blocks.POINTED_DRIPSTONE) {
                                 BlockState replaceBs;
                                 if (BuildingUtils.isInNetherRange(mob.level().isClientSide(), data.gatherTarget))
                                     replaceBs = BlockRegistrar.WALKABLE_MAGMA_BLOCK.get().defaultBlockState();
@@ -410,7 +408,7 @@ public class GatherResourcesGoal extends MoveToTargetBlockGoal {
         data.todoGatherTargets.clear();
         data.todoGatherTargets.addAll(saveData.todoGatherTargets);
         data.gatherTarget = saveData.gatherTarget;
-        data.targetResourceName = normalizeTargetResource(saveData.targetResourceName);
+        data.targetResourceName = saveData.targetResourceName;
         data.targetResourceSource = saveData.targetResourceSource;
         data.targetFarm = saveData.targetFarm;
     }
@@ -437,11 +435,11 @@ public class GatherResourcesGoal extends MoveToTargetBlockGoal {
     }
 
     public void setTargetResourceName(ResourceName resourceName) {
-        data.targetResourceName = normalizeTargetResource(resourceName);
+        data.targetResourceName = resourceName;
     }
 
     public ResourceName getTargetResourceName() {
-        return normalizeTargetResource(data.targetResourceName);
+        return data.targetResourceName;
     }
 
     // Used by HUD counters: if worker is in ore mode but currently targeting emerald ore,

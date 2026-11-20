@@ -136,7 +136,7 @@ public class BuildingServerEvents {
                     }
                     var itemKey = SiegeOfSettlementsRegistries.PRODUCTION_ITEM.getKey(production.item);
                     if (itemKey != null) {
-                        productionQueue.add(new BuildingSave.ProductionSave(itemKey, production.ticksLeft, false));
+                        productionQueue.add(new BuildingSave.ProductionSave(itemKey, production.ticksLeft, production.totalTicks, false));
                     }
                 }
             }
@@ -204,7 +204,7 @@ public class BuildingServerEvents {
                             ProductionItem item = SiegeOfSettlementsRegistries.PRODUCTION_ITEM.get(savedProduction.itemKey);
                             if (item != null && pb.getBuilding() instanceof com.solegendary.siege_of_settlements.building.production.ProductionBuilding productionBuilding
                                     && productionBuilding.productions.get().contains(item)) {
-                                pb.productionQueue.add(new ActiveProduction(item, savedProduction.ticksLeft, false));
+                                pb.productionQueue.add(new ActiveProduction(item, savedProduction.ticksLeft, savedProduction.totalTicks, false));
                             }
                         }
                     }

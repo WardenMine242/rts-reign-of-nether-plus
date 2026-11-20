@@ -2,6 +2,7 @@ package com.solegendary.siege_of_settlements.unit.units.villagers;
 
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
 import com.solegendary.siege_of_settlements.building.BuildingServerboundPacket;
+import com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement;
 import com.solegendary.siege_of_settlements.building.buildings.placements.ProductionPlacement;
 import com.solegendary.siege_of_settlements.building.production.ProductionItem;
 import com.solegendary.siege_of_settlements.building.production.ProductionItems;
@@ -26,6 +27,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class IronGolemProd extends ProductionItem {
 
@@ -61,19 +63,35 @@ public class IronGolemProd extends ProductionItem {
         return new StartProductionButton(
             IronGolemProd.itemName,
             ResourceLocation.fromNamespaceAndPath(SiegeOfSettlements.MOD_ID, "textures/mobheads/iron_golem.png"),
-                hotkey,
+            hotkey,
             () -> false,
             () -> true,
-            List.of(
+            null,
+            this
+        );
+    }
+
+    public int getDynamicProductionSeconds(ProductionPlacement placement) {
+        if (placement instanceof BlacksmithPlacement blacksmith) {
+            return blacksmith.getProductionTimeSeconds();
+        }
+        return cost.ticks;
+    }
+
+    @Override
+    public Supplier<List<FormattedCharSequence>> getTooltipSupplier(ProductionPlacement prodBuilding) {
+        return () -> {
+            int productionSeconds = getDynamicProductionSeconds(prodBuilding);
+            ResourceCost dynamicCost = ResourceCost.Unit(cost.food, cost.wood, cost.ore, cost.emerald, productionSeconds, cost.population);
+            return List.of(
                 FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.iron_golem"), Style.EMPTY.withBold(true)),
                 ResourceCosts.getFormattedCost(cost),
-                ResourceCosts.getFormattedPopAndTime(cost),
+                ResourceCosts.getFormattedPopAndTime(dynamicCost),
                 FormattedCharSequence.forward("", Style.EMPTY),
                 FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.iron_golem.tooltip1"), Style.EMPTY),
                 FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.iron_golem.tooltip2"), Style.EMPTY)
-            ),
-            this
-        );
+            );
+        };
     }
 
     public StopProductionButton getCancelButton(ProductionPlacement prodBuilding, boolean first) {

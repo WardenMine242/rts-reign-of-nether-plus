@@ -61,6 +61,7 @@ public class Button {
     public Runnable onLeftClick;
     public Runnable onRightClick;
     public List<FormattedCharSequence> tooltipLines;
+    public Supplier<List<FormattedCharSequence>> tooltipLinesSupplier = null;
 
     public Supplier<Boolean> isFlashing = () -> false;
 
@@ -274,7 +275,8 @@ public class Button {
     }
 
     public void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        MyRenderer.renderTooltip(guiGraphics, tooltipLines, mouseX, mouseY + tooltipOffsetY);
+        List<FormattedCharSequence> lines = tooltipLinesSupplier != null ? tooltipLinesSupplier.get() : tooltipLines;
+        MyRenderer.renderTooltip(guiGraphics, lines, mouseX, mouseY + tooltipOffsetY);
     }
 
     public boolean isMouseOver(int mouseX, int mouseY) {

@@ -76,7 +76,7 @@ public class NecromancerModel<T extends Entity> extends KeyframeHierarchicalMode
 
 		PartDefinition armL = main.addOrReplaceChild("armL", CubeListBuilder.create(), PartPose.offset(-5.0F, -22.0F, 1.0F));
 
-		PartDefinition armL_r1 = armL.addOrReplaceChild("armL_r1", CubeListBuilder.create().texOffs(0, 16).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 12.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -2.0F, 0.0F, -1.0455F, 0.0756F, -0.0437F));
+		PartDefinition armL_r1 = armL.addOrReplaceChild("armL_r1", CubeListBuilder.create().texOffs(0, 16).mirror().addBox(-1.0F, 0.0F, -1.0F, 2.0F, 12.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -2.0F, 0.0F, -1.0455F, 0.0756F, -0.0437F));
 
 		PartDefinition pads = main.addOrReplaceChild("pads", CubeListBuilder.create().texOffs(42, 32).addBox(-9.0F, -3.0F, -3.0F, 5.0F, 6.0F, 6.0F, new CubeDeformation(0.0F))
 				.texOffs(42, 44).addBox(4.0F, -3.0F, -3.0F, 5.0F, 6.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -22.0F, 1.0F));

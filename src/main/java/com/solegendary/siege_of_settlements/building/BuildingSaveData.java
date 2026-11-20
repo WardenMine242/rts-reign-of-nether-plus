@@ -80,9 +80,11 @@ public class BuildingSaveData extends SavedData {
                         CompoundTag production = (CompoundTag) productionTag;
                         ResourceLocation itemKey = ResourceLocation.tryParse(production.getString("itemKey"));
                         if (itemKey != null) {
+                            float totalTicks = production.contains("totalTicks") ? production.getFloat("totalTicks") : production.getFloat("ticksLeft");
                             productionQueue.add(new BuildingSave.ProductionSave(
                                     itemKey,
                                     production.getFloat("ticksLeft"),
+                                    totalTicks,
                                     production.getBoolean("completed")
                             ));
                         }
@@ -146,6 +148,7 @@ public class BuildingSaveData extends SavedData {
                     CompoundTag productionTag = new CompoundTag();
                     productionTag.putString("itemKey", production.itemKey.toString());
                     productionTag.putFloat("ticksLeft", production.ticksLeft);
+                    productionTag.putFloat("totalTicks", production.totalTicks);
                     productionTag.putBoolean("completed", production.completed);
                     productionQueue.add(productionTag);
                 }

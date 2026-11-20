@@ -213,7 +213,7 @@ public class ProductionPlacement extends BuildingPlacement {
         if (prodItem != null) {
             // only worry about checking affordability on serverside
             if (getLevel().isClientSide()) {
-                ActiveProduction activeProduction = new ActiveProduction(prodItem, true, ownerName);
+                ActiveProduction activeProduction = createActiveProduction(prodItem, true, ownerName);
                 productionQueue.add(activeProduction);
                 success = true;
             }
@@ -225,7 +225,7 @@ public class ProductionPlacement extends BuildingPlacement {
                 };
 
                 if (allow && prodItem.canAfford(getLevel(), ownerName)) {
-                    ActiveProduction activeProduction = new ActiveProduction(prodItem, false, ownerName);
+                    ActiveProduction activeProduction = createActiveProduction(prodItem, false, ownerName);
                     productionQueue.add(activeProduction);
                     ResourcesServerEvents.addSubtractResources(new Resources(
                             ownerName,
@@ -254,6 +254,15 @@ public class ProductionPlacement extends BuildingPlacement {
         return success;
     }
 
+    protected ActiveProduction createActiveProduction(ProductionItem prodItem, boolean isClientside, String ownerName) {
+        return new ActiveProduction(prodItem, isClientside, ownerName);
+    }
+
+    public float getProductionProgress(ActiveProduction active) {
+        float total = active.item.getCost(level.isClientSide(), ownerName).ticks;
+        return total <= 0 ? 0f : active.ticksLeft / total;
+    }
+
     public boolean cancelProductionItem(ProductionItem item, boolean frontItem) {
         boolean success = false;
 
@@ -275,10 +284,11 @@ public class ProductionPlacement extends BuildingPlacement {
             }
             else {
                 // find first non-started item to remove
-                for (int i = 0; i < productionQueue.size(); i++) {
+                // The first entry is the active production. Only later entries are
+                // waiting in the queue, regardless of their remaining tick count.
+                for (int i = 1; i < productionQueue.size(); i++) {
                     ActiveProduction prodItem = productionQueue.get(i);
-                    if (prodItem.item.equals(item) &&
-                            prodItem.ticksLeft >= prodItem.item.getCost(level.isClientSide(), ownerName).ticks) {
+                    if (prodItem.item.equals(item)) {
                         productionQueue.remove(prodItem);
                         if (!getLevel().isClientSide()) {
                             ResourcesServerEvents.addSubtractResources(new Resources(

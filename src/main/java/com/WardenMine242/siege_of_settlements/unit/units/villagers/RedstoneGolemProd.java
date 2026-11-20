@@ -19,6 +19,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class RedstoneGolemProd extends ProductionItem {
 
@@ -60,16 +61,32 @@ public class RedstoneGolemProd extends ProductionItem {
                 hotkey,
                 () -> !(prodBuilding instanceof BlacksmithPlacement) || prodBuilding.getUpgradeLevel() < 2,
                 () -> prodBuilding instanceof BlacksmithPlacement && prodBuilding.getUpgradeLevel() >= 2,
-                List.of(
-                        FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.redstone_golem"), Style.EMPTY.withBold(true)),
-                        ResourceCosts.getFormattedCost(cost),
-                        ResourceCosts.getFormattedPopAndTime(cost),
-                        FormattedCharSequence.forward("", Style.EMPTY),
-                        FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.redstone_golem.tooltip1"), Style.EMPTY),
-                        FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.redstone_golem.tooltip2"), Style.EMPTY)
-                ),
+                null,
                 this
         );
+    }
+
+    public int getDynamicProductionSeconds(ProductionPlacement placement) {
+        if (placement instanceof BlacksmithPlacement blacksmith) {
+            return blacksmith.getProductionTimeSeconds();
+        }
+        return cost.ticks;
+    }
+
+    @Override
+    public Supplier<List<FormattedCharSequence>> getTooltipSupplier(ProductionPlacement prodBuilding) {
+        return () -> {
+            int productionSeconds = getDynamicProductionSeconds(prodBuilding);
+            ResourceCost dynamicCost = ResourceCost.Unit(cost.food, cost.wood, cost.ore, cost.emerald, productionSeconds, cost.population);
+            return List.of(
+                FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.redstone_golem"), Style.EMPTY.withBold(true)),
+                ResourceCosts.getFormattedCost(cost),
+                ResourceCosts.getFormattedPopAndTime(dynamicCost),
+                FormattedCharSequence.forward("", Style.EMPTY),
+                FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.redstone_golem.tooltip1"), Style.EMPTY),
+                FormattedCharSequence.forward(I18n.get("units.villagers.siege_of_settlements.redstone_golem.tooltip2"), Style.EMPTY)
+            );
+        };
     }
 
     @Override

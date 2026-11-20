@@ -59,22 +59,29 @@ public class Blacksmith extends ProductionBuilding {
         this.startingBlockTypes.add(Blocks.OAK_PLANKS);
         this.startingBlockTypes.add(Blocks.COBBLESTONE);
 
-        this.abilities.add(new EquipLeatherChestplate(), Keybindings.keyT);
-        this.abilities.add(new EquipChainmailChestplate(), Keybindings.keyY);
-        this.abilities.add(new EquipIronChestplate(), Keybindings.keyL);
-        this.abilities.add(new EquipDiamondChestplate(), Keybindings.keyG);
-        this.abilities.add(new EquipRavagerArmor(), Keybindings.keyU);
-        this.abilities.add(new EquipIronSword(), Keybindings.keyI);
-        this.abilities.add(new EquipIronPickaxe(), Keybindings.keyO);
-        this.abilities.add(new EquipIronAxe(), Keybindings.keyP);
-        this.abilities.add(new EquipIronHoe(), Keybindings.keyJ);
-        this.abilities.add(new EquipBow(), Keybindings.keyK);
-        this.abilities.add(new EquipArrows(), Keybindings.keyV);
+        // Equipment abilities removed - now use production items instead
 
         this.productions.add(ProductionItems.IRON_GOLEM, Keybindings.keyQ);
         this.productions.add(ProductionItems.REDSTONE_GOLEM, Keybindings.keyF);
         this.productions.add(ProductionItems.BLACKSMITH_T2, Keybindings.keyR);
         this.productions.add(ProductionItems.BLACKSMITH_T3, Keybindings.keyR);
+        
+        // Production items for equipment (120 seconds, currently do nothing)
+        this.productions.add(ProductionItems.LEATHER_CHESTPLATE_PROD, null);
+        this.productions.add(ProductionItems.CHAINMAIL_CHESTPLATE_PROD, null);
+        this.productions.add(ProductionItems.IRON_CHESTPLATE_PROD, null);
+        this.productions.add(ProductionItems.DIAMOND_CHESTPLATE_PROD, null);
+        this.productions.add(ProductionItems.IRON_SWORD_PROD, null);
+        this.productions.add(ProductionItems.DIAMOND_SWORD_PROD, null);
+        this.productions.add(ProductionItems.IRON_PICKAXE_PROD, null);
+        this.productions.add(ProductionItems.DIAMOND_PICKAXE_PROD, null);
+        this.productions.add(ProductionItems.IRON_AXE_PROD, null);
+        this.productions.add(ProductionItems.DIAMOND_AXE_PROD, null);
+        this.productions.add(ProductionItems.IRON_HOE_PROD, null);
+        this.productions.add(ProductionItems.DIAMOND_HOE_PROD, null);
+        this.productions.add(ProductionItems.RAVAGER_ARMOR_PROD, null);
+        this.productions.add(ProductionItems.BOW_PROD, null);
+        this.productions.add(ProductionItems.ARROWS_PROD, null);
     }
 
     public Faction getFaction() {return Faction.VILLAGERS;}

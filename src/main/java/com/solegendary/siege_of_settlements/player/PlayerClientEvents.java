@@ -28,6 +28,7 @@ import com.solegendary.siege_of_settlements.unit.interfaces.Unit;
 import com.solegendary.siege_of_settlements.faction.Faction;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.item.Items;
 import net.minecraft.core.BlockPos;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -385,8 +386,7 @@ public class PlayerClientEvents {
         BlockPos pos = blockHit.getBlockPos();
         BlockState state = MC.level.getBlockState(pos);
         if (!BlockServerEvents.isAllowedSurvivalBreak(state, pos, MC.level)) {
-            // Allow attack input animation; actual breaking is prevented by server checks and zero break speed.
-            evt.setSwingHand(true);
+            evt.setCanceled(true);
         }
     }
 
@@ -394,21 +394,28 @@ public class PlayerClientEvents {
     public static void onItemTooltip(ItemTooltipEvent evt) {
         boolean isIronSword = evt.getItemStack().is(ItemRegistrar.IRON_SWORD.get());
         boolean isDiamondSword = evt.getItemStack().is(ItemRegistrar.DIAMOND_SWORD.get());
-        if (!isIronSword && !isDiamondSword) {
+        boolean isLeatherChestplate = evt.getItemStack().is(Items.LEATHER_CHESTPLATE);
+        boolean isChainmailChestplate = evt.getItemStack().is(Items.CHAINMAIL_CHESTPLATE);
+        boolean isIronChestplate = evt.getItemStack().is(Items.IRON_CHESTPLATE);
+        boolean isDiamondChestplate = evt.getItemStack().is(Items.DIAMOND_CHESTPLATE);
+        
+        if (!isIronSword && !isDiamondSword && !isLeatherChestplate && !isChainmailChestplate && !isIronChestplate && !isDiamondChestplate) {
             return;
         }
 
         List<Component> tooltip = evt.getToolTip();
 
-        boolean isRussian = MC.options.languageCode != null && MC.options.languageCode.startsWith("ru");
+        // Add chestplate tooltip
+        if (isLeatherChestplate || isChainmailChestplate || isIronChestplate || isDiamondChestplate) {
+            tooltip.add(1, Component.translatable("item.siege_of_settlements.equipment.tooltip").withStyle(ChatFormatting.GRAY));
+            return;
+        }
+        
+        // Sword damage tooltips
         int unitsDamage = isDiamondSword ? 6 : 4;
         int mobsDamage = isDiamondSword ? 2 : 1;
-        String unitsDamageText = isRussian
-                ? " \u0423\u0440\u043e\u043d \u043f\u043e \u044e\u043d\u0438\u0442\u0430\u043c: " + unitsDamage
-                : " Damage vs units: " + unitsDamage;
-        String mobsDamageText = isRussian
-                ? " \u0423\u0440\u043e\u043d \u043f\u043e \u043c\u043e\u0431\u0430\u043c: " + mobsDamage
-                : " Damage vs mobs: " + mobsDamage;
+        Component unitsDamageText = Component.translatable("item.siege_of_settlements.sword_damage.units", unitsDamage);
+        Component mobsDamageText = Component.translatable("item.siege_of_settlements.sword_damage.mobs", mobsDamage);
         int insertIndex = -1;
 
         for (int i = 0; i < tooltip.size(); i++) {
@@ -425,8 +432,8 @@ public class PlayerClientEvents {
             insertIndex = tooltip.size();
         }
 
-        tooltip.add(insertIndex, Component.literal(unitsDamageText).withStyle(ChatFormatting.DARK_GREEN));
-        tooltip.add(insertIndex + 1, Component.literal(mobsDamageText).withStyle(ChatFormatting.DARK_GREEN));
+        tooltip.add(insertIndex, unitsDamageText.copy().withStyle(ChatFormatting.DARK_GREEN));
+        tooltip.add(insertIndex + 1, mobsDamageText.copy().withStyle(ChatFormatting.DARK_GREEN));
     }
 
     private static boolean isAttackDamageLine(Component component) {

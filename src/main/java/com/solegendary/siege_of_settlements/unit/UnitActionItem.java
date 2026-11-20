@@ -190,6 +190,15 @@ public class UnitActionItem {
                 action != UnitAction.DISCARD) {
                 continue;
             }
+            // Blacksmiths inside a blacksmith are intentionally immobile and only accept leave/remove actions.
+            if (unit instanceof com.solegendary.siege_of_settlements.unit.units.villagers.VillagerUnit villagerUnit &&
+                villagerUnit.isOccupyingBlacksmith() &&
+                action != UnitAction.EXIT_BLACKSMITH &&
+                action != UnitAction.OCCUPY_BLACKSMITH &&
+                action != UnitAction.DELETE &&
+                action != UnitAction.DISCARD) {
+                continue;
+            }
             // recalculating pathfinding can be expensive, so check if we actually need to first
             if (action == UnitAction.MOVE && isRedundantMove(unit, preselectedBlockPos)) {
                 continue;

@@ -206,27 +206,21 @@ public class ResourcesClientEvents {
             return;
         }
 
-        boolean useRussian = isRussianLanguage();
-        String foodLabel = useRussian ? "\u0435\u0434\u044b" : "food";
-        String woodLabel = useRussian ? "\u0434\u0435\u0440\u0435\u0432\u0430" : "wood";
-        String oreLabel = useRussian ? "\u0440\u0443\u0434\u044b" : "ore";
-        String emeraldLabel = useRussian ? "\u0438\u0437\u0443\u043c\u0440\u0443\u0434\u043e\u0432" : "emeralds";
-
         int offset = -pickupTexts.size() * PICKUP_TEXT_STACK_SPACING;
         if (res.food > 0) {
-            pickupTexts.add(new PickupText("+ " + res.food + " " + foodLabel, "\uE000", offset));
+            pickupTexts.add(new PickupText(I18n.get("resource.siege_of_settlements.pickup.food", res.food), "\uE000", offset));
             offset -= PICKUP_TEXT_STACK_SPACING;
         }
         if (res.wood > 0) {
-            pickupTexts.add(new PickupText("+ " + res.wood + " " + woodLabel, "\uE001", offset));
+            pickupTexts.add(new PickupText(I18n.get("resource.siege_of_settlements.pickup.wood", res.wood), "\uE001", offset));
             offset -= PICKUP_TEXT_STACK_SPACING;
         }
         if (res.ore > 0) {
-            pickupTexts.add(new PickupText("+ " + res.ore + " " + oreLabel, "\uE002", offset));
+            pickupTexts.add(new PickupText(I18n.get("resource.siege_of_settlements.pickup.ore", res.ore), "\uE002", offset));
             offset -= PICKUP_TEXT_STACK_SPACING;
         }
         if (res.emerald > 0) {
-            pickupTexts.add(new PickupText("+ " + res.emerald + " " + emeraldLabel, "\uE00A", offset));
+            pickupTexts.add(new PickupText(I18n.get("resource.siege_of_settlements.pickup.emeralds", res.emerald), "\uE00A", offset));
         }
     }
 
@@ -235,20 +229,12 @@ public class ResourcesClientEvents {
             return;
         }
 
-        String label;
-        boolean useRussian = isRussianLanguage();
         if ("not_rts_resource".equals(msgCode)) {
-            label = useRussian ? "\u042d\u0442\u043e \u043d\u0435 RTS \u0440\u0435\u0441\u0443\u0440\u0441" : "This is not an RTS resource";
-        } else {
-            label = msgCode;
+            msgCode = "resource.siege_of_settlements.not_rts_resource";
         }
 
         int offset = -pickupTexts.size() * PICKUP_TEXT_STACK_SPACING;
-        pickupTexts.add(new PickupText(label, "", offset));
-    }
-    private static boolean isRussianLanguage() {
-        String code = MC.getLanguageManager().getSelected();
-        return code != null && code.startsWith("ru");
+        pickupTexts.add(new PickupText(I18n.get(msgCode), "", offset));
     }
 
     // Render floating text for dropped-off resources

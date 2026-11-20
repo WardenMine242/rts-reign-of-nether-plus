@@ -47,11 +47,13 @@ public class BuildingSave {
     public static class ProductionSave {
         public final ResourceLocation itemKey;
         public final float ticksLeft;
+        public final float totalTicks;
         public final boolean completed;
 
-        public ProductionSave(ResourceLocation itemKey, float ticksLeft, boolean completed) {
+        public ProductionSave(ResourceLocation itemKey, float ticksLeft, float totalTicks, boolean completed) {
             this.itemKey = itemKey;
             this.ticksLeft = ticksLeft;
+            this.totalTicks = totalTicks;
             this.completed = completed;
         }
     }

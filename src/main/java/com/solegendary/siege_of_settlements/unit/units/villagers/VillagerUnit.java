@@ -31,9 +31,21 @@ import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeLu
 import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeMiner;
 import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeMason;
 import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeHunter;
+import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerBecomeBlacksmith;
+import com.WardenMine242.siege_of_settlements.ability.abilities.VillagerOccupyBlacksmith;
+import com.WardenMine242.siege_of_settlements.ability.abilities.ExitBlacksmith;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 import net.minecraft.client.resources.language.I18n;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -66,19 +78,23 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.solegendary.siege_of_settlements.unit.units.villagers.VillagerUnitProfession.*;
 import static com.solegendary.siege_of_settlements.util.MiscUtil.fcs;
 
-public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, AttackerUnit, ArmSwingingUnit, VillagerDataHolder, ConvertableUnit {
+public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, AttackerUnit, ArmSwingingUnit, VillagerDataHolder, ConvertableUnit, GeoEntity {
     public static final Abilities ABILITIES = new Abilities();
     static {
         ABILITIES.add(new CallToArmsUnit(), Keybindings.keyQ);
@@ -87,13 +103,24 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
         ABILITIES.add(new VillagerBecomeLumberjack(), null);
         ABILITIES.add(new VillagerBecomeMiner(), null);
         ABILITIES.add(new VillagerBecomeMason(), null);
+        ABILITIES.add(new VillagerBecomeBlacksmith(), null);
+        ABILITIES.add(new VillagerOccupyBlacksmith(), Keybindings.keyZ);
+        ABILITIES.add(new ExitBlacksmith(), Keybindings.keyZ);
         ABILITIES.add(new VillagerBecomeTrader(), Keybindings.keyX);
     }
 
     //region
     @Override
     public void updateAbilityButtons() {
-        abilities = ABILITIES.clone();
+        // Only filter abilities on client side
+        if (level().isClientSide()) {
+            abilities = ABILITIES.clone();
+            // Remove blacksmith occupation ability if not a blacksmith
+            if (getUnitProfession() != VillagerUnitProfession.BLACKSMITH) {
+                abilities.remove(VillagerOccupyBlacksmith.class);
+                abilities.remove(ExitBlacksmith.class);
+            }
+        }
     }
     Object2ObjectArrayMap<Ability, Float> cooldowns = Unit.createCooldownMap();
     Object2ObjectArrayMap<Ability, Integer> charges = new Object2ObjectArrayMap<>();
@@ -207,6 +234,22 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
     final static public float movementSpeed = 0.25f;
     public int maxResources = 100;
 
+    // Geckolib animation
+    private static final RawAnimation BLACKSMITH_WORKING_ANIM = RawAnimation.begin().thenLoop("blacksmith_work");
+    private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
+
+    // Blacksmith occupation data
+    private static final EntityDataAccessor<Boolean> IN_BLACKSMITH =
+            SynchedEntityData.defineId(VillagerUnit.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> BLACKSMITH_SLOT =
+            SynchedEntityData.defineId(VillagerUnit.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Optional<BlockPos>> BLACKSMITH_ORIGIN =
+            SynchedEntityData.defineId(VillagerUnit.class, EntityDataSerializers.OPTIONAL_BLOCK_POS);
+    private static final EntityDataAccessor<Integer> PENDING_BLACKSMITH_SLOT =
+            SynchedEntityData.defineId(VillagerUnit.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Optional<BlockPos>> PENDING_BLACKSMITH_ORIGIN =
+            SynchedEntityData.defineId(VillagerUnit.class, EntityDataSerializers.OPTIONAL_BLOCK_POS);
+
     public VillagerUnitProfession getUnitProfession() {
         VillagerProfession profession = getProfession();
         if (VillagerProfession.FARMER.equals(profession)) {
@@ -219,6 +262,8 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
             return VillagerUnitProfession.MASON;
         } else if (VillagerProfession.WEAPONSMITH.equals(profession)) {
             return VillagerUnitProfession.HUNTER;
+        } else if (VillagerProfession.ARMORER.equals(profession)) {
+            return VillagerUnitProfession.BLACKSMITH;
         }
         return VillagerUnitProfession.NONE;
     }
@@ -256,8 +301,8 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
     }
 
     // ~5mins of gathering
-    final static public float MINER_SPEED_MULT = 1.25f;
-    final static public float MINER_SPEED_MULT_VETERAN = 1.5f;
+    final static public float MINER_SPEED_MULT = 0.625f;
+    final static public float MINER_SPEED_MULT_VETERAN = 0.666f;
     final static public int MINER_EXP_REQ = 6;
     public int minerExp = 0; // ore blocks gathered
     public void incrementMinerExp() {
@@ -286,6 +331,15 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
         if (hunterExp >= (HUNTER_EXP_REQ / 2) && !hasUnitProfession())
             setProfession(VillagerProfession.WEAPONSMITH);
         else if (hunterExp >= HUNTER_EXP_REQ && !isVeteran && getUnitProfession() == HUNTER)
+            makeVeteran();
+    }
+
+    // ~10 items crafted
+    final static public int BLACKSMITH_EXP_REQ = 10;
+    public int blacksmithExp = 0;
+    public void incrementBlacksmithExp() {
+        blacksmithExp += hasSpeedCheat() ? 10 : 1;
+        if (blacksmithExp >= BLACKSMITH_EXP_REQ && !isVeteran && getUnitProfession() == BLACKSMITH)
             makeVeteran();
     }
 
@@ -323,7 +377,7 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
         List<BuildingPlaceButton> buttons = new ArrayList<>();
         buttons.addAll(FactionRegistries.VILLAGERS.getBuildingButtons());
 
-        //TODO Add to register
+        // Custom buildings are collected dynamically as they are registered.
         CustomBuildingClientEvents.customBuildings.forEach(cb -> {
             if (cb.buildableByVillagers)
                 buttons.add(cb.getWorkerBuildButton(null));
@@ -383,6 +437,13 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
                     EnchantmentHelper.setEnchantments(new HashMap<>(), getMainHandItem());
                 }
             }
+
+            // Handle blacksmith occupation
+            if (isMovingToBlacksmith()) {
+                handleMoveToBlacksmith();
+            } else {
+                forceBlacksmithPosition();
+            }
         }
     }
 
@@ -396,11 +457,28 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
         pCompound.putInt("minerExp", this.minerExp);
         pCompound.putInt("masonExp", this.masonExp);
         pCompound.putInt("hunterExp", this.hunterExp);
+        pCompound.putInt("blacksmithExp", this.blacksmithExp);
         pCompound.putBoolean("isVeteran", this.isVeteran);
         pCompound.putInt("chestplateId", Item.getId(chestplate));
         pCompound.putBoolean("chestplateEnchanted", chestplateEnchanted);
         pCompound.putBoolean("swordEnchanted", swordEnchanted);
         pCompound.putBoolean("bowEnchanted", bowEnchanted);
+        pCompound.putBoolean("ronPlusInBlacksmith", isOccupyingBlacksmith());
+        pCompound.putInt("ronPlusBlacksmithSlot", getBlacksmithSlotIndex());
+        BlockPos blacksmithOrigin = getBlacksmithOrigin();
+        if (blacksmithOrigin != null) {
+            pCompound.putInt("ronPlusBlacksmithX", blacksmithOrigin.getX());
+            pCompound.putInt("ronPlusBlacksmithY", blacksmithOrigin.getY());
+            pCompound.putInt("ronPlusBlacksmithZ", blacksmithOrigin.getZ());
+        }
+        pCompound.putBoolean("ronPlusPendingBlacksmith", isMovingToBlacksmith());
+        pCompound.putInt("ronPlusPendingBlacksmithSlot", getPendingBlacksmithSlotIndex());
+        BlockPos pendingOrigin = getPendingBlacksmithOrigin();
+        if (pendingOrigin != null) {
+            pCompound.putInt("ronPlusPendingBlacksmithX", pendingOrigin.getX());
+            pCompound.putInt("ronPlusPendingBlacksmithY", pendingOrigin.getY());
+            pCompound.putInt("ronPlusPendingBlacksmithZ", pendingOrigin.getZ());
+        }
         this.addUnitSaveData(pCompound);
     }
 
@@ -416,6 +494,7 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
         this.minerExp = pCompound.getInt("minerExp");
         this.masonExp = pCompound.getInt("masonExp");
         this.hunterExp = pCompound.getInt("hunterExp");
+        this.blacksmithExp = pCompound.getInt("blacksmithExp");
         if (pCompound.contains("chestplateId"))
             this.chestplate = Item.byId(pCompound.getInt("chestplateId"));
         if (pCompound.contains("chestplateEnchanted"))
@@ -426,6 +505,36 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
             this.bowEnchanted = pCompound.getBoolean("bowEnchanted");
         if (!level().isClientSide() && pCompound.getBoolean("isVeteran"))
             makeVeteran();
+        
+        // Load blacksmith occupation data
+        if (pCompound.getBoolean("ronPlusInBlacksmith")) {
+            int slot = pCompound.getInt("ronPlusBlacksmithSlot");
+            BlockPos origin = new BlockPos(
+                    pCompound.getInt("ronPlusBlacksmithX"),
+                    pCompound.getInt("ronPlusBlacksmithY"),
+                    pCompound.getInt("ronPlusBlacksmithZ")
+            );
+            if (slot >= 0 && !origin.equals(BlockPos.ZERO)) {
+                occupyBlacksmith(origin, slot);
+            } else {
+                leaveBlacksmith();
+            }
+        } else {
+            leaveBlacksmith();
+        }
+
+        if (!isOccupyingBlacksmith() && pCompound.getBoolean("ronPlusPendingBlacksmith")) {
+            int pendingSlot = pCompound.getInt("ronPlusPendingBlacksmithSlot");
+            BlockPos pendingOrigin = new BlockPos(
+                    pCompound.getInt("ronPlusPendingBlacksmithX"),
+                    pCompound.getInt("ronPlusPendingBlacksmithY"),
+                    pCompound.getInt("ronPlusPendingBlacksmithZ")
+            );
+            if (pendingSlot >= 0 && !pendingOrigin.equals(BlockPos.ZERO)) {
+                startMovingToBlacksmith(pendingOrigin, pendingSlot);
+            }
+        }
+        
         this.readUnitSaveData(pCompound);
     }
 
@@ -441,6 +550,7 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
                 mUnit.minerExp = this.minerExp;
                 mUnit.masonExp = this.masonExp;
                 mUnit.hunterExp = this.hunterExp;
+                mUnit.blacksmithExp = this.blacksmithExp;
                 ItemStack chest = new ItemStack(this.chestplate);
                 if (chestplateEnchanted && chest.getItem() != Items.AIR) {
                     chest.enchant(EnchantmentRegistrar.FORTYIFYING.get(), 1);
@@ -533,6 +643,11 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
         super.defineSynchedData();
         this.entityData.define(ownerDataAccessor, "");
         this.entityData.define(VILLAGER_DATA, new VillagerData(VillagerType.PLAINS, VillagerProfession.NONE, 1));
+        this.entityData.define(IN_BLACKSMITH, false);
+        this.entityData.define(BLACKSMITH_SLOT, -1);
+        this.entityData.define(BLACKSMITH_ORIGIN, Optional.empty());
+        this.entityData.define(PENDING_BLACKSMITH_SLOT, -1);
+        this.entityData.define(PENDING_BLACKSMITH_ORIGIN, Optional.empty());
     }
 
     @Override
@@ -561,7 +676,6 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
     @Override
     public List<Button> getAbilityButtons() {
         List<Button> abilities = new ArrayList<>(getAbilities().getButtons(this));
-        //TODO Remove need for I18n
         if (FMLEnvironment.dist == Dist.CLIENT) {
             abilities.addAll(getBuildingButtons());
         }
@@ -579,5 +693,243 @@ public class VillagerUnit extends Vindicator implements Unit, WorkerUnit, Attack
 
     static {
         VILLAGER_DATA = SynchedEntityData.defineId(VillagerUnit.class, EntityDataSerializers.VILLAGER_DATA);
+    }
+
+    // Geckolib GeoEntity implementation
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "villager_controller", 0, this::animationPredicate));
+    }
+
+    private PlayState animationPredicate(AnimationState<VillagerUnit> state) {
+        if (isOccupyingBlacksmith() && getUnitProfession() == VillagerUnitProfession.BLACKSMITH) {
+            state.getController().setAnimationSpeed(1.0D);
+            state.setAndContinue(BLACKSMITH_WORKING_ANIM);
+            return PlayState.CONTINUE;
+        }
+        return PlayState.STOP;
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return geoCache;
+    }
+
+    // Blacksmith occupation methods
+    public boolean isOccupyingBlacksmith() {
+        return this.entityData.get(IN_BLACKSMITH) && this.entityData.get(BLACKSMITH_ORIGIN).isPresent() &&
+                this.entityData.get(BLACKSMITH_SLOT) >= 0;
+    }
+
+    @Nullable
+    public BlockPos getBlacksmithOrigin() {
+        return this.entityData.get(BLACKSMITH_ORIGIN).orElse(null);
+    }
+
+    public int getBlacksmithSlotIndex() {
+        return this.entityData.get(BLACKSMITH_SLOT);
+    }
+
+    public boolean isMovingToBlacksmith() {
+        return !isOccupyingBlacksmith() &&
+                this.entityData.get(PENDING_BLACKSMITH_ORIGIN).isPresent() &&
+                this.entityData.get(PENDING_BLACKSMITH_SLOT) >= 0;
+    }
+
+    @Nullable
+    public BlockPos getPendingBlacksmithOrigin() {
+        return this.entityData.get(PENDING_BLACKSMITH_ORIGIN).orElse(null);
+    }
+
+    public int getPendingBlacksmithSlotIndex() {
+        return this.entityData.get(PENDING_BLACKSMITH_SLOT);
+    }
+
+    public void startMovingToBlacksmith(BlockPos blacksmithOrigin, int slotIndex) {
+        leaveBlacksmith();
+        this.entityData.set(PENDING_BLACKSMITH_ORIGIN, Optional.of(blacksmithOrigin.immutable()));
+        this.entityData.set(PENDING_BLACKSMITH_SLOT, slotIndex);
+        this.setNoAi(false);
+
+        if (!this.level().isClientSide()) {
+            Unit.fullResetBehaviours(this);
+            this.getNavigation().stop();
+            com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement blacksmith = 
+                com.WardenMine242.siege_of_settlements.ability.abilities.VillagerOccupyBlacksmith.findBlacksmithByOrigin(this.level(), blacksmithOrigin, this.getOwnerName());
+            if (blacksmith != null) {
+                BlockPos slotFront = com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement.getBlacksmithSlotFrontWorldPos(blacksmith, slotIndex);
+                this.setMoveTarget(slotFront);
+            }
+        }
+    }
+
+    private void clearPendingBlacksmith() {
+        this.entityData.set(PENDING_BLACKSMITH_ORIGIN, Optional.empty());
+        this.entityData.set(PENDING_BLACKSMITH_SLOT, -1);
+    }
+
+    public void occupyBlacksmith(BlockPos blacksmithOrigin, int slotIndex) {
+        this.entityData.set(IN_BLACKSMITH, true);
+        this.entityData.set(BLACKSMITH_ORIGIN, Optional.of(blacksmithOrigin.immutable()));
+        this.entityData.set(BLACKSMITH_SLOT, slotIndex);
+        clearPendingBlacksmith();
+
+        if (!this.level().isClientSide()) {
+            Unit.fullResetBehaviours(this);
+            this.getNavigation().stop();
+            this.setNoAi(true);
+        }
+    }
+
+    public void leaveBlacksmith() {
+        this.entityData.set(IN_BLACKSMITH, false);
+        this.entityData.set(BLACKSMITH_ORIGIN, Optional.empty());
+        this.entityData.set(BLACKSMITH_SLOT, -1);
+        clearPendingBlacksmith();
+        this.setNoAi(false);
+
+        if (!this.level().isClientSide()) {
+            Unit.fullResetBehaviours(this);
+            this.getNavigation().stop();
+        }
+    }
+
+    public static void forceLeaveBlacksmith(com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement blacksmith) {
+        if (blacksmith.level.isClientSide) {
+            return;
+        }
+        for (VillagerUnit villager : blacksmith.level.getEntitiesOfClass(VillagerUnit.class,
+                new AABB(blacksmith.minCorner).inflate(10))) {
+            if (villager.isOccupyingBlacksmith() && blacksmith.originPos.equals(villager.getBlacksmithOrigin())) {
+                villager.exitBlacksmithToFront();
+            }
+        }
+    }
+
+    public void exitBlacksmithToFront() {
+        BlockPos blacksmithOrigin = getBlacksmithOrigin();
+        int slotIndex = getBlacksmithSlotIndex();
+        com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement blacksmith = null;
+        if (blacksmithOrigin != null) {
+            blacksmith = com.WardenMine242.siege_of_settlements.ability.abilities.VillagerOccupyBlacksmith.findBlacksmithByOrigin(this.level(), blacksmithOrigin, this.getOwnerName());
+        }
+
+        BlockPos tpPos = null;
+        float yaw = this.getYRot();
+        if (blacksmith != null && slotIndex >= 0 && slotIndex < blacksmith.getBlacksmithSlotCount()) {
+            tpPos = com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement.getBlacksmithSlotExitWorldPos(blacksmith, slotIndex);
+            yaw = com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement.getBlacksmithSlotFacing(blacksmith, slotIndex).getOpposite().toYRot();
+        }
+
+        leaveBlacksmith();
+
+        if (tpPos != null) {
+            this.teleportTo(tpPos.getX() + 0.5D, tpPos.getY(), tpPos.getZ() + 0.5D);
+            this.setDeltaMovement(0.0D, 0.0D, 0.0D);
+            this.setYRot(yaw);
+            this.setYHeadRot(yaw);
+            this.setYBodyRot(yaw);
+            this.setXRot(0.0F);
+            this.xRotO = this.getXRot();
+            this.yRotO = this.getYRot();
+            this.yHeadRotO = this.getYHeadRot();
+            if (!this.level().isClientSide()) {
+                this.hurtMarked = true;
+            }
+        }
+    }
+
+    private void handleMoveToBlacksmith() {
+        if (this.level().isClientSide()) {
+            return;
+        }
+
+        BlockPos pendingOrigin = getPendingBlacksmithOrigin();
+        if (pendingOrigin == null) {
+            clearPendingBlacksmith();
+            return;
+        }
+
+        com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement blacksmith = 
+            com.WardenMine242.siege_of_settlements.ability.abilities.VillagerOccupyBlacksmith.findBlacksmithByOrigin(this.level(), pendingOrigin, this.getOwnerName());
+        if (blacksmith == null) {
+            clearPendingBlacksmith();
+            return;
+        }
+
+        int slot = getPendingBlacksmithSlotIndex();
+        if (slot < 0 || slot >= blacksmith.getBlacksmithSlotCount() ||
+                com.WardenMine242.siege_of_settlements.ability.abilities.VillagerOccupyBlacksmith.isSlotTakenByAnother(blacksmith, slot, this)) {
+            slot = com.WardenMine242.siege_of_settlements.ability.abilities.VillagerOccupyBlacksmith.findFirstFreeSlot(blacksmith, this);
+            if (slot >= 0) {
+                this.entityData.set(PENDING_BLACKSMITH_SLOT, slot);
+            }
+        }
+        if (slot < 0) {
+            clearPendingBlacksmith();
+            return;
+        }
+
+        BlockPos slotFront = com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement.getBlacksmithSlotFrontWorldPos(blacksmith, slot);
+
+        if (this.tickCount % 10 == 0 || this.getMoveGoal().getMoveTarget() == null ||
+                !slotFront.equals(this.getMoveGoal().getMoveTarget())) {
+            this.setMoveTarget(slotFront);
+        }
+
+        boolean closeToSlotFront = this.distanceToSqr(slotFront.getCenter()) <= 4.0D;
+        boolean insideBuilding = blacksmith.isPosInsideBuilding(this.getOnPos()) || blacksmith.isPosInsideBuilding(this.getOnPos().above());
+        boolean closeToCentre = this.distanceToSqr(blacksmith.centrePos.getCenter()) <= 49.0D;
+        if (!insideBuilding && !closeToSlotFront && !closeToCentre) {
+            return;
+        }
+
+        occupyBlacksmith(blacksmith.originPos, slot);
+        forceBlacksmithPosition();
+    }
+
+    public void forceBlacksmithPosition() {
+        if (!isOccupyingBlacksmith()) {
+            if (this.isNoAi() && !isMovingToBlacksmith()) {
+                this.setNoAi(false);
+            }
+            return;
+        }
+
+        if (!this.level().isClientSide()) {
+            this.setNoAi(true);
+            this.getNavigation().stop();
+        }
+
+        com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement blacksmith = 
+            com.WardenMine242.siege_of_settlements.ability.abilities.VillagerOccupyBlacksmith.findBlacksmithForVillager(this.level(), this);
+        if (blacksmith == null || getBlacksmithSlotIndex() >= blacksmith.getBlacksmithSlotCount()) {
+            if (!this.level().isClientSide() && this.tickCount > 40) {
+                leaveBlacksmith();
+            }
+            return;
+        }
+
+        BlockPos slotPos = com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement.getBlacksmithSlotWorldPos(blacksmith, getBlacksmithSlotIndex());
+        Direction lookDir = com.solegendary.siege_of_settlements.building.buildings.placements.BlacksmithPlacement.getBlacksmithSlotFacing(blacksmith, getBlacksmithSlotIndex());
+
+        this.setPos(slotPos.getX() + 0.5D, slotPos.getY(), slotPos.getZ() + 0.5D);
+        this.setDeltaMovement(0.0D, 0.0D, 0.0D);
+
+        float yaw = lookDir.toYRot();
+        this.setYRot(yaw);
+        this.setYHeadRot(yaw);
+        this.setYBodyRot(yaw);
+        this.setXRot(0.0F);
+
+        this.xRotO = this.getXRot();
+        this.yRotO = this.getYRot();
+        this.yHeadRotO = this.getYHeadRot();
+
+        if (!this.level().isClientSide()) {
+            this.getNavigation().stop();
+            this.setNoAi(true);
+            this.hurtMarked = true;
+        }
     }
 }

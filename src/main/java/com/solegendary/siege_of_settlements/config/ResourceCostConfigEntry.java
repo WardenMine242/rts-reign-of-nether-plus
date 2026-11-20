@@ -23,7 +23,7 @@ public class ResourceCostConfigEntry {
     private final int default_seconds;
     private final int default_population;
     public final String id;
-    //TODO: Use translateable component, add to lang file
+    // Forge config section comments are plain text and cannot use translatable chat components.
     private final String comment;
 
     private ResourceCostConfigEntry(int food, int wood, int ore, int emerald, int seconds, int population, ResourceCost associatedCost, String comment) {
@@ -61,6 +61,9 @@ public class ResourceCostConfigEntry {
     }
     public static ResourceCostConfigEntry Ability(int food, int wood, int ore, int emerald, ResourceCost associatedCost, String comment) { // enchantments and equipment
         return new ResourceCostConfigEntry(food, wood, ore, emerald, 0, 0, associatedCost, comment);
+    }
+    public static ResourceCostConfigEntry Ability(int food, int wood, int ore, int emerald, int seconds, ResourceCost associatedCost, String comment) { // enchantments and equipment with time
+        return new ResourceCostConfigEntry(food, wood, ore, emerald, seconds, 0, associatedCost, comment);
     }
 
     //Defines each config value for the given ResourceCostConfigEntry

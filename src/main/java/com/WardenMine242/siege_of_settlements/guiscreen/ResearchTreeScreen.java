@@ -78,9 +78,11 @@ public class ResearchTreeScreen extends Screen {
         ResearchNode blacksmith = addNode(centerX + 160, centerY, ProductionItems.RESEARCH_ADVANCED_BLACKSMITH).addPrerequisite(castle);
 
         // Bottom Right: Professions -> Resource Capacity -> Big House (Diagonal)
+        // Bottom Left: Professions -> Blacksmiths (separate branch on other side)
         ResearchNode professions = addNode(centerX + 60, centerY + 50, ProductionItems.RESEARCH_PROFESSIONS).addPrerequisite(marketplace);
         ResearchNode resourceCap = addNode(centerX + 100, centerY + 90, ProductionItems.RESEARCH_RESOURCE_CAPACITY).addPrerequisite(professions);
-        ResearchNode bigHouse = addNode(centerX + 140, centerY + 130, ProductionItems.RESEARCH_BIG_HOUSE).addPrerequisite(resourceCap);
+        ResearchNode blacksmiths = addNode(centerX + 20, centerY + 90, ProductionItems.RESEARCH_BLACKSMITHS).addPrerequisite(professions);
+        ResearchNode bigHouse = addNode(centerX + 100, centerY + 130, ProductionItems.RESEARCH_BIG_HOUSE).addPrerequisite(resourceCap);
 
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose())
                 .pos(this.width / 2 - 40, this.height - 30)

@@ -64,6 +64,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -195,6 +196,24 @@ public class UnitServerEvents {
                 SiegeOfSettlements.LOGGER.info("Loaded " + data.targetData.size() + " gatherTargets in serverevents");
             }
         }
+    }
+
+    private static boolean canEquipChestplate(LivingEntity entity) {
+        if (entity instanceof Player) {
+            return true;
+        }
+        return List.of(
+                EntityRegistrar.MILITIA_UNIT.get(),
+                EntityRegistrar.VINDICATOR_UNIT.get(),
+                EntityRegistrar.PILLAGER_UNIT.get(),
+                EntityRegistrar.ELITE_ARMORED_PILLAGER_UNIT.get(),
+                EntityRegistrar.EVOKER_UNIT.get()
+        ).contains(entity.getType());
+    }
+
+    private static boolean hasChestplate(LivingEntity entity) {
+        ItemStack chestItem = entity.getItemBySlot(EquipmentSlot.CHEST);
+        return !chestItem.isEmpty() && chestItem.getItem() instanceof ArmorItem;
     }
 
     // convert all entities that match the condition to the given unit type
@@ -960,6 +979,23 @@ public class UnitServerEvents {
         Player player = evt.getEntity();
         String playerName = player.getName().getString();
 
+        // Handle chestplate equipping on units
+        ItemStack heldItem = player.getItemInHand(evt.getHand());
+        if (heldItem.getItem() instanceof ArmorItem armorItem && armorItem.getEquipmentSlot() == EquipmentSlot.CHEST) {
+            if (evt.getTarget() instanceof Unit unit && canEquipChestplate((LivingEntity) unit)) {
+                LivingEntity livingEntity = (LivingEntity) unit;
+                if (!hasChestplate(livingEntity)) {
+                    livingEntity.setItemSlot(EquipmentSlot.CHEST, heldItem.copy());
+                    if (!player.isCreative()) {
+                        heldItem.shrink(1);
+                    }
+                    evt.setCancellationResult(InteractionResult.SUCCESS);
+                    evt.setCanceled(true);
+                    return;
+                }
+            }
+        }
+
         if (evt.getTarget() instanceof HorseUnit horseUnit) {
             String ownerName = horseUnit.getOwnerName();
             if (!ownerName.isBlank() && !playerName.equals(ownerName)) {
@@ -970,6 +1006,17 @@ public class UnitServerEvents {
         }
 
         if (!(evt.getTarget() instanceof RavagerUnit ravagerUnit)) {
+            return;
+        }
+
+        // Check if player is holding Ravager Armor - handle conversion
+        if (heldItem.is(ItemRegistrar.RAVAGER_ARMOR.get())) {
+            // Call the item's interactLivingEntity directly to convert the ravager
+            InteractionResult result = heldItem.interactLivingEntity(player, ravagerUnit, evt.getHand());
+            if (result == InteractionResult.SUCCESS) {
+                evt.setCancellationResult(InteractionResult.SUCCESS);
+                evt.setCanceled(true);
+            }
             return;
         }
 

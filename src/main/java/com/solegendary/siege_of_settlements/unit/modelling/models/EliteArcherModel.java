@@ -77,12 +77,12 @@ public class EliteArcherModel<T extends EliteArcherUnit> extends EntityModel<T> 
                 PartPose.offsetAndRotation(3.0F, 3.0F, 4.0F, 0.0F, 0.0F, -0.5236F));
 
         root.addOrReplaceChild("left_arm",
-                CubeListBuilder.create().texOffs(40, 46).mirror()
+                CubeListBuilder.create().texOffs(40, 46)
                         .addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)).mirror(false),
                 PartPose.offset(-5.0F, 2.0F, 0.0F));
 
         root.addOrReplaceChild("right_arm",
-                CubeListBuilder.create().texOffs(40, 46)
+                CubeListBuilder.create().texOffs(40, 46).mirror()
                         .addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)),
                 PartPose.offset(5.0F, 2.0F, 0.0F));
 

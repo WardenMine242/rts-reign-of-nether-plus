@@ -27,7 +27,11 @@ public class ProductionItemList {
         //TODO Remove need for I18n
         if (FMLEnvironment.dist == Dist.CLIENT) {
             for (Map.Entry<ProductionItem, Keybinding> production : productions.entrySet()) {
-                buttons.add(production.getKey().getStartButton(placement, production.getValue()));
+                Button button = production.getKey().getStartButton(placement, production.getValue());
+                if (button != null) {
+                    button.tooltipLinesSupplier = production.getKey().getTooltipSupplier(placement);
+                }
+                buttons.add(button);
             }
         }
         return buttons;

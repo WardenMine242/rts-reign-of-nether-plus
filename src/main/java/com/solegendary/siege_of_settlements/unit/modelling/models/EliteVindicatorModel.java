@@ -75,7 +75,7 @@ public class EliteVindicatorModel<T extends EliteVindicatorUnit> extends EntityM
 
         PartDefinition leftArm = root.addOrReplaceChild("left_arm",
                 CubeListBuilder.create()
-                        .texOffs(40, 46).mirror()
+                        .texOffs(40, 46)
                         .addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)).mirror(false),
                 PartPose.offset(5.0F, 2.0F, 0.0F));
 
@@ -92,7 +92,7 @@ public class EliteVindicatorModel<T extends EliteVindicatorUnit> extends EntityM
 
         PartDefinition rightArm = root.addOrReplaceChild("right_arm",
                 CubeListBuilder.create()
-                        .texOffs(40, 46)
+                        .texOffs(40, 46).mirror()
                         .addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)),
                 PartPose.offset(-5.0F, 2.0F, 0.0F));
 

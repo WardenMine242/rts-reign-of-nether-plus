@@ -110,7 +110,7 @@ public class MarauderModel<T extends Entity> extends KeyframeHierarchicalModel<T
 
 		PartDefinition right_ear = head.addOrReplaceChild("right_ear", CubeListBuilder.create().texOffs(118, 99).addBox(-1.0F, 0.0F, -2.0F, 1.0F, 5.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-5.5F, -7.0F, 0.0F, 0.0F, 0.0F, 0.6109F));
 
-		PartDefinition left_arm = chest.addOrReplaceChild("left_arm", CubeListBuilder.create().texOffs(44, 60).addBox(-1.0F, -4.0F, -4.0F, 8.0F, 22.0F, 8.0F, new CubeDeformation(0.0F))
+		PartDefinition left_arm = chest.addOrReplaceChild("left_arm", CubeListBuilder.create().texOffs(44, 60).mirror().addBox(-1.0F, -4.0F, -4.0F, 8.0F, 22.0F, 8.0F, new CubeDeformation(0.0F))
 		.texOffs(98, 34).addBox(3.0F, 9.0F, -5.0F, 5.0F, 5.0F, 10.0F, new CubeDeformation(0.0F))
 		.texOffs(76, 74).addBox(-2.0F, 14.0F, -5.0F, 10.0F, 5.0F, 10.0F, new CubeDeformation(0.0F))
 		.texOffs(76, 89).addBox(1.0F, -5.0F, -5.0F, 7.0F, 10.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(12.0F, -19.0F, 1.0F, -0.1745F, -0.3491F, -0.1745F));

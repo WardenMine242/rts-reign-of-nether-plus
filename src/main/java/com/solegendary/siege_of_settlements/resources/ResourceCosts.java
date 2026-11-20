@@ -229,6 +229,8 @@ public class ResourceCosts {
     public static final ResourceCost BECOME_MINER = new ResourceCost(ID, "BECOME_MINER");
     public static final ResourceCost BECOME_MASON = new ResourceCost(ID, "BECOME_MASON");
     public static final ResourceCost BECOME_HUNTER = new ResourceCost(ID, "BECOME_HUNTER");
+    public static final ResourceCost BECOME_BLACKSMITH = new ResourceCost(ID, "BECOME_BLACKSMITH");
+    public static final ResourceCost RESEARCH_BLACKSMITHS = new ResourceCost(ID, "RESEARCH_BLACKSMITHS");
     public static final ResourceCost BERSERK = new ResourceCost(ID, "BERSERK");
     public static final ResourceCost UPGRADE_TRADER_TO_ELITE = new ResourceCost(ID, "UPGRADE_TRADER_TO_ELITE");
     public static final ResourceCost UPGRADE_ARCHER_TO_ELITE = new ResourceCost(ID, "UPGRADE_ARCHER_TO_ELITE");

@@ -7,6 +7,7 @@ import com.solegendary.siege_of_settlements.ability.abilities.Roar;
 import com.solegendary.siege_of_settlements.building.BuildingPlacement;
 import com.solegendary.siege_of_settlements.building.BuildingUtils;
 import com.solegendary.siege_of_settlements.keybinds.Keybindings;
+import com.solegendary.siege_of_settlements.registrars.ItemRegistrar;
 import com.solegendary.siege_of_settlements.resources.ResourceCost;
 import com.solegendary.siege_of_settlements.resources.ResourceCosts;
 import com.solegendary.siege_of_settlements.unit.Checkpoint;
@@ -39,6 +40,8 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Ravager;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
@@ -217,7 +220,15 @@ public class RavagerUnit extends Ravager implements Unit, AttackerUnit, Converta
     }
 
     public boolean canBeControlledByRider() {
-        return this.getControllingPassenger() instanceof Player;
+        if (this.getControllingPassenger() instanceof Player player) {
+            // Check if player is holding Ravager Armor
+            if (player.getMainHandItem().is(ItemRegistrar.RAVAGER_ARMOR.get()) ||
+                player.getOffhandItem().is(ItemRegistrar.RAVAGER_ARMOR.get())) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override

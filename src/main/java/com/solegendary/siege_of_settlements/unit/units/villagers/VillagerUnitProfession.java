@@ -6,5 +6,6 @@ public enum VillagerUnitProfession {
     MINER,
     MASON,
     HUNTER,
+    BLACKSMITH,
     NONE
 }

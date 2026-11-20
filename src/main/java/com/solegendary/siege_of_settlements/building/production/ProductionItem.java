@@ -18,10 +18,12 @@ import com.solegendary.siege_of_settlements.tps.TPSClientEvents;
 import com.solegendary.siege_of_settlements.unit.UnitClientEvents;
 import com.solegendary.siege_of_settlements.unit.UnitServerEvents;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 // units and/or research tech that a ProductionBuilding can produce
 public abstract class ProductionItem {
@@ -154,6 +156,12 @@ public abstract class ProductionItem {
     public StartProductionButton getStartButton(ProductionPlacement prodBuilding, Keybinding keybinding) {
         return null;
     }
+    
+    // Dynamic tooltip supplier for updating tooltips without recreating buttons
+    public Supplier<List<FormattedCharSequence>> getTooltipSupplier(ProductionPlacement prodBuilding) {
+        return null;
+    }
+    
     // Button object to show in-progress items
     // firstItem means this button will cancel the currently-building item
     public StopProductionButton getCancelButton(ProductionPlacement prodBuilding, boolean first) {

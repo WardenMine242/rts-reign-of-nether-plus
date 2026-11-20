@@ -1,7 +1,9 @@
 package com.solegendary.siege_of_settlements.registrars;
 
 import com.solegendary.siege_of_settlements.SiegeOfSettlements;
+import com.solegendary.siege_of_settlements.items.HammerItem;
 import com.solegendary.siege_of_settlements.items.HeroExperienceBottleItem;
+import com.solegendary.siege_of_settlements.items.RavagerArmorItem;
 import com.solegendary.siege_of_settlements.items.ThrowableTnt;
 import com.WardenMine242.siege_of_settlements.Items.DiamondAxe;
 import com.WardenMine242.siege_of_settlements.Items.DiamondHoe;
@@ -230,6 +232,12 @@ public class ItemRegistrar {
 
     public static final RegistryObject<Item> DIAMOND_HOE =
             ITEMS.register("diamond_hoe", () -> new DiamondHoe(new Item.Properties()));
+
+    public static final RegistryObject<Item> HAMMER =
+            ITEMS.register("hammer", HammerItem::new);
+
+    public static final RegistryObject<Item> RAVAGER_ARMOR =
+            ITEMS.register("ravager_armor", () -> new RavagerArmorItem());
 
     public static void init(FMLJavaModLoadingContext context) {
         ITEMS.register(context.getModEventBus());

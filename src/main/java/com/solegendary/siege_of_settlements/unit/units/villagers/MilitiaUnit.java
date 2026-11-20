@@ -181,6 +181,7 @@ public class MilitiaUnit extends Vindicator implements Unit, AttackerUnit, Range
     public int minerExp = 0;
     public int masonExp = 0;
     public int hunterExp = 0;
+    public int blacksmithExp = 0;
     public boolean swordEnchanted = false;
     public boolean bowEnchanted = false;
 
@@ -328,6 +329,7 @@ public class MilitiaUnit extends Vindicator implements Unit, AttackerUnit, Range
         pCompound.putInt("minerExp", this.minerExp);
         pCompound.putInt("masonExp", this.masonExp);
         pCompound.putInt("hunterExp", this.hunterExp);
+        pCompound.putInt("blacksmithExp", this.blacksmithExp);
         pCompound.putBoolean("isVeteran", this.isVeteran);
         pCompound.putBoolean("swordEnchanted", this.swordEnchanted);
         pCompound.putBoolean("bowEnchanted", this.bowEnchanted);
@@ -347,6 +349,8 @@ public class MilitiaUnit extends Vindicator implements Unit, AttackerUnit, Range
             this.masonExp = pCompound.getInt("masonExp");
         if (pCompound.contains("hunterExp"))
             this.hunterExp = pCompound.getInt("hunterExp");
+        if (pCompound.contains("blacksmithExp"))
+            this.blacksmithExp = pCompound.getInt("blacksmithExp");
         if (pCompound.contains("isVeteran"))
             this.isVeteran = pCompound.getBoolean("isVeteran");
         if (pCompound.contains("swordEnchanted"))
@@ -371,6 +375,7 @@ public class MilitiaUnit extends Vindicator implements Unit, AttackerUnit, Range
                 vUnit.minerExp = this.minerExp;
                 vUnit.masonExp = this.masonExp;
                 vUnit.hunterExp = this.hunterExp;
+                vUnit.blacksmithExp = this.blacksmithExp;
                 vUnit.chestplate = this.getItemBySlot(EquipmentSlot.CHEST).getItem();
                 vUnit.chestplateEnchanted = this.getItemBySlot(EquipmentSlot.CHEST).isEnchanted();
                 vUnit.swordEnchanted = this.swordEnchanted;

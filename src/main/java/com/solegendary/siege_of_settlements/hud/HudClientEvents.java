@@ -791,8 +791,7 @@ public class HudClientEvents {
                     : name.substring(0, 1).toUpperCase() + name.substring(1);
 
             if (hudSelectedEntity instanceof Player player && MC.player != null && player.getId() == MC.player.getId()) {
-                String lang = MC.getLanguageManager().getSelected();
-                String youLabel = (lang != null && lang.startsWith("ru")) ? "Ты" : "You";
+                String youLabel = I18n.get("hud.siege_of_settlements.you");
                 nameCap += " (" + youLabel + ")";
             }
 
@@ -1760,10 +1759,7 @@ public class HudClientEvents {
                                         numWorkers
                                 ), Style.EMPTY));
                     } else if (resourceName.equals("emerald")) {
-                        String emeraldHoverText = MC.getLanguageManager().getSelected() != null
-                                && MC.getLanguageManager().getSelected().startsWith("ru")
-                                ? "\u041d\u0430\u043d\u044f\u0442\u044b\u0445 \u0432\u043e\u0438\u043d\u043e\u0432"
-                                : "Hired warriors";
+                        String emeraldHoverText = I18n.get("hud.siege_of_settlements.hired_warriors");
                         tooltipWorkersAssigned =
                                 List.of(FormattedCharSequence.forward(emeraldHoverText, Style.EMPTY));
                     } else {
@@ -2516,6 +2512,7 @@ public class HudClientEvents {
             if (profession == VillagerUnitProfession.MINER) return "miner";
             if (profession == VillagerUnitProfession.MASON) return "mason";
             if (profession == VillagerUnitProfession.HUNTER) return "hunter";
+            if (profession == VillagerUnitProfession.BLACKSMITH) return "blacksmith";
         }
 
         if (entity instanceof MilitiaUnit militiaUnit && militiaUnit.isUsingBow()) {

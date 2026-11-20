@@ -13,6 +13,7 @@ import com.solegendary.siege_of_settlements.particles.BigEnchantParticle;
 import com.solegendary.siege_of_settlements.registrars.*;
 import com.solegendary.siege_of_settlements.unit.modelling.models.*;
 import com.solegendary.siege_of_settlements.unit.modelling.renderers.*;
+import com.solegendary.siege_of_settlements.unit.modelling.renderers.VillagerUnitGeoRenderer;
 import com.solegendary.siege_of_settlements.unit.units.monsters.*;
 import com.solegendary.siege_of_settlements.unit.units.neutral.*;
 import com.solegendary.siege_of_settlements.unit.units.piglins.*;
@@ -98,7 +99,7 @@ public class CommonModEvents {
         evt.registerEntityRenderer(EntityRegistrar.CREEPER_UNIT.get(), CreeperRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.SPIDER_UNIT.get(), SpiderRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.POISON_SPIDER_UNIT.get(), PoisonSpiderUnitRenderer::new);
-        evt.registerEntityRenderer(EntityRegistrar.VILLAGER_UNIT.get(), VillagerUnitRenderer::new);
+        evt.registerEntityRenderer(EntityRegistrar.VILLAGER_UNIT.get(), VillagerUnitGeoRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.TRADER_UNIT.get(), TraderUnitRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.ELITE_TRADER_UNIT.get(), EliteTraderGeoRenderer::new);
         evt.registerEntityRenderer(EntityRegistrar.AUROMANCER_UNIT.get(), AuromancerRenderer::new);

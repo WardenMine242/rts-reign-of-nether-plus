@@ -8,6 +8,7 @@ import com.solegendary.siege_of_settlements.building.BuildingPlacement;
 import com.solegendary.siege_of_settlements.building.BuildingServerEvents;
 import com.solegendary.siege_of_settlements.building.Buildings;
 import com.solegendary.siege_of_settlements.building.BuildingUtils;
+import com.solegendary.siege_of_settlements.items.RavagerArmorItem;
 import com.solegendary.siege_of_settlements.player.PlayerServerEvents;
 import com.solegendary.siege_of_settlements.registrars.BlockRegistrar;
 import com.solegendary.siege_of_settlements.registrars.GameRuleRegistrar;
@@ -329,7 +330,8 @@ public class ResourcesServerEvents {
             stack.getItem() instanceof BowItem ||
             stack.getItem().isEdible() ||
             stack.getItem() instanceof ArrowItem ||
-            stack.getItem() instanceof ArmorItem;
+            stack.getItem() instanceof ArmorItem ||
+            stack.getItem() instanceof RavagerArmorItem;
     }
 
     private static boolean shouldSkipAutoConvert(ItemStack stack) {
